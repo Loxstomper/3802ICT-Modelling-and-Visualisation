@@ -1,16 +1,4 @@
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
-// c.width = window.innerWidth * 0.9;
-// c.height = window.innerHeight * 0.9;
-c.width = 400;
-c.height = 400;
-var width = c.width;
-var height = c.height;
-
-// resizeCanvas();
-
 var pixelSize = 8;
-
 
 class Colour {
     constructor(r, g, b, a) {
@@ -22,43 +10,34 @@ class Colour {
 }
 
 class Rectangle {
-    constructor(x, y, width, height, colour) {
+    constructor(x, y, ctx, width, height, colour) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.ctx = ctx;
 
         this.fill = `rgba(${colour.r}, ${colour.g}, ${colour.b}, ${colour.a})`;
     }
 
     draw() {
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = this.fill;
-        ctx.fill();
-        // ctx.stroke();
+        this.ctx.rect(this.x, this.y, this.width, this.height);
+        this.ctx.fillStyle = this.fill;
+        this.ctx.fill();
     }
 }
 
 class Pixel {
-    constructor(x, y, colour) {
+    constructor(x, y, ctx, colour) {
         let width  = pixelSize;
         let height = pixelSize;
 
-        this.rec = new Rectangle(x, y, width, height, colour);
+        this.rec = new Rectangle(x, y, ctx, width, height, colour);
         this.rec.draw();
     }
 }
 
-window.addEventListener('resize', resizeCanvas, false);
-
-function resizeCanvas() {
-    c.width = window.innerWidth * 0.9;
-    c.height = window.innerHeight * 0.9;
-    width = c.width;
-    height = c.height;
-}
-
-const drawLine = (x0, y0, x1, y1, colour) => {
+const drawLine = (x0, y0, x1, y1, ctx, colour) => {
     const dx = x1 - x0,
           dy = y1 - y0,
           s  = (Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) : Math.abs(dy)) / pixelSize,
@@ -77,23 +56,83 @@ const drawLine = (x0, y0, x1, y1, colour) => {
         out.push({x: x, y: y});
     }
 
-    out.map(pos => new Pixel(pos.x, pos.y, colour));
+    out.map(pos => new Pixel(Math.round(pos.x), Math.round(pos.y), ctx, colour));
 }
-
-
-// function updateAll() {
-//     ctx.clearRect(0, 0, width, height);
-//     for (let i = 0; i < rectangles.length; i ++) {
-//         rectangles[i].draw();
-//     }
-
-//     requestAnimationFrame(updateAll);
-// }
-
-// updateAll();
 
 const randomInt = (max) => {
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+const drawPolygon = (points, ctx, colour) => {
+    for (let i = 0; i < points.length - 1; i ++) {
+        drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, ctx, colour);
+    }
+
+    drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
+}
+
+
+class PixelLab {
+    constructor(ctx) {
+        new Pixel(10, 10, ctx, colours.red);
+        new Pixel(18, 18, ctx, colours.green);
+        new Pixel(26, 26, ctx, colours.blue);
+    }
+}
+
+class Point {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class RandomPixelLab {
+    constructor(width, height, ctx) {
+        for (let i = 0; i < 100; i ++) {
+            new Pixel(randomInt(width), randomInt(height), ctx, new Colour(randomInt(255), randomInt(255), randomInt(255), 100));
+        }
+    }
+}
+
+class LineLab {
+    constructor(ctx) {
+        drawLine(10, 10, 100, 10, ctx, colours.red);
+        drawLine(10, 10, 10, 100, ctx, colours.red);
+        drawLine(18, 18, 92, 92, ctx, colours.red);
+        drawLine(26, 40, 60, 100, ctx, colours.red);
+    }
+}
+
+class RandomLineLab {
+    constructor(width, height, ctx) {
+        for (let i = 0; i < 10; i ++) {
+            drawLine(randomInt(width), randomInt(height), randomInt(width), randomInt(height), ctx, new Colour(randomInt(255), randomInt(255), randomInt(255), 100));
+        }
+    }        
+}
+
+class PolygonLab {
+    constructor(width, height, ctx) {
+
+        let points = []
+
+        for (let i = 0; i < 3; i ++) {
+            let point = new Point(randomInt(width / 4), randomInt(height / 4));
+            points.push(point);
+        }
+
+        drawPolygon(points, ctx, colours.blue);
+
+        points = [];
+
+        for (let i = 0; i < 6; i ++) {
+            let point = new Point(randomInt(100 + width / 2), randomInt(100 + height / 2));
+            points.push(point);
+        }
+
+        drawPolygon(points, ctx, colours.green);
+    }
 }
 
 let colours = {
@@ -102,19 +141,41 @@ let colours = {
     blue : new Colour(0, 0, 255, 100)
 }
 
-// for (let i = 0; i < 10; i ++) {
-//     drawLine(randomInt(width), randomInt(height), randomInt(width), randomInt(height), colours.red);
-// }
+let pixelCanvas = document.getElementById("pixelCanvas");
+let pixelCtx = pixelCanvas.getContext("2d");
+pixelCanvas.width  = 50;
+pixelCanvas.height = 50;
 
-    // drawLine(randomInt(width), randomInt(height), randomInt(width), randomInt(height), colours.red);
+new PixelLab(pixelCtx);
 
-class PixelLab {
-    constructor() {
-        new Pixel(10, 10, colours.red);
-        new Pixel(18, 18, colours.green);
-        new Pixel(26, 26, colours.blue);
-    }
+let randomPixelCanvas = document.getElementById("randomPixelCanvas");
+let randomPixelCtx = randomPixelCanvas.getContext("2d");
 
-}
+randomPixelCanvas.width  = 400;
+randomPixelCanvas.height = 400;
 
-new PixelLab();
+new RandomPixelLab(randomPixelCanvas.width, randomPixelCanvas.height, randomPixelCtx);
+
+let lineCanvas = document.getElementById("lineCanvas");
+let lineCanvasCtx = lineCanvas.getContext("2d");
+
+lineCanvas.width  = 150;
+lineCanvas.height = 150;
+
+new LineLab(lineCanvasCtx);
+
+let randomLinesCanvas = document.getElementById("randomLinesCanvas");
+let randomLinesCtx = randomLinesCanvas.getContext("2d");
+
+randomLinesCanvas.width  = 400;
+randomLinesCanvas.height = 400;
+
+new RandomLineLab(randomLinesCanvas.x, randomLinesCanvas.y, randomLinesCtx);
+
+let polygonCanvas = document.getElementById("polygonCanvas");
+let polygonCtx = polygonCanvas.getContext("2d");
+
+polygonCanvas.width  = 400;
+polygonCanvas.height = 400;
+
+new PolygonLab(polygonCanvas.width, polygonCanvas.height, polygonCtx);

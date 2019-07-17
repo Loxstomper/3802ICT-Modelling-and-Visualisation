@@ -6,7 +6,21 @@ canvas {
     
 }
 
-h1 {
+h2 {
+    display: block;
+    margin: auto;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+body {
+    background-image: url("https://nssdata.s3.amazonaws.com/images/galleries/18043/code-matrix.jpg");
+}
+
+.stuff {
+    background-color: white;
+    width: 800px;
+    border: 1px solid;
     display: block;
     margin: auto;
 }
