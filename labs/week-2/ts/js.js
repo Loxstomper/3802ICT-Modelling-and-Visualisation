@@ -71,24 +71,46 @@ const drawPolygon = (points, ctx, colour) => {
     drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
 }
 
-const drawPolygonFill = (points, ctx, colour) => {
+const drawPolygonFill = (points, ctx, colour, cWidth, cHeight) => {
 
     let minX = points.reduce( (prev, curr) => prev.x < curr.x ? prev : curr).x;
     let maxX = points.reduce( (prev, curr) => prev.x > curr.x ? prev : curr).x;
-    let minY = points.reduce( (prev, curr) => prev.x < curr.y ? prev : curr).y;
-    let maxY = points.reduce( (prev, curr) => prev.x > curr.y ? prev : curr).y;
+    let minY = points.reduce( (prev, curr) => prev.y < curr.y ? prev : curr).y;
+    let maxY = points.reduce( (prev, curr) => prev.y > curr.y ? prev : curr).y;
 
-    console.log(minX, minY, maxX, maxY);
+    // let r = new Rectangle(minX, minY, ctx, maxX - minX, maxY - minY, colours.red);
+    // let r = new Rectangle(minX, minY, ctx, maxX - minX, maxY - minY, colours.red);
+    // r.draw();
 
-    let r = new Rectangle(minX, minY, ctx, maxX - minX, maxY - minY, colours.red);
-    r.draw();
 
-
+    // draw the outline
     for (let i = 0; i < points.length - 1; i ++) {
         drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, ctx, colour);
     }
 
     drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
+
+    // get the image data for whole canvas (would be smarter to just get the range but i dont want to deal with index)
+    let imageData = ctx.getImageData(0, 0, cWidth, cHeight).data;
+    // let imageData = ctx.getImageData(0, 0, 100, 100).data;
+
+    // scan to colour in
+    let triggered = false;
+    let index, r, g, b, a;
+    for (let y = minY; y < maxY; y ++) {
+        triggered = false;
+        for (let x = minX; x < maxX; x ++) {
+            index = y * cWidth + x;
+            console.log(index);
+            r = imageData[index];
+            g = imageData[index + 1];
+            b = imageData[index + 2];
+            a = imageData[index + 3];
+
+            console.log(r, g, b, a);
+            // console.log(imageData[0]);
+        }
+    }
 }
 
 
@@ -151,7 +173,7 @@ class PolygonLab {
         points.push(new Point(80, 370));
         points.push(new Point(120, 260));
 
-        drawPolygonFill(points, ctx, colours.blue);
+        drawPolygonFill(points, ctx, colours.blue, width, height);
 
         points = [];
 
