@@ -21,9 +21,8 @@ class Rectangle {
     }
 
     draw() {
-        this.ctx.rect(this.x, this.y, this.width, this.height);
         this.ctx.fillStyle = this.fill;
-        this.ctx.fill();
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
 
@@ -71,44 +70,49 @@ const drawPolygon = (points, ctx, colour) => {
     drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
 }
 
-const drawPolygonFill = (points, ctx, colour, cWidth, cHeight) => {
+const drawPolygonFill = (points, ctx, colour) => {
+    drawPolygon(points, ctx, colour);
 
-    let minX = points.reduce( (prev, curr) => prev.x < curr.x ? prev : curr).x;
-    let maxX = points.reduce( (prev, curr) => prev.x > curr.x ? prev : curr).x;
-    let minY = points.reduce( (prev, curr) => prev.y < curr.y ? prev : curr).y;
-    let maxY = points.reduce( (prev, curr) => prev.y > curr.y ? prev : curr).y;
+    const minY = points.reduce( (prev, curr) => prev.y < curr.y ? prev : curr).y;
+    const maxY = points.reduce( (prev, curr) => prev.y > curr.y ? prev : curr).y;
 
-    // let r = new Rectangle(minX, minY, ctx, maxX - minX, maxY - minY, colours.red);
-    // let r = new Rectangle(minX, minY, ctx, maxX - minX, maxY - minY, colours.red);
-    // r.draw();
+    let start = points[points.length - 1]
+    let edges = []
 
-
-    // draw the outline
-    for (let i = 0; i < points.length - 1; i ++) {
-        drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, ctx, colour);
+    for (let i = 0; i < points.length; i ++) {
+        edges.push({0: start, 1: points[i]});
+        start = points[i];
     }
 
-    drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
 
-    // get the image data for whole canvas (would be smarter to just get the range but i dont want to deal with index)
-    let imageData = ctx.getImageData(0, 0, cWidth, cHeight).data;
-    // let imageData = ctx.getImageData(0, 0, 100, 100).data;
+    for (let y = minY; y < maxY; y += pixelSize) {
+        let Xs = []
 
-    // scan to colour in
-    let triggered = false;
-    let index, r, g, b, a;
-    for (let y = minY; y < maxY; y ++) {
-        triggered = false;
-        for (let x = minX; x < maxX; x ++) {
-            index = y * cWidth + x;
-            console.log(index);
-            r = imageData[index];
-            g = imageData[index + 1];
-            b = imageData[index + 2];
-            a = imageData[index + 3];
+        let x, x1, x2, y1, y2, deltaX, deltaY;
 
-            console.log(r, g, b, a);
-            // console.log(imageData[0]);
+        for (let i = 0; i < edges.length; i ++) {
+            x1 = edges[i][0].x
+            x2 = edges[i][1].x
+
+            y1 = edges[i][0].y
+            y2 = edges[i][1].y
+
+            deltaX = x2 - x1;
+            deltaY = y2 - y1;
+
+            x = x1 + (deltaX / deltaY) * (y - y1);
+            x = Math.round(x);
+
+            if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) {
+                Xs.push(x);
+            }
+            
+        }
+
+        // Xs.sort();
+
+        for (let xi = 0; xi < Xs.length - 1; xi ++) {
+            drawLine(Xs[xi], y, Math.round(Xs[xi + 1] - pixelSize), y, ctx, colour);
         }
     }
 }
@@ -177,21 +181,19 @@ class PolygonLab {
 
         points = [];
 
-        for (let i = 0; i < 6; i ++) {
-            let point = new Point((width / 2) + randomInt(width / 2 - 10), randomInt(height / 2 - 10));
+        for (let i = 0; i < 5; i ++) {
+            // let point = new Point((width / 2) + randomInt(width / 2 - 10), randomInt(height / 2 - 10));
+            let x = 250 + (20 * Math.cos((i*(10 + randomInt(300) / 180))) * Math.PI);
+            let y = 80 + (20 * Math.sin((i*(10 + randomInt(300)) / 180)) * Math.PI);
+            let point = new Point(x, y);
             points.push(point);
         }
 
         drawPolygon(points, ctx, colours.green);
 
-        points = [];
+        points = points.map(p => new Point(p.x, p.y + 200));
 
-        for (let i = 0; i < 6; i ++) {
-            let point = new Point((width / 2) + randomInt(width / 2 - 10), (height / 2) + randomInt(height / 2 - 10));
-            points.push(point);
-        }
-
-        drawPolygon(points, ctx, colours.green);
+        drawPolygonFill(points, ctx, colours.green);
     }
 }
 
@@ -238,4 +240,10 @@ let polygonCtx = polygonCanvas.getContext("2d");
 polygonCanvas.width  = 400;
 polygonCanvas.height = 400;
 
-new PolygonLab(polygonCanvas.width, polygonCanvas.height, polygonCtx);
+const testing = () => { 
+    polygonCtx.clearRect(0, 0, polygonCanvas.width, polygonCanvas.height);
+    new PolygonLab(polygonCanvas.width, polygonCanvas.height, polygonCtx);
+    // setTimeout(testing, 1000);
+}
+
+testing();
