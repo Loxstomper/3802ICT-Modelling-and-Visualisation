@@ -1,0 +1,27 @@
+canvas {
+    border: 1px solid;
+    border-color: black;
+    display: block;
+    margin: auto;
+    
+}
+
+h2 {
+    display: block;
+    margin: auto;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+body {
+    /* background-image: url("https://nssdata.s3.amazonaws.com/images/galleries/18043/code-matrix.jpg"); */
+    background-color: gray;
+}
+
+.stuff {
+    background-color: gray;
+    width: 2000;
+    border: 1px solid;
+    display: block;
+    margin: auto;
+}
