@@ -1,9 +1,36 @@
+
+/**
+ * Utility Class
+ */
+class Utils {
+
+    /**
+     * Generates a random number [0...max]
+     * @param max max number
+     * @returns random number between 0 and max
+     */
+    static randomInt(max : number) : number {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+}
+
+/**
+ *  Represents a colour (r, g, b, a)
+ */
 class Colour {
     r : number;
     g : number;
     b : number;
     a : number;
 
+    /**
+     * 
+     * @param r red (0-255)
+     * @param g green (0-255)
+     * @param b blue (0 - 255)
+     * @param a alpha (0 - 100)
+     * 
+     */
     constructor(r : number, g : number, b : number, a : number) {
         this.r = r;
         this.g = g;
@@ -11,12 +38,19 @@ class Colour {
         this.a = a;
     }
 
+    /**
+     * string representation
+     * @returns returns string format 'rgba(r, g, b, a)'
+     */
     toString() : string {
         return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a})`;
     }
 
 }
 
+/**
+ * Represents a Rectangle
+ */
 class Rectangle {
     x : number;
     y : number;
@@ -25,6 +59,16 @@ class Rectangle {
     height : number;
     fill : string;
 
+    /**
+     * 
+     * @param x x position 
+     * @param y  y position
+     * @param ctx canvas context
+     * @param width width
+     * @param height height
+     * @param colour colour
+     * 
+     */
     constructor(x : number, y : number, ctx : CanvasRenderingContext2D, width : number, height : number, colour : Colour) {
         this.x = x;
         this.y = y;
@@ -35,145 +79,116 @@ class Rectangle {
         this.fill = colour.toString();
     }
 
+    /**
+     * draws to the canvas
+     */
     draw() {
         this.ctx.fillStyle = this.fill;
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
 
+/**
+ * Represents a 'pixel'
+ */
 class Pixel {
     ctx    : CanvasRenderingContext2D;
     colour : Colour;
     rec    : Rectangle;
 
+    /**
+     * Draws a pixel on the canvas
+     * 
+     * @param x x pos
+     * @param y y pos
+     * @param size size
+     * @param ctx canvas context
+     * @param colour colour
+     * 
+     */
     constructor(x : number, y : number, size: number, ctx : CanvasRenderingContext2D, colour : Colour) {
         this.rec = new Rectangle(x, y, ctx, size, size, colour);
         this.rec.draw();
     }
 }
 
-const drawLine = (x0, y0, x1, y1, ctx, colour) => {
-    const dx = x1 - x0,
-          dy = y1 - y0,
-          s  = (Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) : Math.abs(dy)) / this.PIXEL_SIZE,
-          xi = dx * 1.0 / s,
-          yi = dy * 1.0 / s
- 
-    let x  = x0,
-        y  = y0,
-        out= []
- 
-    out.push({x: x0, y: y0});
- 
-    for (let i = 0; i < s; i++) {
-        x += xi;
-        y += yi;
-        out.push({x: x, y: y});
-    }
-
-    out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, ctx, colour));
-}
-
-const randomInt = (max) => {
-    return Math.floor(Math.random() * Math.floor(max));
-}
-
-const drawPolygon = (points, ctx, colour) => {
-    for (let i = 0; i < points.length - 1; i ++) {
-        drawLine(points[i].x, points[i].y, points[i + 1].x, points[i + 1].y, ctx, colour);
-    }
-
-    drawLine(points[points.length - 1].x, points[points.length - 1].y, points[0].x, points[0].y, ctx, colour);
-}
-
-const drawPolygonFill = (points, ctx, colour) => {
-    drawPolygon(points, ctx, colour);
-
-    const minY = points.reduce( (prev, curr) => prev.y < curr.y ? prev : curr).y;
-    const maxY = points.reduce( (prev, curr) => prev.y > curr.y ? prev : curr).y;
-
-    let start = points[points.length - 1]
-    let edges = []
-
-    for (let i = 0; i < points.length; i ++) {
-        edges.push({0: start, 1: points[i]});
-        start = points[i];
-    }
 
 
-    for (let y = minY; y < maxY; y += this.PIXEL_SIZE) {
-        let Xs = []
-
-        let x, x1, x2, y1, y2, deltaX, deltaY;
-
-        for (let i = 0; i < edges.length; i ++) {
-            x1 = edges[i][0].x
-            x2 = edges[i][1].x
-
-            y1 = edges[i][0].y
-            y2 = edges[i][1].y
-
-            deltaX = x2 - x1;
-            deltaY = y2 - y1;
-
-            x = x1 + (deltaX / deltaY) * (y - y1);
-            x = Math.round(x);
-
-            if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) {
-                Xs.push(x);
-            }
-            
-        }
-
-        Xs.sort();
-
-        for (let xi = 0; xi < Xs.length - 1; xi ++) {
-            drawLine(Xs[xi], y, Math.round(Xs[xi + 1] - this.PIXEL_SIZE), y, ctx, colour);
-        }
-    }
-}
-
+/**
+ * Represents a point
+ */
 class Point {
     x : number;
     y : number;
 
+    /**
+     * 
+     * @param x x pos
+     * @param y y pos
+     */
     constructor(x : number, y : number) {
         this.x = x;
         this.y = y;
     }
 }
 
+/**
+ * Represents a polygon
+ */
 class Polygon {
-    points : Point[];
+    points   : Point[];
     triangles: Polygon[];
 
+    /**
+     * 
+     * @param points points that represent the polygon
+     */
     constructor(points : Point[]) {
         this.points = points;
         this.triangles = [];
     }
 
+    /**
+     * decomposes the polygon into triangles
+     * @returns an array of polygons
+     */
     decompose() : Polygon[] {
-        // for (let i = 0; i < this.points.length - 3; i += 3) {
-        //     this.triangles.push(new Polygon([this.points[i], this.points[i + 1], this.points[i + 2]]));
-        // }
 
-        // this.triangles.push(new Polygon([this.points[this.points.length - 1], this.points[this.points.length], this.points[0]]));
-
-        for (let i = 1; i < this.points.length - 2; i ++) {
-            this.triangles.push(new Polygon([this.points[i - 1], this.points[i], this.points[i + 1]]));
+        if (this.points.length === 3) {
+            // dont want to create a cycle so create new polygon
+            this.triangles.push(new Polygon(this.points));
+            return this.triangles;
         }
 
-        // this.triangles.push(new Polygon([this.points[this.points.length - 1], this.points[this.points.length], this.points[0]]));
+        const nPoints : number = this.points.length;
+
+        for (let i = 0; i < nPoints - 1; i += 2) {
+            this.triangles.push(new Polygon([this.points[i], this.points[(i + 1) % nPoints], this.points[(i + 2) % nPoints]]));
+        }
+
 
         return this.triangles;
     }
 }
 
+/**
+ * Factory to that returns shapes
+ */
 class ShapeFactory {
     constructor() {
 
     }
 
+    /**
+     * Creates a square polygon
+     * 
+     * @param x x pos
+     * @param y y pos
+     * @param width width
+     * @param height height
+     * 
+     * @returns Polygon
+     */
     square(x : number, y : number, width : number, height : number) : Polygon {
         let points : Point[] = [];
 
@@ -185,23 +200,43 @@ class ShapeFactory {
         return new Polygon(points);
     }
 
+    /**
+     * Creates a polygon with n points 
+     * 
+     * @param x x pos
+     * @param y y pos
+     * @param width width
+     * @param height height
+     * @param nPoints number of points
+     * 
+     * @returns Polygon
+     */
     polygon(x : number, y : number, width : number, height : number, nPoints : number) {
         let points : Point[] = [];
 
         for (let i = 0; i < nPoints; i ++) {
-            points.push(new Point(x + randomInt(width), y + randomInt(height)));
+            points.push(new Point(x + Utils.randomInt(width), y + Utils.randomInt(height)));
         }
 
         return new Polygon(points);
     }
 }
 
+/**
+ * Lochie Graphic Engine
+ */
 class LGE {
     ctx : CanvasRenderingContext2D;
     resolution : any;
     PIXEL_SIZE : number;
     fillMethod : string | null;
 
+    /**
+     * 
+     * @param ctx canvas ctx
+     * @param PIXEL_SIZE size of each pixel
+     * @param fillMethod 'scanLine'/null/'other'
+     */
     constructor(ctx : CanvasRenderingContext2D, PIXEL_SIZE: number, fillMethod : string | null) {
         this.ctx = ctx;
         this.PIXEL_SIZE = PIXEL_SIZE;
@@ -213,6 +248,13 @@ class LGE {
 
     }
 
+    /**
+     * scale points
+     * @remarks doesn't actual scale due to issues
+     * 
+     * @param points points to be scaled
+     * @returns Point[]
+     */
     scalePoints(points: Point[]) : Point[] {
 
         return points;
@@ -225,6 +267,12 @@ class LGE {
         return points;
     }
 
+    /**
+     * Draws a coloured line between two points
+     * @param start first point
+     * @param end end point
+     * @param colour Colour
+     */
     drawLine(start : Point, end : Point, colour : Colour) : void {
         let p0 : Point;
         let p1 : Point;
@@ -252,15 +300,23 @@ class LGE {
         out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
     }
 
+    /**
+     * Draws lines between the points
+     * @param points Point[]
+     * @param colour Colour
+     */
     drawPath(points : Point[], colour : Colour) : void {
         for (let i = 0; i < points.length; i ++) {
             this.drawLine(points[i], points[i + 1], colour);
         }
     }
 
+    /**
+     * Fills a polygon with the given colour
+     * @param poly Polygon
+     * @param colour Colour
+     */
     scanLineFill(poly : Polygon, colour : Colour) : void {
-
-        this.drawPolygon(poly, colour);
 
         let points : Point[] = poly.points;
 
@@ -304,33 +360,67 @@ class LGE {
 
             for (let xi = 0; xi < Xs.length - 1; xi ++) {
                 // let left  = Xs[xi]     % 1 == 0 ? Xs[xi] : Math.ceil(Xs[xi]);
-                // let right = Xs[xi + 1] % 1 == 0 ? Xs[xi] : Math.floor(Xs[xi]);
+                // let right = Xs[xi + 1] % 1 == 0 ? Xs[xi + 1] : Math.floor(Xs[xi + 1]);
 
                 let left  = Xs[xi];
                 let right = Xs[xi + 1];
 
-                console.log(left, right);
+                // console.log("BEFORE: ", left, right);
 
-                // this.drawLine(new Point(Xs[xi], y), new Point(Math.round(Xs[xi + 1]), y), colour);
+                // left  = Xs[xi]     % 1 === 0 ? Xs[xi]     : Math.ceil(Xs[xi]);
+                // right = Xs[xi + 1] % 1 === 0 ? Xs[xi + 1] : Math.floor(Xs[xi]);
+
+                // console.log("AFTER : ", left, right);
+
                 this.drawLine(new Point(left, y), new Point(right, y), colour);
             }
         }
     }
 
+    /**
+     * Other algorithm to fill a polygon
+     * @param poly Polygon
+     * @param colour Colour
+     */
     otherFill(poly : Polygon, colour : Colour) : void {
 
     }
 
+    /**
+     * Fills a polygon based on the method decided on at initialization
+     * @param poly Polygon
+     * @param colour Colour
+     */
     fillPolygon(poly : Polygon, colour : Colour) : void {
         if (this.fillMethod === null || this.fillMethod === 'scanLine') {
-            this.scanLineFill(poly, colour);
+
+            // dont decompose if the polygon is a triangle
+            let triangles : Polygon[] = poly.points.length === 3 ? [poly] : poly.decompose();
+            
+
+            console.log(triangles);
+
+
+            triangles.forEach((t : Polygon) => {
+                this.scanLineFill(t, colour);
+                this.drawPolygon(t, colours.red);
+            });
+
+            // this.drawPolygon(poly, colours.black);
+
         } else {
             this.otherFill(poly, colour);
         }
     }
 
+    /**
+     * Draws the polygon
+     * @param poly Polygon
+     * @param colour Colour
+     */
     drawPolygon(poly : Polygon, colour : Colour) : void {
         let points = poly.points;
+
 
         for (let i = 0; i < points.length - 1; i ++) {
             this.drawLine(points[i], points[i + 1], colour);
@@ -339,14 +429,33 @@ class LGE {
         this.drawLine(points[points.length - 1], points[0], colour);
     }
 
+    /**
+     * Draws a triangle from 3 points
+     * @param points Points
+     * @param colour Colour
+     */
     drawTriangle(points : Point[], colour : Colour) : void {
+        console.log('sss');
         this.drawPolygon(new Polygon(points), colour);
     }
 
+    /**
+     * Fills a triangle from 3 points
+     * @param points Point[]
+     * @param colour Colour
+     */
     fillTriangle(points : Point[], colour : Colour) : void {
         this.fillPolygon(new Polygon(points), colour);
     }
 
+    /**
+     * Draws a rectangle
+     * @param x x pos
+     * @param y y pos
+     * @param width width
+     * @param height height
+     * @param colour Colour
+     */
     drawRectangle(x : number, y : number, width : number, height : number, colour : Colour) : void {
         let points : Point[];
 
@@ -358,6 +467,14 @@ class LGE {
         this.drawPolygon(new Polygon(points), colour);
     }
 
+    /**
+     * Fills a rectangle 
+     * @param x x pos
+     * @param y y pos
+     * @param width width
+     * @param height height
+     * @param colour Colour
+     */
     fillRectangle(x : number, y : number, width : number, height : number, colour : Colour) : void {
         let points : Point[];
 
@@ -369,6 +486,17 @@ class LGE {
         this.fillPolygon(new Polygon(points), colour);
     }
 
+    /**
+     * Draws a circle
+     * 
+     * @remarks doesnt work
+     * 
+     * @param xc x pos (centre)
+     * @param yc y pos (centre)
+     * @param radius radius
+     * @param samples number of samples
+     * @param colour Colour
+     */
     drawCircle(xc : number, yc : number, radius : number, samples : number, colour : Colour) : void {
         let points : Point[] = [];
         let step : number = 1 / radius;
@@ -393,6 +521,17 @@ class LGE {
         this.drawPolygon(new Polygon(points), colour);
     }
 
+    /**
+     * Fills a circle
+     * 
+     * @remarks doesnt work
+     * 
+     * @param xc x pos (centre)
+     * @param yc y pos (centre)
+     * @param radius radius
+     * @param samples number of samples
+     * @param colour Colour
+     */
     fillCircle(x : number, y : number, radius : number, samples : number, colour : Colour) : void {
         let points : Point[];
 
@@ -407,6 +546,8 @@ class LGE {
     }
 
 }
+
+// --------------------------- USER CODE -------------------------- //
 
 let colours = {
     red  : new Colour(255, 0, 0, 100),
@@ -432,8 +573,8 @@ let lge = new LGE(ctx, 4, 'scanLine');
 let points : any =  [new Point(2, 2), new Point(200, 300), new Point(350, 2)];
 
 
-lge.drawPolygon(new Polygon(points), colours.blue);
-lge.fillPolygon(new Polygon(points), colours.blue);
+// lge.drawPolygon(new Polygon(points), colours.blue);
+// lge.fillPolygon(new Polygon(points), colours.blue);
 
 points =  [new Point(100, 200), 
            new Point(200, 300), 
@@ -442,24 +583,53 @@ points =  [new Point(100, 200),
            new Point(200, 310),
            new Point(100, 400)];
 
-lge.fillPolygon(new Polygon(points), colours.green);
-lge.drawPolygon(new Polygon(points), colours.black);
+// lge.fillPolygon(new Polygon(points), colours.green);
+// lge.drawPolygon(new Polygon(points), colours.black);
 
 let sf : ShapeFactory = new ShapeFactory();
+let square : Polygon = sf.square(400, 200, 100, 100);
+lge.fillPolygon(square, colours.white);
 
-let square : Polygon = sf.square(350, 200, 100, 100);
+// lge.drawCircle(300, 300, 50, 4, colours.red);
 
-lge.drawPolygon(square, colours.white);
+let triangle : Point[] = [new Point(200, 250), new Point(200, 400), new Point(400, 400)];
 
-let tris : Polygon[] = square.decompose();
+lge.fillTriangle(triangle, colours.blue);
 
-for (let i = 0; i < tris.length; i ++) {
-    lge.drawPolygon(tris[i], colours.black);
+
+
+let convexPolygon : Polygon = new Polygon([new Point(200, 600),
+          new Point(500, 700),
+          new Point(500, 750),
+          new Point(350, 750)]);
+
+lge.fillPolygon(convexPolygon, colours.black);
+
+let concavePolygon : Polygon = new Polygon([new Point(200, 100),
+          new Point(300, 150),
+          new Point(400, 100),
+          new Point(400, 200),
+          new Point(200, 200)]);
+
+lge.fillPolygon(concavePolygon, colours.green);
+lge.drawPolygon(concavePolygon, colours.black);
+
+
+let boundingBox = sf.square(400, 400, 400, 250);
+const randomDraw = () => {
+    // lge.fillPolygon(boundingBox, colours.white);
+
+    let randomPolygon : Polygon = sf.polygon(400, 400, 400, 250, 5);
+    lge.fillPolygon(randomPolygon, colours.green);
+    lge.drawPolygon(randomPolygon, colours.black);
+
+
+    // setTimeout(randomDraw, 100);
 }
 
-lge.drawPolygon(sf.polygon(100, 100, 200, 200, 6), colours.black);
+randomDraw();
 
-lge.drawCircle(300, 300, 50, 4, colours.red);
+
 
 
 
