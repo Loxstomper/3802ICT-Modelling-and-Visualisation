@@ -163,11 +163,29 @@ class Polygon {
         const nPoints : number = this.points.length;
 
         for (let i = 0; i < nPoints - 1; i += 2) {
-            this.triangles.push(new Polygon([this.points[i], this.points[(i + 1) % nPoints], this.points[(i + 2) % nPoints]]));
+            this.triangles.push(new Polygon([this.points[i], 
+                                             this.points[(i + 1) % nPoints], 
+                                             this.points[(i + 2) % nPoints]]));
         }
 
 
         return this.triangles;
+    }
+
+    /**
+     * Translate position by deltaX, deltaY
+     * @param deltaX change in x
+     * @param deltaY change in y
+     * 
+     * @returns Polygon
+     */
+    translate(x : number, y : number) : Polygon {
+        this.points.forEach((p : Point) => {
+            p.x += x;
+            p.y += y;
+        })
+
+        return this
     }
 }
 
@@ -400,6 +418,8 @@ class LGE {
 
             console.log(triangles);
 
+            // this.scanLineFill(poly, colours.black);
+
 
             triangles.forEach((t : Polygon) => {
                 this.scanLineFill(t, colour);
@@ -549,6 +569,9 @@ class LGE {
 
 // --------------------------- USER CODE -------------------------- //
 
+/**
+ * Defining some common colours
+ */
 let colours = {
     red  : new Colour(255, 0, 0, 100),
     green: new Colour(0, 255, 0, 100),
@@ -557,38 +580,35 @@ let colours = {
     white: new Colour(255, 255, 255, 100)
 }
 
-let canvas : HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("canvas");
-let ctx    : CanvasRenderingContext2D = canvas.getContext("2d");
+/**
+ * Get reference to the canvas element and its 2D rendering context
+ */
+const canvas : HTMLCanvasElement = <HTMLCanvasElement> document.getElementById("canvas");
+const ctx    : CanvasRenderingContext2D = canvas.getContext("2d");
 
+/**
+ * Set the width here not in the HTML
+ */
 canvas.width  = 800;
 canvas.height = 800;
 
-let lge = new LGE(ctx, 4, 'scanLine');
+/**
+ * Instantiate the graphics engine - using the scanLine fill method
+ */
+const lge = new LGE(ctx, 2, 'scanLine');
 
-// let weird : Polygon = new Polygon([new Point(2, 2), 
-//                                    new Point(8, 2),
-//                                    new Point(5, 10),
-//                                    new Point(2, 2)]);
-
-let points : any =  [new Point(2, 2), new Point(200, 300), new Point(350, 2)];
+/**
+ * Instantiate Shape Factory
+ */
+const sf : ShapeFactory = new ShapeFactory();
 
 
-// lge.drawPolygon(new Polygon(points), colours.blue);
-// lge.fillPolygon(new Polygon(points), colours.blue);
+let points : Point[];
 
-points =  [new Point(100, 200), 
-           new Point(200, 300), 
-           new Point(300, 200),
-           new Point(300, 400),
-           new Point(200, 310),
-           new Point(100, 400)];
-
-// lge.fillPolygon(new Polygon(points), colours.green);
-// lge.drawPolygon(new Polygon(points), colours.black);
-
-let sf : ShapeFactory = new ShapeFactory();
 let square : Polygon = sf.square(400, 200, 100, 100);
 lge.fillPolygon(square, colours.white);
+lge.scanLineFill(square.translate(-110, 0), colours.white);
+lge.drawPolygon(square.translate(-110, 0), colours.black);
 
 // lge.drawCircle(300, 300, 50, 4, colours.red);
 
@@ -614,6 +634,19 @@ let concavePolygon : Polygon = new Polygon([new Point(200, 100),
 lge.fillPolygon(concavePolygon, colours.green);
 lge.drawPolygon(concavePolygon, colours.black);
 
+let octogon : Polygon = new Polygon([new Point(600, 50),
+                                     new Point(650, 50),
+                                     new Point(675, 75),
+                                     new Point(675, 100),
+                                     new Point(650, 125),
+                                     new Point(600, 125),
+                                     new Point(575, 100),
+                                     new Point(575, 75)
+                                    ]);
+
+lge.fillPolygon(octogon, colours.green);
+lge.drawPolygon(octogon.translate(-150, 0), colours.blue);
+
 
 let boundingBox = sf.square(400, 400, 400, 250);
 const randomDraw = () => {
@@ -628,20 +661,6 @@ const randomDraw = () => {
 }
 
 randomDraw();
-
-
-
-
-
-
-// lge.drawPolygon(weird, colours.blue);
-// console.log(points);
-// lge.drawLine(points[0], points[1], colours.red);
-// console.log(points);
-// lge.drawLine(points[1], points[2], colours.red);
-// console.log(points);
-// lge.drawLine(points[2], points[0], colours.red);
-// console.log(points);consoconsole.log(points);console.log(points);le.log(points);
 
 
 
