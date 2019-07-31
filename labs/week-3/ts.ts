@@ -410,7 +410,7 @@ class LGE {
 
             Xs.sort();
 
-            for (let xi = 0; xi < Xs.length - 1; xi ++) {
+            for (let xi = 0; xi < Xs.length - 1; xi += 2) {
                 // let left  = Xs[xi]     % 1 == 0 ? Xs[xi] : Math.ceil(Xs[xi]);
                 // let right = Xs[xi + 1] % 1 == 0 ? Xs[xi + 1] : Math.floor(Xs[xi + 1]);
 
@@ -669,7 +669,7 @@ let concavePolygon : Polygon = new Polygon([new Point(150, 150),
                                             new Point(100, 100)]);
 
 concavePolygon.translate(200, 0);
-lge.fillPolygon(concavePolygon, colours.green);
+lge.fillPolygon(concavePolygon, colours.black);
 lge.scanLineFill(concavePolygon.translate(-110, 0), colours.black);
 lge.drawPolygon(concavePolygon.translate(-110, 0), colours.black);
 
@@ -680,12 +680,11 @@ let octogon : Polygon = new Polygon([new Point(700, 50),
                                      new Point(750, 125),
                                      new Point(700, 125),
                                      new Point(675, 100),
-                                     new Point(675, 75)
-                                    ]);
+                                     new Point(675, 75)]);
 
 lge.fillPolygon(octogon, colours.green);
 lge.scanLineFill(octogon.translate(-120, 0), colours.green);
-lge.drawPolygon(octogon.translate(-120, 0), colours.black);
+lge.drawPolygon(octogon.translate(-120, 0), colours.green);
 
 
 let boundingBox = sf.square(400, 400, 400, 250);
