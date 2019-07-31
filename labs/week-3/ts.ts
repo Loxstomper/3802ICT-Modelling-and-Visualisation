@@ -160,6 +160,17 @@ class Polygon {
             return this.triangles;
         }
 
+        const oldPoints = this.points.slice(0, this.points.length);
+
+        while (this.points.length >= 3) {
+            this.temp();
+        }
+
+        this.points = oldPoints.slice(0, oldPoints.length);
+
+
+        return this.triangles;
+
         const nPoints : number = this.points.length;
 
         for (let i = 0; i < nPoints - 1; i += 2) {
@@ -170,6 +181,14 @@ class Polygon {
 
 
         return this.triangles;
+    }
+
+    temp() : void {
+        this.triangles.push(new Polygon([this.points[0], 
+                                            this.points[1 % this.points.length], 
+                                            this.points[2 % this.points.length]]));
+        this.points.splice(1 % this.points.length, 1);
+
     }
 
     /**
@@ -185,6 +204,21 @@ class Polygon {
             p.y += y;
         })
 
+        return this
+    }
+
+    /**
+     * Scales all the points by x and y
+     * @param x x multiplier
+     * @param y y multiplier
+     * 
+     * @returns Polygon
+     */
+    scale(x: number, y : number) : Polygon {
+        this.points.forEach((p : Point) => {
+            p.x = Math.round(p.x * x);
+            p.y = Math.round(p.y * y);
+        })
         return this
     }
 }
@@ -277,12 +311,12 @@ class LGE {
 
         return points;
 
-        points.forEach( (p : Point) => {
-            p.x = Math.floor(p.x * this.PIXEL_SIZE);
-            p.y = Math.floor(p.y * this.PIXEL_SIZE);
-        })
+        // points.forEach( (p : Point) => {
+        //     p.x = Math.floor(p.x) * this.PIXEL_SIZE;
+        //     p.y = Math.floor(p.y) * this.PIXEL_SIZE;
+        // })
 
-        return points;
+        // return points;
     }
 
     /**
@@ -455,7 +489,6 @@ class LGE {
      * @param colour Colour
      */
     drawTriangle(points : Point[], colour : Colour) : void {
-        console.log('sss');
         this.drawPolygon(new Polygon(points), colour);
     }
 
@@ -605,47 +638,54 @@ const sf : ShapeFactory = new ShapeFactory();
 
 let points : Point[];
 
-let square : Polygon = sf.square(400, 200, 100, 100);
+let square : Polygon = sf.square(300, 210, 100, 100);
 lge.fillPolygon(square, colours.white);
 lge.scanLineFill(square.translate(-110, 0), colours.white);
-lge.drawPolygon(square.translate(-110, 0), colours.black);
+lge.drawPolygon(square.translate(-110, 0), colours.white);
 
 // lge.drawCircle(300, 300, 50, 4, colours.red);
 
-let triangle : Point[] = [new Point(200, 250), new Point(200, 400), new Point(400, 400)];
+let triangle : Point[] = [new Point(450, 320), new Point(650, 470), new Point(450, 470)];
 
 lge.fillTriangle(triangle, colours.blue);
+lge.scanLineFill((new Polygon(triangle)).translate(-210, 0), colours.blue);
+lge.drawPolygon((new Polygon(triangle)).translate(-210, 0), colours.blue);
 
 
 
-let convexPolygon : Polygon = new Polygon([new Point(200, 600),
-          new Point(500, 700),
-          new Point(500, 750),
-          new Point(350, 750)]);
+let convexPolygon : Polygon = new Polygon([new Point(450, 600),
+          new Point(750, 700),
+          new Point(750, 750),
+          new Point(600, 750)]);
 
 lge.fillPolygon(convexPolygon, colours.black);
+lge.scanLineFill(convexPolygon.translate(-210, 0), colours.black);
+lge.drawPolygon(convexPolygon.translate(-210, 0), colours.black);
 
-let concavePolygon : Polygon = new Polygon([new Point(200, 100),
-          new Point(300, 150),
-          new Point(400, 100),
-          new Point(400, 200),
-          new Point(200, 200)]);
+let concavePolygon : Polygon = new Polygon([new Point(150, 150),
+                                            new Point(200, 100),
+                                            new Point(200, 200),
+                                            new Point(100, 200), 
+                                            new Point(100, 100)]);
 
+concavePolygon.translate(200, 0);
 lge.fillPolygon(concavePolygon, colours.green);
-lge.drawPolygon(concavePolygon, colours.black);
+lge.scanLineFill(concavePolygon.translate(-110, 0), colours.black);
+lge.drawPolygon(concavePolygon.translate(-110, 0), colours.black);
 
-let octogon : Polygon = new Polygon([new Point(600, 50),
-                                     new Point(650, 50),
-                                     new Point(675, 75),
+let octogon : Polygon = new Polygon([new Point(700, 50),
+                                     new Point(750, 50),
+                                     new Point(775, 75),
+                                     new Point(775, 100),
+                                     new Point(750, 125),
+                                     new Point(700, 125),
                                      new Point(675, 100),
-                                     new Point(650, 125),
-                                     new Point(600, 125),
-                                     new Point(575, 100),
-                                     new Point(575, 75)
+                                     new Point(675, 75)
                                     ]);
 
 lge.fillPolygon(octogon, colours.green);
-lge.drawPolygon(octogon.translate(-150, 0), colours.blue);
+lge.scanLineFill(octogon.translate(-120, 0), colours.green);
+lge.drawPolygon(octogon.translate(-120, 0), colours.black);
 
 
 let boundingBox = sf.square(400, 400, 400, 250);
@@ -660,7 +700,7 @@ const randomDraw = () => {
     // setTimeout(randomDraw, 100);
 }
 
-randomDraw();
+// randomDraw();
 
 
 
