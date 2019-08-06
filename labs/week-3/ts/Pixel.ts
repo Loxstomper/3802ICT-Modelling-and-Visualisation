@@ -20,7 +20,7 @@ export class Pixel {
      * 
      */
     constructor(x : number, y : number, size: number, ctx : CanvasRenderingContext2D, colour : Colour) {
-        console.log(x, y);
+        // console.log(x, y);
         this.rec = new Rectangle(Math.round(x), Math.round(y), ctx, size, size, colour);
         this.rec.draw();
     }

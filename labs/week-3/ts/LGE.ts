@@ -61,26 +61,53 @@ export class LGE {
 
         [p0, p1] = this.scalePoints([start, end]);
 
-        const dx = p1.x - p0.x,
-              dy = p1.y - p0.y,
-              s  = (Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) : Math.abs(dy)) / this.PIXEL_SIZE,
-              xi = dx * 1.0 / s,
-              yi = dy * 1.0 / s
+        // const dx = p1.x - p0.x,
+        //       dy = p1.y - p0.y,
+        //       s  = Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) / this.PIXEL_SIZE : Math.abs(dy) / this.PIXEL_SIZE,
+        //       xi = dx * 1.0 / s,
+        //       yi = dy * 1.0 / s
      
-        let x = p0.x,
-            y = p0.y,
-            out = []
+        // let x = p0.x,
+        //     y = p0.y,
+        //     out = []
      
-        out.push({x: x, y: y});
+        // out.push({x: x, y: y});
      
-        for (let i = 0; i < s; i++) {
-            x += xi;
-            y += yi;
-            out.push({x: x, y: y});
-        }
+        // for (let i = 0; i < s; i++) {
+        //     x += xi;
+        //     y += yi;
+        //     out.push({x: x, y: y});
+        // }
     
-        // out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
-        out.map(pos => new Pixel(pos.x, pos.y, this.PIXEL_SIZE, this.ctx, colour));
+        // // out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
+        // out.map(pos => new Pixel(pos.x, pos.y, this.PIXEL_SIZE, this.ctx, colour));
+
+
+        const dx = Math.ceil(p1.x - p0.x),
+              dy = Math.ceil(p1.y - p0.y),
+              steps  = Math.abs(dx) > Math.abs(dy) ? Math.ceil(Math.abs(dx) / this.PIXEL_SIZE) 
+                                                   : Math.ceil(Math.abs(dy) / this.PIXEL_SIZE);
+
+        if (steps === 0) {
+            new Pixel(p0.x, p0.y, this.PIXEL_SIZE, this.ctx, colour);
+            return;
+        }
+
+        const xInc = dx / steps;
+        const yInc = dy / steps;
+
+        let x = p0.x;
+        let y = p0.y;
+
+        for (let i = 0; i < steps; i ++) {
+            new Pixel(x, y, this.PIXEL_SIZE, this.ctx, colour);
+            x += xInc;
+            y += yInc;
+        }
+
+
+
+
     }
 
     /**
@@ -131,7 +158,8 @@ export class LGE {
                 deltaY = y2 - y1;
 
                 x = x1 + (deltaX / deltaY) * (y - y1);
-                // x = Math.round(x);
+
+                // x = Math.round(x1 * deltaX / deltaY * (y - y1));
 
                 if ((y1 <= y && y2 > y) || (y2 <= y && y1 > y)) {
                     Xs.push(x);
@@ -181,19 +209,11 @@ export class LGE {
 
             // dont decompose if the polygon is a triangle
             let triangles : Polygon[] = poly.points.length === 3 ? [poly] : poly.decompose();
-            
-
-            console.log(triangles);
-
-            // this.scanLineFill(poly, Colours.black);
-
 
             triangles.forEach((t : Polygon) => {
                 this.scanLineFill(t, colour);
                 this.drawPolygon(t, Colours.red);
             });
-
-            // this.drawPolygon(poly, Colours.black);
 
         } else {
             this.otherFill(poly, colour);
@@ -207,7 +227,6 @@ export class LGE {
      */
     drawPolygon(poly : Polygon, colour : Colour) : void {
         let points = poly.points;
-
 
         for (let i = 0; i < points.length - 1; i ++) {
             this.drawLine(points[i], points[i + 1], colour);
@@ -301,7 +320,7 @@ export class LGE {
             points.push(new Point(y, x));
         }
 
-        console.log(points);
+        // console.log(points);
 
 
         this.drawPolygon(new Polygon(points), colour);
@@ -329,6 +348,13 @@ export class LGE {
 
 
         this.drawPolygon(new Polygon(points), colour);
+    }
+
+    /**
+     * Clears the canvas
+     */
+    clear() : void {
+        this.ctx.clearRect(0, 0, this.resolution.x, this.resolution.y);
     }
 
 }

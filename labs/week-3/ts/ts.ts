@@ -55,11 +55,11 @@ lge.fillPolygon(convexPolygon, Colours.black);
 lge.scanLineFill(convexPolygon.translate(-210, 0), Colours.black);
 lge.drawPolygon(convexPolygon.translate(-210, 0), Colours.black);
 
-let concavePolygon : Polygon = new Polygon([new Point(150, 150),
+let concavePolygon : Polygon = new Polygon([new Point(100, 100),
+                                            new Point(150, 150),
                                             new Point(200, 100),
                                             new Point(200, 200),
-                                            new Point(100, 200), 
-                                            new Point(100, 100)]);
+                                            new Point(100, 200)]);
 
 concavePolygon.translate(200, 0);
 lge.fillPolygon(concavePolygon, Colours.black);
@@ -82,18 +82,16 @@ lge.drawPolygon(octogon.translate(-120, 0), Colours.green);
 
 let boundingBox : Polygon = sf.square(400, 400, 400, 250);
 const randomDraw = () => {
-    // lge.fillPolygon(boundingBox, Colours.white);
+    // lge.scanLineFill(boundingBox, Colours.white);
+    lge.clear();
 
     let randomPolygon : Polygon = sf.polygon(400, 400, 400, 250, 5);
     lge.fillPolygon(randomPolygon, Colours.green);
-    lge.scanLineFill(randomPolygon.translate(-200, 0), Colours.white)
-    lge.drawPolygon(randomPolygon.translate(-200, 0), Colours.black);
 
-
-    // setTimeout(randomDraw, 100);
+    setTimeout(randomDraw, 100);
 }
 
-// randomDraw();
+randomDraw();
 
 
 
