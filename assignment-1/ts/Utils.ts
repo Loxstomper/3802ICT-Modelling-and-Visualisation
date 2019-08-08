@@ -51,4 +51,43 @@ export class Utils {
       this.sameSide(p, c, a, b)
     );
   }
+
+  public static calculateBoundingBox(points: IPoint[]): IPoint[] {
+    let minX: number = Number.POSITIVE_INFINITY;
+    let minY: number = Number.POSITIVE_INFINITY;
+    let maxX: number = Number.NEGATIVE_INFINITY;
+    let maxY: number = Number.NEGATIVE_INFINITY;
+
+    // better than doing 4 reduces
+    for (const p of points) {
+      if (p.x < minX) {
+        minX = p.x;
+      }
+      if (p.x > maxX) {
+        maxX = p.x;
+      }
+      if (p.y < minY) {
+        minY = p.y;
+      }
+      if (p.y > maxY) {
+        maxY = p.y;
+      }
+    }
+
+    return [
+      { x: minX, y: minY },
+      { x: maxX, y: minY },
+      { x: maxX, y: maxY },
+      { x: minX, y: maxY }
+    ];
+  }
+
+  public static calculateCentrePoint(points: IPoint[]): IPoint {
+    const boundingBox = Utils.calculateBoundingBox(points);
+
+    return {
+      x: boundingBox[2].x - boundingBox[0].x,
+      y: boundingBox[3].y - boundingBox[0].y
+    };
+  }
 }

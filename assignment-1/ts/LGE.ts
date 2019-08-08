@@ -40,9 +40,6 @@ export class LGE {
     this.translationMatrix = new Matrix([[0], [0]]);
     this.rotationMatrix = new Matrix([[1, 0], [0, 1]]);
     this.updateTransformationMatrix();
-
-    console.log("Transformation matrices: ");
-    console.log(this.transformationMatrices);
   }
 
   /**
@@ -60,15 +57,6 @@ export class LGE {
 
     const res: Matrix = new Matrix(values);
     this.transformationMatrices.push(res);
-
-    console.log("translation matrix");
-    console.log(t);
-
-    console.log("rotation matrix");
-    console.log(r);
-
-    console.log("Transformation Matrix");
-    console.log(res);
 
     return res;
   }

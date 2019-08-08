@@ -1,5 +1,57 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+var Polygon_1 = require("./Polygon");
+var Utils_1 = require("./Utils");
+var Asteroid = /** @class */ (function (_super) {
+    __extends(Asteroid, _super);
+    function Asteroid(centrePoint) {
+        var _this = _super.call(this, Asteroid.generatePoints(centrePoint)) || this;
+        _this.boundingBox = new Polygon_1.Polygon(Utils_1.Utils.calculateBoundingBox(_this.points));
+        return _this;
+    }
+    /**
+     * Creates points for asteroid polygon
+     * nPoints equally spaced around a circle within min/max radius
+     */
+    Asteroid.generatePoints = function (centrePoint) {
+        var points = [];
+        var stepSize = (2 * Math.PI) / Asteroid.nPoints;
+        var angle = 0;
+        for (var i = 0; i < Asteroid.nPoints; i++) {
+            var length_1 = Utils_1.Utils.randomInt(Asteroid.maxRadius - Asteroid.minRadius + 1) +
+                Asteroid.minRadius;
+            points.push({
+                x: centrePoint.x + length_1 * Math.cos(angle),
+                y: centrePoint.y + length_1 * Math.sin(angle)
+            });
+            angle += stepSize;
+        }
+        return points;
+    };
+    // concave
+    Asteroid.minRadius = 30;
+    Asteroid.maxRadius = 40;
+    Asteroid.nPoints = 24;
+    return Asteroid;
+}(Polygon_1.Polygon));
+exports.Asteroid = Asteroid;
+
+},{"./Polygon":9,"./Utils":12}],2:[function(require,module,exports){
+"use strict";
 exports.__esModule = true;
 /**
  *  Represents a colour (r, g, b, a)
@@ -37,11 +89,23 @@ exports.Colours = {
     white: new Colour(255, 255, 255, 100)
 };
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
+var Drawable = /** @class */ (function () {
+    function Drawable() {
+        this.scale = 1;
+        this.angle = 0;
+    }
+    return Drawable;
+}());
+exports.Drawable = Drawable;
+
+},{}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 
-},{}],3:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Colour_1 = require("./Colour");
@@ -68,8 +132,6 @@ var LGE = /** @class */ (function () {
         this.translationMatrix = new Matrix_1.Matrix([[0], [0]]);
         this.rotationMatrix = new Matrix_1.Matrix([[1, 0], [0, 1]]);
         this.updateTransformationMatrix();
-        console.log("Transformation matrices: ");
-        console.log(this.transformationMatrices);
     }
     /**
      * combines the translation matrix and rotation matrix into a single one and adds to stack
@@ -84,12 +146,6 @@ var LGE = /** @class */ (function () {
         ];
         var res = new Matrix_1.Matrix(values);
         this.transformationMatrices.push(res);
-        console.log("translation matrix");
-        console.log(t);
-        console.log("rotation matrix");
-        console.log(r);
-        console.log("Transformation Matrix");
-        console.log(res);
         return res;
     };
     LGE.prototype.setRotation = function (angle) {
@@ -406,7 +462,7 @@ var LGE = /** @class */ (function () {
 }());
 exports.LGE = LGE;
 
-},{"./Colour":1,"./Matrix":4,"./Pixel":5,"./Polygon":7}],4:[function(require,module,exports){
+},{"./Colour":2,"./Matrix":6,"./Pixel":7,"./Polygon":9}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -467,7 +523,7 @@ var Matrix = /** @class */ (function () {
 }());
 exports.Matrix = Matrix;
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Rectangle_1 = require("./Rectangle");
@@ -494,7 +550,7 @@ var Pixel = /** @class */ (function () {
 }());
 exports.Pixel = Pixel;
 
-},{"./Rectangle":8}],6:[function(require,module,exports){
+},{"./Rectangle":10}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -514,9 +570,10 @@ var Point = /** @class */ (function () {
 }());
 exports.Point = Point;
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Matrix_1 = require("./Matrix");
 var Utils_1 = require("./Utils");
 /**
  * Represents a polygon
@@ -527,8 +584,15 @@ var Polygon = /** @class */ (function () {
      * @param points points that represent the polygon
      */
     function Polygon(points) {
+        this.translationMatrix = new Matrix_1.Matrix(null);
+        this.rotationMatrix = new Matrix_1.Matrix(null);
+        this.transformationMatrix = new Matrix_1.Matrix(null);
         this.points = points;
         this.triangles = [];
+        this.centrePoint = Utils_1.Utils.calculateCentrePoint(points);
+        this.scale = 1;
+        this.angle = 0;
+        // init the matrices
     }
     /**
      * decomposes the polygon into triangles
@@ -572,32 +636,64 @@ var Polygon = /** @class */ (function () {
      *
      * @returns Polygon
      */
-    Polygon.prototype.translate = function (x, y) {
+    Polygon.prototype.translate = function (deltaX, deltaY) {
+        var _this = this;
+        // update value
+        this.translationMatrix.values[0][2] = deltaX;
+        this.translationMatrix.values[1][2] = deltaY;
+        // update all the points
         this.points.forEach(function (p) {
-            p.x += x;
-            p.y += y;
+            var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
+            var res = _this.translationMatrix.multiply(pMatrix);
+            p.x = res.values[0][0];
+            p.y = res.values[1][0];
         });
-        return this;
     };
-    /**
-     * Scales all the points by x and y
-     * @param x x multiplier
-     * @param y y multiplier
-     *
-     * @returns Polygon
-     */
-    Polygon.prototype.scale = function (x, y) {
+    // moves centrepoint to location
+    Polygon.prototype.moveTo = function (x, y) {
+        var _this = this;
+        var offsets = [];
         this.points.forEach(function (p) {
-            p.x = Math.round(p.x * x);
-            p.y = Math.round(p.y * y);
+            offsets.push({
+                x: _this.centrePoint.x - p.x,
+                y: _this.centrePoint.y - p.y
+            });
         });
-        return this;
+        this.centrePoint = { x: x, y: y };
+        for (var i = 0; i < offsets.length; i++) {
+            this.points[i].x = this.centrePoint.x + offsets[i].x;
+            this.points[i].y = this.centrePoint.y + offsets[i].y;
+        }
+    };
+    Polygon.prototype.rotate = function (angle) {
+        var _this = this;
+        // makes it easier
+        var prevPos = this.centrePoint;
+        // move to origin
+        this.moveTo(0, 0);
+        // rotate
+        var cosTheta = Math.cos(angle);
+        var sinTheta = Math.sin(angle);
+        var rv = this.rotationMatrix.values;
+        rv[0][0] = cosTheta;
+        rv[0][1] = -sinTheta;
+        rv[1][0] = sinTheta;
+        rv[1][1] = cosTheta;
+        // update all the points
+        this.points.forEach(function (p) {
+            var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
+            var res = _this.rotationMatrix.multiply(pMatrix);
+            p.x = res.values[0][0];
+            p.y = res.values[1][0];
+        });
+        // move back
+        this.moveTo(prevPos.x, prevPos.y);
     };
     return Polygon;
 }());
 exports.Polygon = Polygon;
 
-},{"./Utils":10}],8:[function(require,module,exports){
+},{"./Matrix":6,"./Utils":12}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Rectangle = /** @class */ (function () {
@@ -630,7 +726,7 @@ var Rectangle = /** @class */ (function () {
 }());
 exports.Rectangle = Rectangle;
 
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Polygon_1 = require("./Polygon");
@@ -684,7 +780,7 @@ var ShapeFactory = /** @class */ (function () {
 }());
 exports.ShapeFactory = ShapeFactory;
 
-},{"./Polygon":7,"./Utils":10}],10:[function(require,module,exports){
+},{"./Polygon":9,"./Utils":12}],12:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -728,16 +824,51 @@ var Utils = /** @class */ (function () {
             this.sameSide(p, b, a, c) &&
             this.sameSide(p, c, a, b));
     };
+    Utils.calculateBoundingBox = function (points) {
+        var minX = Number.POSITIVE_INFINITY;
+        var minY = Number.POSITIVE_INFINITY;
+        var maxX = Number.NEGATIVE_INFINITY;
+        var maxY = Number.NEGATIVE_INFINITY;
+        // better than doing 4 reduces
+        for (var _i = 0, points_1 = points; _i < points_1.length; _i++) {
+            var p = points_1[_i];
+            if (p.x < minX) {
+                minX = p.x;
+            }
+            if (p.x > maxX) {
+                maxX = p.x;
+            }
+            if (p.y < minY) {
+                minY = p.y;
+            }
+            if (p.y > maxY) {
+                maxY = p.y;
+            }
+        }
+        return [
+            { x: minX, y: minY },
+            { x: maxX, y: minY },
+            { x: maxX, y: maxY },
+            { x: minX, y: maxY }
+        ];
+    };
+    Utils.calculateCentrePoint = function (points) {
+        var boundingBox = Utils.calculateBoundingBox(points);
+        return {
+            x: boundingBox[2].x - boundingBox[0].x,
+            y: boundingBox[3].y - boundingBox[0].y
+        };
+    };
     return Utils;
 }());
 exports.Utils = Utils;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Asteroid_1 = require("./Asteroid");
 var Colour_1 = require("./Colour");
 var LGE_1 = require("./LGE");
-var Matrix_1 = require("./Matrix");
 var ShapeFactory_1 = require("./ShapeFactory");
 /**
  * Get reference to the canvas element and its 2D rendering context
@@ -752,43 +883,46 @@ canvas.height = 800;
 /**
  * Instantiate the graphics engine - using the scanLine fill method
  */
-var lge = new LGE_1.LGE(ctx, 4, "scanLine");
+var lge = new LGE_1.LGE(ctx, 1, "scanLine");
 /**
  * Instantiate Shape Factory
  */
 var sf = new ShapeFactory_1.ShapeFactory();
 var square = sf.square(300, 210, 100, 100);
 var drawBuffer = [];
-var drawBufferExecute = function () {
-    drawBuffer.forEach(function (x) {
-        console.log(x);
-        // cant use ...x.args :(
-        x.func(x.args[0], x.args[1]);
-    });
-};
 // drawBuffer.push({func : lge.fillPolygon, args : [square, Colours.white]});
 drawBuffer.push({ poly: square, colour: Colour_1.Colours.white });
 // drawBufferExecute();
 // lge.drawPolygon(drawBuffer[0].args[0], drawBuffer[0].args[1]);
-// const run = () => {
-//     // console.log(drawBuffer);
-//     lge.clear();
-//     lge.drawPolygonBuffer(drawBuffer);
-//     // drawBufferExecute();
-//     window.requestAnimationFrame(run);
-// }
+var a = new Asteroid_1.Asteroid({ x: 400, y: 400 });
+var x = 200;
+var times = 0;
+var run = function () {
+    // console.log(drawBuffer);
+    lge.clear();
+    lge.scanLineFill(a, Colour_1.Colours.white);
+    a.translate(x, 0);
+    x++;
+    if (x > 300) {
+        x = 200;
+        a.translate(x, 0);
+    }
+    console.log(a.points[0]);
+    times++;
+    // if (times > 5) {
+    //   alert("1");
+    // }
+    window.requestAnimationFrame(run);
+};
 // run();
-lge.drawPolygon(square, Colour_1.Colours.white);
-lge.setRotation(Math.PI / 4);
-lge.setTranslation(100, 100);
-lge.drawPolygon(square, Colour_1.Colours.black);
-var a = new Matrix_1.Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
-var b = new Matrix_1.Matrix([[2], [2], [1]]);
-var c = a.multiply(b);
-console.log("RESULT");
-console.log(c.values);
-// let c : Matrix = a.multiply(b);
-// console.log('C');
-// console.log(c.values);
+lge.scanLineFill(a, Colour_1.Colours.white);
+// console.log(a.points);
+// a.translate(25, 25);
+// console.log(a.points);
+// lge.scanLineFill(a, Colours.white);
+// a.rotate(-22.5);
+// console.log(a.points);
+// lge.scanLineFill(a, Colours.red);
+// lge.drawPolygon(a.boundingBox, Colours.black);
 
-},{"./Colour":1,"./LGE":3,"./Matrix":4,"./ShapeFactory":9}]},{},[1,2,3,4,5,6,7,8,9,11,10]);
+},{"./Asteroid":1,"./Colour":2,"./LGE":5,"./ShapeFactory":11}]},{},[1,2,3,4,5,6,7,8,9,10,11,13,12]);

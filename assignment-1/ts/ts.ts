@@ -1,3 +1,4 @@
+import { Asteroid } from "./Asteroid";
 import { Colours } from "./Colour";
 import { IPoint } from "./IPoint";
 import { LGE } from "./LGE";
@@ -22,7 +23,7 @@ canvas.height = 800;
 /**
  * Instantiate the graphics engine - using the scanLine fill method
  */
-const lge = new LGE(ctx, 4, "scanLine");
+const lge = new LGE(ctx, 1, "scanLine");
 
 /**
  * Instantiate Shape Factory
@@ -33,46 +34,51 @@ const square: Polygon = sf.square(300, 210, 100, 100);
 
 const drawBuffer = [];
 
-const drawBufferExecute = () => {
-  drawBuffer.forEach(x => {
-    console.log(x);
-    // cant use ...x.args :(
-    x.func(x.args[0], x.args[1]);
-  });
-};
-
 // drawBuffer.push({func : lge.fillPolygon, args : [square, Colours.white]});
 drawBuffer.push({ poly: square, colour: Colours.white });
 // drawBufferExecute();
 
 // lge.drawPolygon(drawBuffer[0].args[0], drawBuffer[0].args[1]);
 
-// const run = () => {
-//     // console.log(drawBuffer);
-//     lge.clear();
-//     lge.drawPolygonBuffer(drawBuffer);
-//     // drawBufferExecute();
-//     window.requestAnimationFrame(run);
-// }
+const a = new Asteroid({ x: 400, y: 400 });
+
+let x: number = 200;
+let times: number = 0;
+
+const run = () => {
+  // console.log(drawBuffer);
+  lge.clear();
+
+  lge.scanLineFill(a, Colours.white);
+  a.translate(x, 0);
+
+  x++;
+
+  if (x > 300) {
+    x = 200;
+    a.translate(x, 0);
+  }
+
+  console.log(a.points[0]);
+
+  times++;
+
+  // if (times > 5) {
+  //   alert("1");
+  // }
+
+  window.requestAnimationFrame(run);
+};
 
 // run();
 
-lge.drawPolygon(square, Colours.white);
+lge.scanLineFill(a, Colours.white);
+// console.log(a.points);
+// a.translate(25, 25);
+// console.log(a.points);
+// lge.scanLineFill(a, Colours.white);
+// a.rotate(-22.5);
+// console.log(a.points);
+// lge.scanLineFill(a, Colours.red);
 
-lge.setRotation(Math.PI / 4);
-lge.setTranslation(100, 100);
-
-lge.drawPolygon(square, Colours.black);
-
-const a: Matrix = new Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
-
-const b: Matrix = new Matrix([[2], [2], [1]]);
-
-const c = a.multiply(b);
-console.log("RESULT");
-console.log(c.values);
-
-// let c : Matrix = a.multiply(b);
-
-// console.log('C');
-// console.log(c.values);
+// lge.drawPolygon(a.boundingBox, Colours.black);
