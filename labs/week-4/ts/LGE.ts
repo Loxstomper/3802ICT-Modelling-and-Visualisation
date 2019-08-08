@@ -3,6 +3,7 @@ import {Colour, Colours} from './Colour';
 import {Polygon} from './Polygon';
 import {Pixel} from './Pixel';
 import {Utils} from './Utils';
+import { Matrix } from './Matrix';
 
 /**
  * Lochie Graphics Engine
@@ -12,6 +13,10 @@ export class LGE {
     resolution : any;
     PIXEL_SIZE : number;
     fillMethod : string | null;
+    // maybe make these a stack too?
+    translationMatrix : Matrix;
+    rotationMatrix : Matrix;
+    transformationMatrices : Matrix[] = [];
 
     /**
      * 
@@ -28,6 +33,61 @@ export class LGE {
 
         this.resolution = {x : canvas.width, y : canvas.height };
 
+        this.translationMatrix = new Matrix([[0], [0]]);
+        this.rotationMatrix = new Matrix([[1, 0], [0, 1]]);
+        this.updateTransformationMatrix();
+
+        console.log('Transformation matrices: ');
+        console.log(this.transformationMatrices);
+    }
+
+    /**
+     * combines the translation matrix and rotation matrix into a single one and adds to stack
+     */
+    updateTransformationMatrix() : Matrix {
+        const r = this.rotationMatrix;
+        const t = this.translationMatrix;
+
+        const values = [
+            [r.values[0][0], r.values[0][1], t.values[0][0]],
+            [r.values[1][0], r.values[1][1], t.values[1][0]],
+            [0, 0, 1],
+        ];
+
+        const res : Matrix = new Matrix(values);
+        this.transformationMatrices.push(res);
+
+        console.log('translation matrix');
+        console.log(t);
+
+        console.log('rotation matrix');
+        console.log(r);
+
+        console.log('Transformation Matrix');
+        console.log(res);
+
+        return res;
+    }
+
+    setRotation(angle : number) : void {
+        const cosTheta = Math.cos(angle);
+        const sinTheta = Math.sin(angle);
+
+        this.rotationMatrix.values = [
+            [cosTheta, -sinTheta],
+            [sinTheta, cosTheta]
+        ];
+
+        this.updateTransformationMatrix();
+    }
+
+    setTranslation(dX : number, dY : number) : void {
+        this.translationMatrix.values = [
+            [dX],
+            [dY]
+        ];
+
+        this.updateTransformationMatrix();
     }
 
     /**
@@ -228,11 +288,39 @@ export class LGE {
     drawPolygon(poly : Polygon, colour : Colour) : void {
         let points = poly.points;
 
+        // multiply these points by the translation matrix
+        // points.forEach(p => {
+        //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
+        // });
+
+        console.log('Updating points');
+
+        points.forEach(p => {
+            let pMatrix = new Matrix([[p.x], [p.y], [1]]);
+            console.log('The transformation matrix used is');
+            console.log(this.transformationMatrices[this.transformationMatrices.length - 1]);
+            let res : Matrix = this.transformationMatrices[this.transformationMatrices.length - 1].multiply(pMatrix);
+            console.log('original');
+            console.log(pMatrix);
+
+            console.log('after');
+            console.log(res);
+
+            p.x = res.values[0][0];
+            p.y = res.values[1][0];
+        });
+
         for (let i = 0; i < points.length - 1; i ++) {
             this.drawLine(points[i], points[i + 1], colour);
         }
     
         this.drawLine(points[points.length - 1], points[0], colour);
+    }
+
+    drawPolygonBuffer(buffer : any) : void {
+        buffer.forEach(x => {
+            this.drawPolygon(x.poly, x.colour);
+        })
     }
 
     /**
@@ -355,6 +443,19 @@ export class LGE {
      */
     clear() : void {
         this.ctx.clearRect(0, 0, this.resolution.x, this.resolution.y);
+    }
+
+    addTranslations(translationMatrix : any) : void {
+        // this.translationMatrixs.push(translationMatrix);
+    }
+
+    popTranslation(count : number | undefined) : void {
+        if (count === undefined) {
+            // check this
+            count = 1;
+        }
+
+        // this.translationMatrixs.pop(count);
     }
 
 }

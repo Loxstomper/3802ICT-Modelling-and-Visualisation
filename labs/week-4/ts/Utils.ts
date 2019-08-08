@@ -43,4 +43,10 @@ export class Utils {
 
         return this.sameSide(p, a, b, c) && this.sameSide(p, b, a, c) && this.sameSide(p, c, a, b);
     }
+
+    identityMatrix = [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ];
 }

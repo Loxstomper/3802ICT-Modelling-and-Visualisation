@@ -3,6 +3,7 @@ import {Point} from './Point';
 import {ShapeFactory} from './ShapeFactory';
 import {Polygon} from './Polygon';
 import {LGE} from './LGE';
+import {Matrix} from './Matrix';
 
 
 
@@ -43,20 +44,56 @@ const drawBufferExecute = () => {
     })    
 }
 
-drawBuffer.push({func : lge.fillPolygon, args : [square, Colours.white]});
-drawBufferExecute();
+// drawBuffer.push({func : lge.fillPolygon, args : [square, Colours.white]});
+drawBuffer.push({poly : square, colour : Colours.white});
+// drawBufferExecute();
 
-lge.drawPolygon(drawBuffer[0].args[0], drawBuffer[0].args[1]);
+// lge.drawPolygon(drawBuffer[0].args[0], drawBuffer[0].args[1]);
 
-const run = () => {
-    console.log(drawBuffer);
-    lge.clear();
-    drawBufferExecute();
-    window.requestAnimationFrame(run);
-}
+
+// const run = () => {
+//     // console.log(drawBuffer);
+//     lge.clear();
+//     lge.drawPolygonBuffer(drawBuffer);
+//     // drawBufferExecute();
+//     window.requestAnimationFrame(run);
+// }
 
 // run();
 
+
+
+
+
+lge.drawPolygon(square, Colours.white);
+
+lge.setRotation(Math.PI / 8);
+lge.setTranslation(200, 200);
+
+lge.drawPolygon(square, Colours.black);
+
+
+let a : Matrix = new Matrix([
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1]
+]);
+
+let b : Matrix = new Matrix([
+    [2],
+    [2],
+    [1]
+]);
+
+let c = a.multiply(b);
+console.log('RESULT');
+console.log(c.values);
+
+
+// let c : Matrix = a.multiply(b);
+
+// console.log('C');
+// console.log(c.values);
 
 
 

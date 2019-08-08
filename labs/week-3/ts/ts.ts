@@ -91,7 +91,7 @@ const randomDraw = () => {
     setTimeout(randomDraw, 100);
 }
 
-randomDraw();
+// randomDraw();
 
 
 
