@@ -30,21 +30,24 @@ var Colour = /** @class */ (function () {
 }());
 exports.Colour = Colour;
 exports.Colours = {
-    red: new Colour(255, 0, 0, 100),
-    green: new Colour(0, 255, 0, 100),
-    blue: new Colour(0, 0, 255, 100),
     black: new Colour(0, 0, 0, 100),
+    blue: new Colour(0, 0, 255, 100),
+    green: new Colour(0, 255, 0, 100),
+    red: new Colour(255, 0, 0, 100),
     white: new Colour(255, 255, 255, 100)
 };
 
 },{}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Point_1 = require("./Point");
+
+},{}],3:[function(require,module,exports){
+"use strict";
+exports.__esModule = true;
 var Colour_1 = require("./Colour");
-var Polygon_1 = require("./Polygon");
-var Pixel_1 = require("./Pixel");
 var Matrix_1 = require("./Matrix");
+var Pixel_1 = require("./Pixel");
+var Polygon_1 = require("./Polygon");
 /**
  * Lochie Graphics Engine
  */
@@ -65,7 +68,7 @@ var LGE = /** @class */ (function () {
         this.translationMatrix = new Matrix_1.Matrix([[0], [0]]);
         this.rotationMatrix = new Matrix_1.Matrix([[1, 0], [0, 1]]);
         this.updateTransformationMatrix();
-        console.log('Transformation matrices: ');
+        console.log("Transformation matrices: ");
         console.log(this.transformationMatrices);
     }
     /**
@@ -77,32 +80,26 @@ var LGE = /** @class */ (function () {
         var values = [
             [r.values[0][0], r.values[0][1], t.values[0][0]],
             [r.values[1][0], r.values[1][1], t.values[1][0]],
-            [0, 0, 1],
+            [0, 0, 1]
         ];
         var res = new Matrix_1.Matrix(values);
         this.transformationMatrices.push(res);
-        console.log('translation matrix');
+        console.log("translation matrix");
         console.log(t);
-        console.log('rotation matrix');
+        console.log("rotation matrix");
         console.log(r);
-        console.log('Transformation Matrix');
+        console.log("Transformation Matrix");
         console.log(res);
         return res;
     };
     LGE.prototype.setRotation = function (angle) {
         var cosTheta = Math.cos(angle);
         var sinTheta = Math.sin(angle);
-        this.rotationMatrix.values = [
-            [cosTheta, -sinTheta],
-            [sinTheta, cosTheta]
-        ];
+        this.rotationMatrix.values = [[cosTheta, -sinTheta], [sinTheta, cosTheta]];
         this.updateTransformationMatrix();
     };
     LGE.prototype.setTranslation = function (dX, dY) {
-        this.translationMatrix.values = [
-            [dX],
-            [dY]
-        ];
+        this.translationMatrix.values = [[dX], [dY]];
         this.updateTransformationMatrix();
     };
     /**
@@ -110,11 +107,11 @@ var LGE = /** @class */ (function () {
      * @remarks doesn't actual scale due to issues
      *
      * @param points points to be scaled
-     * @returns Point[]
+     * @returns IPoint[]
      */
     LGE.prototype.scalePoints = function (points) {
         return points;
-        // points.forEach( (p : Point) => {
+        // points.forEach( (p : IPoint) => {
         //     p.x = Math.floor(p.x) * this.PIXEL_SIZE;
         //     p.y = Math.floor(p.y) * this.PIXEL_SIZE;
         // })
@@ -122,8 +119,8 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Draws a coloured line between two points
-     * @param start first point
-     * @param end end point
+     * @param start first IPoint
+     * @param end end IPoint
      * @param colour Colour
      */
     LGE.prototype.drawLine = function (start, end, colour) {
@@ -147,9 +144,13 @@ var LGE = /** @class */ (function () {
         // }
         // // out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
         // out.map(pos => new Pixel(pos.x, pos.y, this.PIXEL_SIZE, this.ctx, colour));
-        var dx = Math.ceil(p1.x - p0.x), dy = Math.ceil(p1.y - p0.y), steps = Math.abs(dx) > Math.abs(dy) ? Math.ceil(Math.abs(dx) / this.PIXEL_SIZE)
+        var dx = Math.ceil(p1.x - p0.x);
+        var dy = Math.ceil(p1.y - p0.y);
+        var steps = Math.abs(dx) > Math.abs(dy)
+            ? Math.ceil(Math.abs(dx) / this.PIXEL_SIZE)
             : Math.ceil(Math.abs(dy) / this.PIXEL_SIZE);
         if (steps === 0) {
+            // tslint:disable-next-line: no-unused-expression
             new Pixel_1.Pixel(p0.x, p0.y, this.PIXEL_SIZE, this.ctx, colour);
             return;
         }
@@ -158,6 +159,7 @@ var LGE = /** @class */ (function () {
         var x = p0.x;
         var y = p0.y;
         for (var i = 0; i < steps; i++) {
+            // tslint:disable-next-line: no-unused-expression
             new Pixel_1.Pixel(x, y, this.PIXEL_SIZE, this.ctx, colour);
             x += xInc;
             y += yInc;
@@ -165,7 +167,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Draws lines between the points
-     * @param points Point[]
+     * @param points IPoint[]
      * @param colour Colour
      */
     LGE.prototype.drawPath = function (points, colour) {
@@ -180,17 +182,22 @@ var LGE = /** @class */ (function () {
      */
     LGE.prototype.scanLineFill = function (poly, colour) {
         var points = poly.points;
-        var minY = points.reduce(function (prev, curr) { return prev.y < curr.y ? prev : curr; }).y;
-        var maxY = points.reduce(function (prev, curr) { return prev.y > curr.y ? prev : curr; }).y;
+        var minY = points.reduce(function (prev, curr) { return (prev.y < curr.y ? prev : curr); })
+            .y;
+        var maxY = points.reduce(function (prev, curr) { return (prev.y > curr.y ? prev : curr); })
+            .y;
         var start = points[points.length - 1];
         var edges = [];
+        // tslint:disable-next-line: prefer-for-of
         for (var i = 0; i < points.length; i++) {
             edges.push({ 0: start, 1: points[i] });
             start = points[i];
         }
         for (var y = minY; y < maxY; y += this.PIXEL_SIZE) {
             var Xs = [];
+            // tslint:disable-next-line: one-variable-per-declaration
             var x = void 0, x1 = void 0, x2 = void 0, y1 = void 0, y2 = void 0, deltaX = void 0, deltaY = void 0;
+            // tslint:disable-next-line: prefer-for-of
             for (var i = 0; i < edges.length; i++) {
                 x1 = edges[i][0].x;
                 x2 = edges[i][1].x;
@@ -214,7 +221,7 @@ var LGE = /** @class */ (function () {
                 // left  = Xs[xi]     % 1 === 0 ? Xs[xi]     : Math.ceil(Xs[xi]);
                 // right = Xs[xi + 1] % 1 === 0 ? Xs[xi + 1] : Math.floor(Xs[xi]);
                 // console.log("AFTER : ", left, right);
-                this.drawLine(new Point_1.Point(left, y), new Point_1.Point(right, y), colour);
+                this.drawLine({ x: left, y: y }, { x: right, y: y }, colour);
             }
         }
         // this.drawPolygon(poly, colour);
@@ -224,8 +231,7 @@ var LGE = /** @class */ (function () {
      * @param poly Polygon
      * @param colour Colour
      */
-    LGE.prototype.otherFill = function (poly, colour) {
-    };
+    LGE.prototype.otherFill = function (poly, colour) { };
     /**
      * Fills a polygon based on the method decided on at initialization
      * @param poly Polygon
@@ -233,7 +239,7 @@ var LGE = /** @class */ (function () {
      */
     LGE.prototype.fillPolygon = function (poly, colour) {
         var _this = this;
-        if (this.fillMethod === null || this.fillMethod === 'scanLine') {
+        if (this.fillMethod === null || this.fillMethod === "scanLine") {
             // dont decompose if the polygon is a triangle
             var triangles = poly.points.length === 3 ? [poly] : poly.decompose();
             triangles.forEach(function (t) {
@@ -257,15 +263,15 @@ var LGE = /** @class */ (function () {
         // points.forEach(p => {
         //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
         // });
-        console.log('Updating points');
+        console.log("Updating points");
         points.forEach(function (p) {
             var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
-            console.log('The transformation matrix used is');
+            console.log("The transformation matrix used is");
             console.log(_this.transformationMatrices[_this.transformationMatrices.length - 1]);
             var res = _this.transformationMatrices[_this.transformationMatrices.length - 1].multiply(pMatrix);
-            console.log('original');
+            console.log("original");
             console.log(pMatrix);
-            console.log('after');
+            console.log("after");
             console.log(res);
             p.x = res.values[0][0];
             p.y = res.values[1][0];
@@ -291,7 +297,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Fills a triangle from 3 points
-     * @param points Point[]
+     * @param points IPoint[]
      * @param colour Colour
      */
     LGE.prototype.fillTriangle = function (points, colour) {
@@ -306,11 +312,11 @@ var LGE = /** @class */ (function () {
      * @param colour Colour
      */
     LGE.prototype.drawRectangle = function (x, y, width, height, colour) {
-        var points;
-        points.push(new Point_1.Point(x, y));
-        points.push(new Point_1.Point(x + width, y));
-        points.push(new Point_1.Point(x, y + height));
-        points.push(new Point_1.Point(x + width, y + height));
+        var points = [];
+        points.push({ x: x, y: y });
+        points.push({ x: x + width, y: y });
+        points.push({ x: x, y: y + height });
+        points.push({ x: x + width, y: y + height });
         this.drawPolygon(new Polygon_1.Polygon(points), colour);
     };
     /**
@@ -322,11 +328,11 @@ var LGE = /** @class */ (function () {
      * @param colour Colour
      */
     LGE.prototype.fillRectangle = function (x, y, width, height, colour) {
-        var points;
-        points.push(new Point_1.Point(x, y));
-        points.push(new Point_1.Point(x + width, y));
-        points.push(new Point_1.Point(x, y + height));
-        points.push(new Point_1.Point(x + width, y + height));
+        var points = [];
+        points.push({ x: x, y: y });
+        points.push({ x: x + width, y: y });
+        points.push({ x: x, y: y + height });
+        points.push({ x: x + width, y: y + height });
         this.fillPolygon(new Polygon_1.Polygon(points), colour);
     };
     /**
@@ -346,14 +352,14 @@ var LGE = /** @class */ (function () {
         for (var i = 1; i < samples; i++) {
             var x = xc + radius * Math.cos(i * step);
             var y = yc + radius * Math.sin(i * step);
-            points.push(new Point_1.Point(x, y));
-            points.push(new Point_1.Point(x, -y));
-            points.push(new Point_1.Point(y, -x));
-            points.push(new Point_1.Point(-y, -x));
-            points.push(new Point_1.Point(-x, -y));
-            points.push(new Point_1.Point(-x, y));
-            points.push(new Point_1.Point(-y, x));
-            points.push(new Point_1.Point(y, x));
+            points.push({ x: x, y: y });
+            points.push({ x: x, y: -y });
+            points.push({ x: y, y: -x });
+            points.push({ x: -y, y: -x });
+            points.push({ x: -x, y: -y });
+            points.push({ x: -x, y: y });
+            points.push({ y: -y, x: x });
+            points.push({ x: y, y: x });
         }
         // console.log(points);
         this.drawPolygon(new Polygon_1.Polygon(points), colour);
@@ -370,9 +376,12 @@ var LGE = /** @class */ (function () {
      * @param colour Colour
      */
     LGE.prototype.fillCircle = function (x, y, radius, samples, colour) {
-        var points;
+        var points = [];
         for (var i = 1; i < samples; i++) {
-            var p = new Point_1.Point(radius * (Math.cos((2 * Math.PI) / i)), radius * (Math.sin((2 * Math.PI) / i)));
+            var p = {
+                x: radius * Math.cos((2 * Math.PI) / i),
+                y: radius * Math.sin((2 * Math.PI) / i)
+            };
             points.push(p);
         }
         this.drawPolygon(new Polygon_1.Polygon(points), colour);
@@ -397,7 +406,7 @@ var LGE = /** @class */ (function () {
 }());
 exports.LGE = LGE;
 
-},{"./Colour":1,"./Matrix":3,"./Pixel":4,"./Point":5,"./Polygon":6}],3:[function(require,module,exports){
+},{"./Colour":1,"./Matrix":4,"./Pixel":5,"./Polygon":7}],4:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -405,11 +414,7 @@ exports.__esModule = true;
  */
 var Matrix = /** @class */ (function () {
     function Matrix(values) {
-        this.identityMatrix = [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1]
-        ];
+        this.identityMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
         if (values === null) {
             this.values = JSON.parse(JSON.stringify(this.identityMatrix));
         }
@@ -421,7 +426,7 @@ var Matrix = /** @class */ (function () {
     }
     Matrix.prototype.add = function (b) {
         if (this.width !== b.width && this.height !== b.height) {
-            throw new Error('Dimension miss match');
+            throw new Error("Dimension miss match");
         }
         var out = new Matrix(null);
         out.zero();
@@ -437,23 +442,18 @@ var Matrix = /** @class */ (function () {
         //     throw new Error('Dimension miss match');
         // }
         var res = [0, 0, 0];
-        // for (let i = 0; i < this.values.length; i ++) {
-        //     for (let j = 0; j < this.values[i].length; j ++) {
-        //         res[i] += this.values[i][j] * b.values[j][0];
-        //     }
-        // }
-        var x = JSON.stringify(this.values);
-        var y = JSON.stringify(b.values);
-        var z = JSON.stringify(res);
-        console.log('This:');
-        console.log(JSON.parse(x));
-        console.log('B: ');
-        console.log(JSON.parse(y));
-        res[0] = this.values[0][0] * b.values[0][0] + this.values[0][1] * b.values[1][0] + this.values[0][2] * b.values[2][0];
-        res[1] = this.values[1][0] * b.values[0][0] + this.values[1][1] * b.values[1][0] + this.values[0][2] * b.values[2][0];
-        res[2] = this.values[2][0] * b.values[0][0] + this.values[2][1] * b.values[1][0] + this.values[0][2] * b.values[2][0];
-        console.log('RES: ');
-        console.log(res);
+        res[0] =
+            this.values[0][0] * b.values[0][0] +
+                this.values[0][1] * b.values[1][0] +
+                this.values[0][2] * b.values[2][0];
+        res[1] =
+            this.values[1][0] * b.values[0][0] +
+                this.values[1][1] * b.values[1][0] +
+                this.values[0][2] * b.values[2][0];
+        res[2] =
+            this.values[2][0] * b.values[0][0] +
+                this.values[2][1] * b.values[1][0] +
+                this.values[0][2] * b.values[2][0];
         return new Matrix([[res[0]], [res[1]], [res[2]]]);
     };
     Matrix.prototype.zero = function () {
@@ -466,9 +466,8 @@ var Matrix = /** @class */ (function () {
     return Matrix;
 }());
 exports.Matrix = Matrix;
-;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Rectangle_1 = require("./Rectangle");
@@ -495,7 +494,7 @@ var Pixel = /** @class */ (function () {
 }());
 exports.Pixel = Pixel;
 
-},{"./Rectangle":7}],5:[function(require,module,exports){
+},{"./Rectangle":8}],6:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -515,7 +514,7 @@ var Point = /** @class */ (function () {
 }());
 exports.Point = Point;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Utils_1 = require("./Utils");
@@ -541,15 +540,6 @@ var Polygon = /** @class */ (function () {
             this.triangles.push(new Polygon(this.points));
             return this.triangles;
         }
-        // const oldPoints = this.points.slice(0, this.points.length);
-        // while (this.points.length >= 3) {
-        //     this.triangles.push(new Polygon([this.points[0], 
-        //                                      this.points[1 % this.points.length], 
-        //                                      this.points[2 % this.points.length]]));
-        //     this.points.splice(1 % this.points.length, 1);
-        // }
-        // this.points = oldPoints.slice(0, oldPoints.length);
-        // return this.triangles;
         var tempPoints = this.points.slice(0, this.points.length);
         while (tempPoints.length > 3) {
             for (var i = 0; i < tempPoints.length; i++) {
@@ -558,7 +548,9 @@ var Polygon = /** @class */ (function () {
                 var t = [tempPoints[i], tempPoints[prev], tempPoints[next]];
                 var noneIn = true;
                 for (var j = 0; j < tempPoints.length; j++) {
-                    if (j != i && j != next && Utils_1.Utils.insideTriangle(tempPoints[j], new Polygon(t))) {
+                    if (j !== i &&
+                        j !== next &&
+                        Utils_1.Utils.insideTriangle(tempPoints[j], new Polygon(t))) {
                         noneIn = false;
                         break;
                     }
@@ -605,7 +597,7 @@ var Polygon = /** @class */ (function () {
 }());
 exports.Polygon = Polygon;
 
-},{"./Utils":9}],7:[function(require,module,exports){
+},{"./Utils":10}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Rectangle = /** @class */ (function () {
@@ -638,10 +630,9 @@ var Rectangle = /** @class */ (function () {
 }());
 exports.Rectangle = Rectangle;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var Point_1 = require("./Point");
 var Polygon_1 = require("./Polygon");
 var Utils_1 = require("./Utils");
 /**
@@ -662,10 +653,10 @@ var ShapeFactory = /** @class */ (function () {
      */
     ShapeFactory.prototype.square = function (x, y, width, height) {
         var points = [];
-        points.push(new Point_1.Point(x, y));
-        points.push(new Point_1.Point(x + width, y));
-        points.push(new Point_1.Point(x + width, y + height));
-        points.push(new Point_1.Point(x, y + height));
+        points.push({ x: x, y: y });
+        points.push({ x: x + width, y: y });
+        points.push({ x: x + width, y: y + height });
+        points.push({ x: x, y: y + height });
         return new Polygon_1.Polygon(points);
     };
     /**
@@ -682,7 +673,10 @@ var ShapeFactory = /** @class */ (function () {
     ShapeFactory.prototype.polygon = function (x, y, width, height, nPoints) {
         var points = [];
         for (var i = 0; i < nPoints; i++) {
-            points.push(new Point_1.Point(x + Utils_1.Utils.randomInt(width), y + Utils_1.Utils.randomInt(height)));
+            points.push({
+                x: x + Utils_1.Utils.randomInt(width),
+                y: y + Utils_1.Utils.randomInt(height)
+            });
         }
         return new Polygon_1.Polygon(points);
     };
@@ -690,7 +684,7 @@ var ShapeFactory = /** @class */ (function () {
 }());
 exports.ShapeFactory = ShapeFactory;
 
-},{"./Point":5,"./Polygon":6,"./Utils":9}],9:[function(require,module,exports){
+},{"./Polygon":7,"./Utils":10}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -698,11 +692,6 @@ exports.__esModule = true;
  */
 var Utils = /** @class */ (function () {
     function Utils() {
-        this.identityMatrix = [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1]
-        ];
     }
     /**
      * Generates a random number [0...max]
@@ -714,8 +703,8 @@ var Utils = /** @class */ (function () {
     };
     /**
      * Are the points on the same side
-     * @param a point
-     * @param b point
+     * @param a IPoint
+     * @param b IPoint
      * @param l1 line1
      * @param l2 line2
      *
@@ -724,30 +713,32 @@ var Utils = /** @class */ (function () {
     Utils.sameSide = function (a, b, l1, l2) {
         var apt = (a.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (a.y - l1.y);
         var bpt = (b.x - l1.x) * (l2.y - l1.y) - (l2.x - l1.x) * (b.y - l1.y);
-        return ((apt * bpt) > 0);
+        return apt * bpt > 0;
     };
     /**
-     * Is a point in a triangle
-     * @param p point
+     * Is a IPoint in a triangle
+     * @param p IPoint
      * @param t triangle
      *
      * @returns boolean
      */
     Utils.insideTriangle = function (p, t) {
         var _a = t.points, a = _a[0], b = _a[1], c = _a[2];
-        return this.sameSide(p, a, b, c) && this.sameSide(p, b, a, c) && this.sameSide(p, c, a, b);
+        return (this.sameSide(p, a, b, c) &&
+            this.sameSide(p, b, a, c) &&
+            this.sameSide(p, c, a, b));
     };
     return Utils;
 }());
 exports.Utils = Utils;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Colour_1 = require("./Colour");
-var ShapeFactory_1 = require("./ShapeFactory");
 var LGE_1 = require("./LGE");
 var Matrix_1 = require("./Matrix");
+var ShapeFactory_1 = require("./ShapeFactory");
 /**
  * Get reference to the canvas element and its 2D rendering context
  */
@@ -761,12 +752,11 @@ canvas.height = 800;
 /**
  * Instantiate the graphics engine - using the scanLine fill method
  */
-var lge = new LGE_1.LGE(ctx, 4, 'scanLine');
+var lge = new LGE_1.LGE(ctx, 4, "scanLine");
 /**
  * Instantiate Shape Factory
  */
 var sf = new ShapeFactory_1.ShapeFactory();
-var points;
 var square = sf.square(300, 210, 100, 100);
 var drawBuffer = [];
 var drawBufferExecute = function () {
@@ -792,21 +782,13 @@ lge.drawPolygon(square, Colour_1.Colours.white);
 lge.setRotation(Math.PI / 4);
 lge.setTranslation(100, 100);
 lge.drawPolygon(square, Colour_1.Colours.black);
-var a = new Matrix_1.Matrix([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1]
-]);
-var b = new Matrix_1.Matrix([
-    [2],
-    [2],
-    [1]
-]);
+var a = new Matrix_1.Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
+var b = new Matrix_1.Matrix([[2], [2], [1]]);
 var c = a.multiply(b);
-console.log('RESULT');
+console.log("RESULT");
 console.log(c.values);
 // let c : Matrix = a.multiply(b);
 // console.log('C');
 // console.log(c.values);
 
-},{"./Colour":1,"./LGE":2,"./Matrix":3,"./ShapeFactory":8}]},{},[1,2,3,4,5,6,7,8,10,9]);
+},{"./Colour":1,"./LGE":3,"./Matrix":4,"./ShapeFactory":9}]},{},[1,2,3,4,5,6,7,8,9,11,10]);
