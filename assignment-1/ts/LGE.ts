@@ -276,26 +276,26 @@ export class LGE {
     //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
     // });
 
-    console.log("Updating points");
+    // console.log("Updating points");
 
-    points.forEach(p => {
-      const pMatrix = new Matrix([[p.x], [p.y], [1]]);
-      console.log("The transformation matrix used is");
-      console.log(
-        this.transformationMatrices[this.transformationMatrices.length - 1]
-      );
-      const res: Matrix = this.transformationMatrices[
-        this.transformationMatrices.length - 1
-      ].multiply(pMatrix);
-      console.log("original");
-      console.log(pMatrix);
+    // points.forEach(p => {
+    //   const pMatrix = new Matrix([[p.x], [p.y], [1]]);
+    //   console.log("The transformation matrix used is");
+    //   console.log(
+    //     this.transformationMatrices[this.transformationMatrices.length - 1]
+    //   );
+    //   const res: Matrix = this.transformationMatrices[
+    //     this.transformationMatrices.length - 1
+    //   ].multiply(pMatrix);
+    //   console.log("original");
+    //   console.log(pMatrix);
 
-      console.log("after");
-      console.log(res);
+    //   console.log("after");
+    //   console.log(res);
 
-      p.x = res.values[0][0];
-      p.y = res.values[1][0];
-    });
+    //   p.x = res.values[0][0];
+    //   p.y = res.values[1][0];
+    // });
 
     for (let i = 0; i < points.length - 1; i++) {
       this.drawLine(points[i], points[i + 1], colour);

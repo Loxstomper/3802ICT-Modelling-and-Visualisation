@@ -313,25 +313,28 @@ var LGE = /** @class */ (function () {
      * @param colour Colour
      */
     LGE.prototype.drawPolygon = function (poly, colour) {
-        var _this = this;
         var points = poly.points;
         // multiply these points by the translation matrix
         // points.forEach(p => {
         //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
         // });
-        console.log("Updating points");
-        points.forEach(function (p) {
-            var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
-            console.log("The transformation matrix used is");
-            console.log(_this.transformationMatrices[_this.transformationMatrices.length - 1]);
-            var res = _this.transformationMatrices[_this.transformationMatrices.length - 1].multiply(pMatrix);
-            console.log("original");
-            console.log(pMatrix);
-            console.log("after");
-            console.log(res);
-            p.x = res.values[0][0];
-            p.y = res.values[1][0];
-        });
+        // console.log("Updating points");
+        // points.forEach(p => {
+        //   const pMatrix = new Matrix([[p.x], [p.y], [1]]);
+        //   console.log("The transformation matrix used is");
+        //   console.log(
+        //     this.transformationMatrices[this.transformationMatrices.length - 1]
+        //   );
+        //   const res: Matrix = this.transformationMatrices[
+        //     this.transformationMatrices.length - 1
+        //   ].multiply(pMatrix);
+        //   console.log("original");
+        //   console.log(pMatrix);
+        //   console.log("after");
+        //   console.log(res);
+        //   p.x = res.values[0][0];
+        //   p.y = res.values[1][0];
+        // });
         for (var i = 0; i < points.length - 1; i++) {
             this.drawLine(points[i], points[i + 1], colour);
         }
@@ -870,59 +873,18 @@ var Asteroid_1 = require("./Asteroid");
 var Colour_1 = require("./Colour");
 var LGE_1 = require("./LGE");
 var ShapeFactory_1 = require("./ShapeFactory");
-/**
- * Get reference to the canvas element and its 2D rendering context
- */
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-/**
- * Set the width here not in the HTML
- */
 canvas.width = 800;
 canvas.height = 800;
-/**
- * Instantiate the graphics engine - using the scanLine fill method
- */
 var lge = new LGE_1.LGE(ctx, 1, "scanLine");
-/**
- * Instantiate Shape Factory
- */
 var sf = new ShapeFactory_1.ShapeFactory();
-var square = sf.square(300, 210, 100, 100);
-var drawBuffer = [];
-// drawBuffer.push({func : lge.fillPolygon, args : [square, Colours.white]});
-drawBuffer.push({ poly: square, colour: Colour_1.Colours.white });
-// drawBufferExecute();
-// lge.drawPolygon(drawBuffer[0].args[0], drawBuffer[0].args[1]);
+var square = sf.square(350, 350, 100, 100);
 var a = new Asteroid_1.Asteroid({ x: 400, y: 400 });
-var x = 200;
-var times = 0;
-var run = function () {
-    // console.log(drawBuffer);
-    lge.clear();
-    lge.scanLineFill(a, Colour_1.Colours.white);
-    a.translate(x, 0);
-    x++;
-    if (x > 300) {
-        x = 200;
-        a.translate(x, 0);
-    }
-    console.log(a.points[0]);
-    times++;
-    // if (times > 5) {
-    //   alert("1");
-    // }
-    window.requestAnimationFrame(run);
-};
-// run();
-lge.scanLineFill(a, Colour_1.Colours.white);
-// console.log(a.points);
-// a.translate(25, 25);
-// console.log(a.points);
-// lge.scanLineFill(a, Colours.white);
-// a.rotate(-22.5);
-// console.log(a.points);
-// lge.scanLineFill(a, Colours.red);
-// lge.drawPolygon(a.boundingBox, Colours.black);
+lge.drawPolygon(square, Colour_1.Colours.black);
+// square.rotate(45);
+// square.translate(100, 100);
+square.moveTo(400, 400);
+lge.drawPolygon(square, Colour_1.Colours.red);
 
 },{"./Asteroid":1,"./Colour":2,"./LGE":5,"./ShapeFactory":11}]},{},[1,2,3,4,5,6,7,8,9,10,11,13,12]);
