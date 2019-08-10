@@ -34,14 +34,37 @@ export class Asteroid extends Polygon {
     return points;
   }
 
-  public velocity: number;
+  public velocity: any = { x: 0, y: 0 };
   public rotationSpeed: number;
   public polygon: Polygon;
   // does this really need to be a polygon?
   public boundingBox: Polygon;
+  public resolution: any;
 
-  constructor(centrePoint: IPoint) {
+  constructor(centrePoint: IPoint, resolution: any) {
     super(Asteroid.generatePoints(centrePoint), true);
-    // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    this.resolution = resolution;
+    this.rotationSpeed = 1 + Utils.randomInt(9) - 5;
+    this.velocity.x = Utils.randomInt(5) - 2.5;
+    this.velocity.y = Utils.randomInt(5) - 2.5;
+  }
+
+  public update() {
+    // use the bounding box for bounds checking
+    const bb = this.boundingBox.points;
+
+    if (
+      bb[0].x <= 0 ||
+      bb[0].y <= 0 ||
+      bb[3].x >= this.resolution.x ||
+      bb[3].y >= this.resolution.y
+    ) {
+      this.velocity.x *= -1;
+      this.velocity.y *= -1;
+    }
+
+    // going to generate the bounding box twice...
+    this.rotate(this.rotationSpeed);
+    this.translate(this.velocity.x, this.velocity.y);
   }
 }

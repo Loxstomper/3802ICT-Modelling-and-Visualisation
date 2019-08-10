@@ -5,6 +5,7 @@ import { LGE } from "./LGE";
 import { Matrix } from "./Matrix";
 import { Polygon } from "./Polygon";
 import { ShapeFactory } from "./ShapeFactory";
+import { Utils } from "./Utils";
 
 const canvas: HTMLCanvasElement = document.getElementById(
   "canvas"
@@ -18,10 +19,41 @@ const lge = new LGE(ctx, 1, "scanLine");
 const sf: ShapeFactory = new ShapeFactory();
 
 const square: Polygon = sf.square(350, 350, 100, 100);
-const a = new Asteroid({ x: 400, y: 400 });
 
-lge.drawPolygon(square, Colours.black);
-// square.rotate(45);
-// square.translate(100, 100);
-square.moveTo(400, 400);
-lge.drawPolygon(square, Colours.red);
+let fps = 30;
+let renderDelay = 1000 / fps;
+
+let i = 0;
+
+const asteroidFactory = () => {
+  const x = 50 + Utils.randomInt(700);
+  const y = 50 + Utils.randomInt(700);
+
+  return new Asteroid({ x, y }, lge.resolution);
+};
+
+let asteroids: Asteroid[] = [];
+
+// change this to requestAnimationFrame
+const loop = () => {
+  lge.clear();
+
+  asteroids.forEach((a: Asteroid) => {
+    a.update();
+    lge.scanLineFill(a, Colours.black);
+    lge.drawPolygon(a.boundingBox, Colours.green);
+  });
+
+  setTimeout(loop, renderDelay);
+};
+
+// requestAnimationFrame(loop);
+
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+
+loop();

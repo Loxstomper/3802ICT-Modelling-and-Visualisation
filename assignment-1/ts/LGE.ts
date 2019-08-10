@@ -16,7 +16,7 @@ export class LGE {
   private rotationMatrix: Matrix;
   private transformationMatrices: Matrix[] = [];
   private ctx: CanvasRenderingContext2D;
-  private resolution: any;
+  public resolution: any;
 
   /**
    *
