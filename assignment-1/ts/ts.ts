@@ -6,6 +6,7 @@ import { Matrix } from "./Matrix";
 import { Polygon } from "./Polygon";
 import { ShapeFactory } from "./ShapeFactory";
 import { Utils } from "./Utils";
+import { Player } from "./Player";
 
 const canvas: HTMLCanvasElement = document.getElementById(
   "canvas"
@@ -32,28 +33,39 @@ const asteroidFactory = () => {
   return new Asteroid({ x, y }, lge.resolution);
 };
 
-let asteroids: Asteroid[] = [];
+const asteroids: Asteroid[] = [];
+const player: Player = new Player();
+
+let pressedKey = null;
+const getInput = (e: KeyboardEvent) => {
+  pressedKey = e.keyCode;
+};
+
+window.addEventListener("keydown", getInput, false);
 
 // change this to requestAnimationFrame
 const loop = () => {
   lge.clear();
 
+  player.update(pressedKey);
+
+  player.body.forEach((p: Polygon) => {
+    lge.drawPolygon(p);
+  });
+
   asteroids.forEach((a: Asteroid) => {
     a.update();
-    lge.scanLineFill(a, Colours.black);
-    lge.drawPolygon(a.boundingBox, Colours.green);
+    lge.drawPolygon(a);
+    lge.drawPolygon(a.boundingBox);
   });
+
+  pressedKey = null;
 
   setTimeout(loop, renderDelay);
 };
 
 // requestAnimationFrame(loop);
 
-asteroids.push(asteroidFactory());
-asteroids.push(asteroidFactory());
-asteroids.push(asteroidFactory());
-asteroids.push(asteroidFactory());
-asteroids.push(asteroidFactory());
 asteroids.push(asteroidFactory());
 
 loop();

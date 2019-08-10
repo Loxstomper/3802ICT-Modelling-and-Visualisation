@@ -7,6 +7,8 @@ import { Utils } from "./Utils";
 
 /**
  * Lochie Graphics Engine
+ *
+ * MAKE THIS A STATIC CLASS!!! - then can easily use
  */
 export class LGE {
   private PIXEL_SIZE: number;
