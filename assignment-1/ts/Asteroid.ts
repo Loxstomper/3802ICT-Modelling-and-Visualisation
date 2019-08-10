@@ -41,7 +41,7 @@ export class Asteroid extends Polygon {
   public boundingBox: Polygon;
 
   constructor(centrePoint: IPoint) {
-    super(Asteroid.generatePoints(centrePoint));
-    this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    super(Asteroid.generatePoints(centrePoint), true);
+    // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
   }
 }

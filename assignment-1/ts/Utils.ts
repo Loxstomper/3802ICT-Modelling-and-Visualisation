@@ -86,8 +86,8 @@ export class Utils {
     const boundingBox = Utils.calculateBoundingBox(points);
 
     return {
-      x: boundingBox[2].x - boundingBox[0].x,
-      y: boundingBox[3].y - boundingBox[0].y
+      x: (boundingBox[2].x + boundingBox[0].x) / 2,
+      y: (boundingBox[3].y + boundingBox[0].y) / 2
     };
   }
 }

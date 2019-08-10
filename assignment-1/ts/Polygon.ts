@@ -1,35 +1,36 @@
+import { Colour } from "./Colour";
 import { IPoint } from "./IPoint";
 import { Matrix } from "./Matrix";
 import { Utils } from "./Utils";
-import { Colour } from "./Colour";
+
 /**
  * Represents a polygon
  */
 export class Polygon {
   public points: IPoint[];
   public triangles: Polygon[];
-  public translationMatrix: Matrix = new Matrix(null);
-  public rotationMatrix: Matrix = new Matrix(null);
   public transformationMatrix: Matrix = new Matrix(null);
   public scale: number;
   public angle: number;
   public colour: Colour;
   public fillColour: Colour;
   public centrePoint: IPoint;
+  public boundingBox: Polygon;
 
   /**
    *
    * @param points points that represent the polygon
    */
-  constructor(points: IPoint[]) {
+  constructor(points: IPoint[], hasBoundingBox?: boolean) {
     this.points = points;
     this.triangles = [];
     this.centrePoint = Utils.calculateCentrePoint(points);
 
-    this.scale = 1;
-    this.angle = 0;
+    if (hasBoundingBox) {
+      this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    }
 
-    // init the matrices
+    this.scale = 1;
   }
 
   /**
@@ -83,20 +84,31 @@ export class Polygon {
    * @returns Polygon
    */
   public translate(deltaX: number, deltaY: number): void {
-    // update value
-    this.translationMatrix.values[0][2] = deltaX;
-    this.translationMatrix.values[1][2] = deltaY;
+    // update values
+    this.transformationMatrix.values[0][2] = deltaX;
+    this.transformationMatrix.values[1][2] = deltaY;
 
     // update all the points
-    this.points.forEach((p: IPoint) => {
+    this.points.forEach((p: IPoint, i: number) => {
       const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
-      const res: Matrix = this.translationMatrix.multiply(pMatrix);
+      const res: Matrix = this.transformationMatrix.multiply(pMatrix);
 
-      p.x = res.values[0][0];
-      p.y = res.values[1][0];
+      this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
     });
+
+    // update values [reset]
+    this.transformationMatrix.values[0][2] = 0;
+    this.transformationMatrix.values[1][2] = 0;
+
+    // update centrepoint and bounding box
+    this.centrePoint = Utils.calculateCentrePoint(this.points);
+
+    if (this.boundingBox) {
+      this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    }
   }
 
+  // dont use this
   // moves centrepoint to location
   public moveTo(x: number, y: number): void {
     const offsets: IPoint[] = [];
@@ -117,34 +129,68 @@ export class Polygon {
   }
 
   public rotate(angle: number): void {
-    // makes it easier
-    const prevPos = this.centrePoint;
+    const theta: number = (angle * Math.PI) / 180;
+    const cosTheta: number = Math.cos(theta);
+    const sinTheta: number = Math.sin(theta);
 
-    // move to origin
-    this.moveTo(0, 0);
+    const tm = this.transformationMatrix;
 
-    // rotate
-    const cosTheta = Math.cos(angle);
-    const sinTheta = Math.sin(angle);
+    // update the transformation matrix
+    tm.values[0][0] = cosTheta;
+    tm.values[0][1] = -sinTheta;
+    tm.values[1][0] = sinTheta;
+    tm.values[1][1] = cosTheta;
 
-    const rv = this.rotationMatrix.values;
+    // rotation point
+    const rp: IPoint = this.centrePoint;
 
-    rv[0][0] = cosTheta;
-    rv[0][1] = -sinTheta;
-    rv[1][0] = sinTheta;
-    rv[1][1] = cosTheta;
+    // this can be incorporated into another matrix operation
+    tm.values[0][2] = rp.x - cosTheta * rp.x - -sinTheta * rp.y;
+    tm.values[1][2] = rp.y - sinTheta * rp.y - cosTheta * rp.y;
 
     // update all the points
-    this.points.forEach((p: IPoint) => {
+    this.points.forEach((p: IPoint, i: number) => {
       const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
-      const res: Matrix = this.rotationMatrix.multiply(pMatrix);
+      const res: Matrix = tm.multiply(pMatrix);
 
-      p.x = res.values[0][0];
-      p.y = res.values[1][0];
+      this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
     });
 
-    // move back
-    this.moveTo(prevPos.x, prevPos.y);
+    // update the transformation matrix [reset angle]
+    tm.values[0][0] = 1;
+    tm.values[0][1] = 0;
+    tm.values[1][0] = 0;
+    tm.values[1][1] = 1;
+    // translation
+    tm.values[0][2] = 0;
+    tm.values[1][2] = 0;
+
+    // recalculate bounding box if this polygon has one
+    if (this.boundingBox) {
+      this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    }
+  }
+
+  public newRotate(angle: number): void {
+    const theta: number = (angle * Math.PI) / 180;
+    const cosTheta: number = Math.cos(theta);
+    const sinTheta: number = Math.sin(theta);
+
+    const tm = this.transformationMatrix;
+    const tmOld = JSON.parse(JSON.stringify(tm));
+    const rm = JSON.parse(JSON.stringify(tm));
+
+    // update all the points
+    this.points.forEach((p: IPoint, i: number) => {
+      // const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
+      const pMatrix: Matrix = new Matrix(null);
+      pMatrix.values[0][2] = p.x;
+      pMatrix.values[1][2] = p.y;
+
+      const res: Matrix = tm.multiply(pMatrix);
+
+      this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
+    });
   }
 
   /**
