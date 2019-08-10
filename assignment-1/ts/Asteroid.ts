@@ -1,6 +1,7 @@
 import { IPoint } from "./IPoint";
 import { Polygon } from "./Polygon";
 import { Utils } from "./Utils";
+import { Colour, Colours } from "./Colour";
 
 export class Asteroid extends Polygon {
   // concave
@@ -47,6 +48,12 @@ export class Asteroid extends Polygon {
     this.rotationSpeed = 1 + Utils.randomInt(9) - 5;
     this.velocity.x = Utils.randomInt(5) - 2.5;
     this.velocity.y = Utils.randomInt(5) - 2.5;
+
+    this.colour = Colours.black;
+    this.fillColour = Colours.red;
+    this.boundingBox.colour = Colours.green;
+
+    console.log(this.boundingBox);
   }
 
   public update() {

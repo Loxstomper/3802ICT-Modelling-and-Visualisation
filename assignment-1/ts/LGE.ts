@@ -268,40 +268,18 @@ export class LGE {
    * @param poly Polygon
    * @param colour Colour
    */
-  public drawPolygon(poly: Polygon, colour: Colour): void {
+  public drawPolygon(poly: Polygon, colour?: Colour): void {
     const points = poly.points;
 
-    // multiply these points by the translation matrix
-    // points.forEach(p => {
-    //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
-    // });
-
-    // console.log("Updating points");
-
-    // points.forEach(p => {
-    //   const pMatrix = new Matrix([[p.x], [p.y], [1]]);
-    //   console.log("The transformation matrix used is");
-    //   console.log(
-    //     this.transformationMatrices[this.transformationMatrices.length - 1]
-    //   );
-    //   const res: Matrix = this.transformationMatrices[
-    //     this.transformationMatrices.length - 1
-    //   ].multiply(pMatrix);
-    //   console.log("original");
-    //   console.log(pMatrix);
-
-    //   console.log("after");
-    //   console.log(res);
-
-    //   p.x = res.values[0][0];
-    //   p.y = res.values[1][0];
-    // });
-
-    for (let i = 0; i < points.length - 1; i++) {
-      this.drawLine(points[i], points[i + 1], colour);
+    if (poly.fillColour) {
+      this.scanLineFill(poly, poly.fillColour);
     }
 
-    this.drawLine(points[points.length - 1], points[0], colour);
+    for (let i = 0; i < points.length - 1; i++) {
+      this.drawLine(points[i], points[i + 1], poly.colour);
+    }
+
+    this.drawLine(points[points.length - 1], points[0], poly.colour);
   }
 
   public drawPolygonBuffer(buffer: any): void {

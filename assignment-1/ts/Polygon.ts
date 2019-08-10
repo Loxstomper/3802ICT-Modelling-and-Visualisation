@@ -1,4 +1,4 @@
-import { Colour } from "./Colour";
+import { Colour, Colours } from "./Colour";
 import { IPoint } from "./IPoint";
 import { Matrix } from "./Matrix";
 import { Utils } from "./Utils";
@@ -13,7 +13,7 @@ export class Polygon {
   public scale: number;
   public angle: number;
   public colour: Colour;
-  public fillColour: Colour;
+  public fillColour: Colour | null = null;
   public centrePoint: IPoint;
   public boundingBox: Polygon;
 
@@ -26,8 +26,11 @@ export class Polygon {
     this.triangles = [];
     this.centrePoint = Utils.calculateCentrePoint(points);
 
+    this.colour = Colours.black;
+
     if (hasBoundingBox) {
       this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+      this.boundingBox.colour = Colours.green;
     }
 
     this.scale = 1;
