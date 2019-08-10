@@ -49,11 +49,11 @@ export class Matrix {
     res[1] =
       this.values[1][0] * b.values[0][0] +
       this.values[1][1] * b.values[1][0] +
-      this.values[0][2] * b.values[2][0];
+      this.values[1][2] * b.values[2][0];
     res[2] =
       this.values[2][0] * b.values[0][0] +
       this.values[2][1] * b.values[1][0] +
-      this.values[0][2] * b.values[2][0];
+      this.values[2][2] * b.values[2][0];
 
     return new Matrix([[res[0]], [res[1]], [res[2]]]);
   }
