@@ -19,16 +19,14 @@ canvas.height = 800;
 const lge = new LGE(ctx, 1, "scanLine");
 const sf: ShapeFactory = new ShapeFactory();
 
-const square: Polygon = sf.square(350, 350, 100, 100);
-
-let fps = 30;
-let renderDelay = 1000 / fps;
+const fps = 30;
+const renderDelay = 1000 / fps;
 
 let i = 0;
 
 const asteroidFactory = () => {
-  const x = 50 + Utils.randomInt(700);
-  const y = 50 + Utils.randomInt(700);
+  const x = 50 + Utils.randomInt(canvas.width - 100);
+  const y = 50 + Utils.randomInt(canvas.height - 50);
 
   return new Asteroid({ x, y }, lge.resolution);
 };
@@ -42,8 +40,13 @@ const getInput = (e: KeyboardEvent) => {
 };
 
 window.addEventListener("keydown", getInput, false);
+ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
+let maxNumberAsteroids: number = 5;
+let spawnProb: number = 1;
+let numberAsteroids: number = 0;
+
 const loop = () => {
   lge.clear();
 
@@ -52,6 +55,11 @@ const loop = () => {
   player.body.forEach((p: Polygon) => {
     lge.drawPolygon(p);
   });
+  lge.drawPolygon(player.boundingBox);
+  // console.log(player);
+
+  player.handleCollision(asteroids);
+  ctx.fillText(`Score: ${player.score}`, 10, 50);
 
   asteroids.forEach((a: Asteroid) => {
     a.update();
@@ -61,11 +69,27 @@ const loop = () => {
 
   pressedKey = null;
 
+  if (
+    numberAsteroids < maxNumberAsteroids &&
+    Utils.randomInt(10) <= spawnProb
+  ) {
+    asteroids.push(asteroidFactory());
+  }
+
   setTimeout(loop, renderDelay);
 };
 
 // requestAnimationFrame(loop);
 
 asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+asteroids.push(asteroidFactory());
+numberAsteroids = asteroids.length;
+
+// player.translate(canvas.width / 2, canvas.height / 2);
+
+// asteroids.push(new Asteroid({400, 400}))
 
 loop();

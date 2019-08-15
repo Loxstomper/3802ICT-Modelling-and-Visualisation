@@ -41,6 +41,7 @@ export class Asteroid extends Polygon {
   // does this really need to be a polygon?
   public boundingBox: Polygon;
   public resolution: any;
+  public ID: number;
 
   constructor(centrePoint: IPoint, resolution: any) {
     super(Asteroid.generatePoints(centrePoint), true);
@@ -53,25 +54,41 @@ export class Asteroid extends Polygon {
     this.fillColour = Colours.red;
     this.boundingBox.colour = Colours.green;
 
-    console.log(this.boundingBox);
+    // console.log(this.boundingBox);
   }
 
   public update() {
     // use the bounding box for bounds checking
     const bb = this.boundingBox.points;
 
+    // if (
+    //   bb[0].x <= 0 ||
+    //   bb[0].y <= 0 ||
+    //   bb[3].x >= this.resolution.x ||
+    //   bb[3].y >= this.resolution.y
+    // ) {
+    //   this.velocity.x *= -1;
+    //   this.velocity.y *= -1;
+    // }
+
     if (
-      bb[0].x <= 0 ||
-      bb[0].y <= 0 ||
-      bb[3].x >= this.resolution.x ||
-      bb[3].y >= this.resolution.y
+      this.centrePoint.x + Asteroid.maxRadius >= this.resolution.x ||
+      this.centrePoint.x - Asteroid.maxRadius <= 0
     ) {
       this.velocity.x *= -1;
+    }
+
+    if (
+      this.centrePoint.y + Asteroid.maxRadius >= this.resolution.y ||
+      this.centrePoint.y - Asteroid.maxRadius <= 0
+    ) {
       this.velocity.y *= -1;
     }
 
     // going to generate the bounding box twice...
     this.rotate(this.rotationSpeed);
     this.translate(this.velocity.x, this.velocity.y);
+    this.updateBoundingBox();
+    this.boundingBox.colour = Colours.green;
   }
 }

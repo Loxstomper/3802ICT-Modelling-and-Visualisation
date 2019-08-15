@@ -107,7 +107,8 @@ export class Polygon {
     this.centrePoint = Utils.calculateCentrePoint(this.points);
 
     if (this.boundingBox) {
-      this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+      // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+      this.boundingBox.translate(deltaX, deltaY);
     }
   }
 
@@ -131,7 +132,7 @@ export class Polygon {
     }
   }
 
-  public rotate(angle: number): void {
+  public rotate(angle: number, point?: IPoint): void {
     const theta: number = (angle * Math.PI) / 180;
     const cosTheta: number = Math.cos(theta);
     const sinTheta: number = Math.sin(theta);
@@ -145,7 +146,7 @@ export class Polygon {
     tm.values[1][1] = cosTheta;
 
     // rotation point
-    const rp: IPoint = this.centrePoint;
+    const rp: IPoint = point ? point : this.centrePoint;
 
     // this can be incorporated into another matrix operation
     tm.values[0][2] = rp.x - cosTheta * rp.x - -sinTheta * rp.y;
@@ -169,9 +170,14 @@ export class Polygon {
     tm.values[1][2] = 0;
 
     // recalculate bounding box if this polygon has one
-    if (this.boundingBox) {
-      this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
-    }
+    // if (this.boundingBox) {
+    //   // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
+    //   this.boundingBox.rotate(angle);
+    // }
+  }
+
+  public updateBoundingBox(): void {
+    this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
   }
 
   public newRotate(angle: number): void {
