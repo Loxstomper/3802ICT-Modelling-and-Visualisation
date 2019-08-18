@@ -67,7 +67,7 @@ export class Player {
 
     this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
 
-    this.body[0].fillColour = Colours.black;
+    this.body[0].fillColour = Colours.white;
     // this.body[1].fillColour = Colours.red;
     // this.body[2].fillColour = Colours.blue;
   }
@@ -84,7 +84,7 @@ export class Player {
 
     this.boundingBox = new Polygon(Utils.calculateBoundingBox(points), false);
     this.boundingBox.colour = Colours.green;
-    console.log(this.boundingBox);
+    // console.log(this.boundingBox);
   }
 
   public rotate(angle: number): void {
@@ -97,7 +97,7 @@ export class Player {
       this.angle += 360;
     }
 
-    console.log(this.angle);
+    // console.log(this.angle);
 
     this.body.forEach((p: Polygon) => {
       p.rotate(angle, this.centrePoint);
@@ -164,13 +164,26 @@ export class Player {
     // console.log(this.velocityVector);
   }
 
-  public handleCollision(asteroids: Asteroid[]): void {
+  public handleCollision(asteroids: Asteroid[]): number {
     const bb = this.boundingBox.points;
     const bbWidth = bb[2].x - bb[0].x;
     const bbHeight = bb[3].y - bb[0].y;
 
+    let numberCollisions: number = 0;
+
     // check for collision
     for (let i = 0; i < asteroids.length; i++) {
+      // this is really bad needs to be removed
+      // check if the asteroid is off the canvas and remove it - prob get index issue tho...
+      const cp: IPoint = asteroids[i].centrePoint;
+      if (cp.x < 0 || cp.x > 800 || cp.y < 0 || cp.y > 800) {
+        asteroids.splice(i, 1);
+        numberCollisions++;
+        console.log("ran away");
+        continue;
+      }
+      // ---------------------------------------
+
       const abb = asteroids[i].boundingBox.points;
       const abbWidth = abb[2].x - bb[0].x;
       const abbHeight = abb[3].y - bb[0].y;
@@ -186,8 +199,11 @@ export class Player {
       ) {
         // delete asteroids[i];
         asteroids.splice(i, 1);
+        numberCollisions++;
         this.score++;
       }
     }
+
+    return numberCollisions;
   }
 }

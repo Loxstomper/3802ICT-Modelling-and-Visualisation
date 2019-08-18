@@ -50,8 +50,8 @@ export class Asteroid extends Polygon {
     this.velocity.x = Utils.randomInt(5) - 2.5;
     this.velocity.y = Utils.randomInt(5) - 2.5;
 
-    this.colour = Colours.black;
-    this.fillColour = Colours.red;
+    this.colour = Colours.white;
+    // this.fillColour = Colours.red;
     this.boundingBox.colour = Colours.green;
 
     // console.log(this.boundingBox);

@@ -436,6 +436,22 @@ export class LGE {
     this.ctx.clearRect(0, 0, this.resolution.x, this.resolution.y);
   }
 
+  public clearSmart(asteroids: any[], player: any): void {
+    // going to clear each bounding box
+    [...asteroids, player].forEach(o => {
+      const bb = o.boundingBox.points;
+      const x = bb[0].x;
+      const y = bb[0].y;
+      const width = bb[1].x - x;
+      const height = bb[2].y - y;
+
+      this.ctx.clearRect(x - 4, y - 4, width + 8, height + 8);
+    });
+
+    // clear the score
+    this.ctx.clearRect(0, 0, 200, 50);
+  }
+
   public addTranslations(translationMatrix: any): void {
     // this.translationMatrixs.push(translationMatrix);
   }
