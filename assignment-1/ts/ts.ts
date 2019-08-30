@@ -64,7 +64,7 @@ window.addEventListener("click", cssFilters, false);
 ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
-let maxNumberAsteroids: number = 10;
+let maxNumberAsteroids: number = 25;
 let spawnProb: number = 1;
 let numberAsteroids: number = 0;
 
@@ -81,7 +81,11 @@ const loop = (timestamp: number) => {
   player.update(pressedKey, delta);
   pressedKey = null;
 
-  asteroids.forEach((a: Asteroid) => {
+  asteroids.forEach((a: Asteroid, index: number) => {
+    a.handleCollision(asteroids, index);
+  });
+
+  asteroids.forEach((a: Asteroid, index: number) => {
     a.update(delta);
   });
 
@@ -97,8 +101,6 @@ const loop = (timestamp: number) => {
     Utils.randomInt(10) <= spawnProb
   ) {
     asteroids.push(asteroidFactory());
-    asteroids[numberAsteroids].fillColour = Colours.brown;
-    asteroids[numberAsteroids].colour = Colours.brown;
     numberAsteroids++;
   }
 
