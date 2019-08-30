@@ -15,7 +15,13 @@ export class ShapeFactory {
    *
    * @returns Polygon
    */
-  public square(x: number, y: number, width: number, height: number): Polygon {
+  public square(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    boundingBox?: boolean
+  ): Polygon {
     const points: IPoint[] = [];
 
     points.push({ x, y });
@@ -24,7 +30,7 @@ export class ShapeFactory {
     points.push({ x: x + width, y: y + height });
     points.push({ x, y: y + height });
 
-    return new Polygon(points);
+    return new Polygon(points, boundingBox);
   }
 
   /**

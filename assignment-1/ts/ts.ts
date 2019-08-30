@@ -16,7 +16,7 @@ const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 800;
 
-const lge = new LGE(ctx, 4, "scanLine");
+const lge = new LGE(ctx, 1, "scanLine");
 const sf: ShapeFactory = new ShapeFactory();
 
 const fps = 30;
@@ -40,18 +40,25 @@ const getInput = (e: KeyboardEvent) => {
 };
 
 window.addEventListener("keydown", getInput, false);
+// window.addEventListener("keypress", getInput, false);
 ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
-let maxNumberAsteroids: number = 5;
+let maxNumberAsteroids: number = 0;
 let spawnProb: number = 1;
 let numberAsteroids: number = 0;
 
-const loop = () => {
-  // lge.clear();
-  lge.clearSmart(asteroids, player);
+let lastFrameTimeMS = 0;
+let delta = 0;
 
-  player.update(pressedKey);
+const loop = (timestamp: number) => {
+  delta = (timestamp - lastFrameTimeMS) / 1000;
+  lastFrameTimeMS = timestamp;
+
+  lge.clear();
+  // lge.clearSmart(asteroids, player);
+
+  player.update(pressedKey, delta);
 
   player.body.forEach((p: Polygon) => {
     lge.drawPolygon(p);
@@ -59,14 +66,27 @@ const loop = () => {
   lge.drawPolygon(player.boundingBox);
   // console.log(player);
 
+  const playerCentrePoly: Polygon = new ShapeFactory().square(
+    player.centrePoint.x - 10,
+    player.centrePoint.y - 10,
+    20,
+    20
+  );
+
+  playerCentrePoly.fillColour = Colours.black;
+
+  lge.drawPolygon(playerCentrePoly);
+
   numberAsteroids -= player.handleCollision(asteroids);
   ctx.fillText(`Score: ${player.score}`, 10, 50);
 
   asteroids.forEach((a: Asteroid) => {
-    a.update();
+    a.update(delta);
     lge.drawPolygon(a);
     lge.drawPolygon(a.boundingBox);
   });
+
+  // lge.drawPolygonBuffer([...player.body, ...asteroids]);
 
   pressedKey = null;
 
@@ -79,20 +99,66 @@ const loop = () => {
     numberAsteroids++;
   }
 
-  setTimeout(loop, renderDelay);
+  requestAnimationFrame(loop);
 };
 
 // requestAnimationFrame(loop);
 
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// numberAsteroids = asteroids.length;
+// loop();
 
-// player.translate(canvas.width / 2, canvas.height / 2);
+const square = new ShapeFactory().square(350, 350, 100, 100, true);
+square.colour = Colours.red;
+square.fillColour = Colours.white;
 
-// asteroids.push(new Asteroid({400, 400}))
+const staticSquare = new ShapeFactory().square(350, 100, 100, 100, true);
+staticSquare.colour = Colours.red;
+staticSquare.fillColour = Colours.white;
 
-loop();
+const rotationSpeed = 180;
+let velocity = 5;
+
+const wtfRotateLoop = (timestamp: any) => {
+  lge.clear();
+
+  delta = (timestamp - lastFrameTimeMS) / 1000;
+  lastFrameTimeMS = timestamp;
+
+  lge.drawLine({ x: 0, y: 350 }, { x: 800, y: 350 }, Colours.red);
+  lge.drawLine({ x: 0, y: 450 }, { x: 800, y: 450 }, Colours.red);
+  lge.drawLine({ x: 350, y: 0 }, { x: 350, y: 800 }, Colours.red);
+  lge.drawLine({ x: 450, y: 0 }, { x: 450, y: 800 }, Colours.red);
+
+  square.rotate(rotationSpeed * delta);
+  staticSquare.rotate(rotationSpeed * delta);
+
+  if (square.centrePoint.x <= 200 || square.centrePoint.x >= 600) {
+    velocity *= -1;
+  }
+
+  square.translate(velocity, 0);
+
+  const squareCentre: Polygon = new ShapeFactory().square(
+    square.centrePoint.x - 10,
+    square.centrePoint.y - 10,
+    20,
+    20
+  );
+
+  const staticSquareCentre: Polygon = new ShapeFactory().square(
+    staticSquare.centrePoint.x - 10,
+    staticSquare.centrePoint.y - 10,
+    20,
+    20
+  );
+
+  lge.drawPolygon(square);
+  lge.drawPolygon(square.boundingBox);
+  lge.drawPolygon(squareCentre);
+  lge.drawPolygon(staticSquare);
+  lge.drawPolygon(staticSquareCentre);
+
+  requestAnimationFrame(wtfRotateLoop);
+};
+
+// requestAnimationFrame(wtfRotateLoop);
+requestAnimationFrame(loop);

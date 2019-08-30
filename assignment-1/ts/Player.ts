@@ -17,21 +17,36 @@ export class Player {
   public velocityVector: any = { x: 0, y: 0 };
   public velocity: number = 1;
   public maxVelocity: number = 5;
-  public rotationSpeed: number = 4;
+  public rotationSpeed: number = 360;
   public angle: number = 0;
   public score: number = 0;
   public centrePoint: IPoint;
+  public thrustPower: number = 10;
+  public drag: number = 0.99;
 
   constructor() {
     // just using a single polygon for testing
+    // this.body.push(
+    //   new Polygon([
+    //     { x: 350, y: 350 },
+    //     { x: 375, y: 325 },
+    //     { x: 400, y: 350 },
+    //     { x: 400, y: 400 },
+    //     { x: 350, y: 400 }
+    //   ])
+    // );
+
     this.body.push(
       new Polygon([
-        { x: 350, y: 350 },
-        { x: 375, y: 325 },
-        { x: 400, y: 350 },
-        { x: 400, y: 400 },
-        { x: 350, y: 400 }
+        { x: 375, y: 375 },
+        { x: 425, y: 375 },
+        { x: 425, y: 425 },
+        { x: 375, y: 425 }
       ])
+    );
+
+    this.body.push(
+      new Polygon([{ x: 375, y: 375 }, { x: 400, y: 350 }, { x: 425, y: 375 }])
     );
 
     // this.body.push(
@@ -65,10 +80,12 @@ export class Player {
     this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
 
-    this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
+    // this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
+    // this.centrePoint = Utils.calculateCentrePoint(this.body[0].points);
+    this.centrePoint = { x: 400, y: 400 };
 
     this.body[0].fillColour = Colours.white;
-    // this.body[1].fillColour = Colours.red;
+    this.body[1].fillColour = Colours.red;
     // this.body[2].fillColour = Colours.blue;
   }
 
@@ -104,7 +121,8 @@ export class Player {
     });
 
     // this.boundingBox.rotate(angle, this.centrePoint);
-    this.updateBoundingBox();
+    // this.updateBoundingBox();
+    this.boundingBox.rotate(angle, this.centrePoint);
   }
 
   public translate(deltaX: number, deltaY: number): void {
@@ -115,7 +133,49 @@ export class Player {
     this.boundingBox.translate(deltaX, deltaY);
   }
 
-  public update(keyCode: number): void {
+  public update(keyCode: number, deltaTime: number): void {
+    switch (keyCode) {
+      case controls.FORWARD:
+        this.velocityVector.y +=
+          this.thrustPower * -Math.cos(this.angle) * deltaTime;
+        this.velocityVector.x +=
+          this.thrustPower * Math.sin(this.angle) * deltaTime;
+        break;
+
+      case controls.BACKWARD:
+        this.velocityVector.y +=
+          -this.thrustPower * -Math.cos(this.angle) * deltaTime;
+        this.velocityVector.x +=
+          -this.thrustPower * Math.sin(this.angle) * deltaTime;
+        break;
+
+      case controls.LEFT:
+        this.rotate(-this.rotationSpeed * deltaTime);
+        break;
+
+      case controls.RIGHT:
+        this.rotate(this.rotationSpeed * deltaTime);
+        break;
+    }
+
+    console.log(this.angle);
+
+    // console.log(this.centrePoint);
+
+    // move the spaceship
+    console.log(this.velocityVector);
+    this.translate(this.velocityVector.x, this.velocityVector.y);
+
+    // update centrepoint
+    this.centrePoint.x += this.velocityVector.x;
+    this.centrePoint.y += this.velocityVector.y;
+
+    // add drag
+    // this.velocityVector.x *= this.drag;
+    // this.velocityVector.y *= this.drag;
+  }
+
+  public updateOLD(keyCode: number): void {
     switch (keyCode) {
       case controls.FORWARD:
         this.velocity++;
@@ -127,12 +187,10 @@ export class Player {
 
       case controls.LEFT:
         this.rotate(-this.rotationSpeed);
-        // this.velocityVector.x -= 1;
         break;
 
       case controls.RIGHT:
         this.rotate(this.rotationSpeed);
-        // this.velocity.x += 1;
         break;
     }
 
@@ -159,9 +217,6 @@ export class Player {
     }
     this.translate(this.velocityVector.x, this.velocityVector.y);
     this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
-
-    // console.log(this.velocity);
-    // console.log(this.velocityVector);
   }
 
   public handleCollision(asteroids: Asteroid[]): number {

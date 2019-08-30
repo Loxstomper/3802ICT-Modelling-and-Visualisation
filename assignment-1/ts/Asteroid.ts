@@ -46,9 +46,9 @@ export class Asteroid extends Polygon {
   constructor(centrePoint: IPoint, resolution: any) {
     super(Asteroid.generatePoints(centrePoint), true);
     this.resolution = resolution;
-    this.rotationSpeed = 1 + Utils.randomInt(9) - 5;
-    this.velocity.x = Utils.randomInt(5) - 2.5;
-    this.velocity.y = Utils.randomInt(5) - 2.5;
+    this.rotationSpeed = 10 + Utils.randomInt(9) - 5;
+    this.velocity.x = Utils.randomInt(10) - 5;
+    this.velocity.y = Utils.randomInt(10) - 5;
 
     this.colour = Colours.white;
     // this.fillColour = Colours.red;
@@ -57,7 +57,7 @@ export class Asteroid extends Polygon {
     // console.log(this.boundingBox);
   }
 
-  public update() {
+  public update(timeDelta: number) {
     // use the bounding box for bounds checking
     const bb = this.boundingBox.points;
 
@@ -86,9 +86,9 @@ export class Asteroid extends Polygon {
     }
 
     // going to generate the bounding box twice...
-    this.rotate(this.rotationSpeed);
-    this.translate(this.velocity.x, this.velocity.y);
-    this.updateBoundingBox();
+    this.rotate(this.rotationSpeed * timeDelta);
+    this.translate(this.velocity.x * timeDelta, this.velocity.y * timeDelta);
+    // this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
   }
 }
