@@ -36,57 +36,51 @@ export class Player {
     //   ])
     // );
 
+    // this.body.push(
+    //   new Polygon([
+    //     { x: 375, y: 375 },
+    //     { x: 425, y: 375 },
+    //     { x: 425, y: 425 },
+    //     { x: 375, y: 425 }
+    //   ])
+    // );
+
+    // this.body.push(
+    //   new Polygon([{ x: 375, y: 375 }, { x: 400, y: 350 }, { x: 425, y: 375 }])
+    // );
+
+    // left fin
+    this.body.push(
+      new Polygon([{ x: -25, y: -50 }, { x: -15, y: -50 }, { x: -15, y: -30 }])
+    );
+
+    // middle
     this.body.push(
       new Polygon([
-        { x: 375, y: 375 },
-        { x: 425, y: 375 },
-        { x: 425, y: 425 },
-        { x: 375, y: 425 }
+        { x: -35, y: -50 },
+        { x: -35, y: 20 },
+        { x: 5, y: 20 },
+        { x: 5, y: -50 }
       ])
     );
-
-    this.body.push(
-      new Polygon([{ x: 375, y: 375 }, { x: 400, y: 350 }, { x: 425, y: 375 }])
-    );
-
-    // this.body.push(
-    //   new Polygon([
-    //     { x: 450, y: 350 },
-    //     { x: 425, y: 325 },
-    //     { x: 400, y: 350 },
-    //     { x: 400, y: 400 }
-    //   ])
-    // );
-
-    // this.body.push(
-    //   new Polygon([
-    //     { x: 350, y: 350 },
-    //     { x: 325, y: 325 },
-    //     { x: 325, y: 350 },
-    //     { x: 350, y: 400 }
-    //   ])
-    // );
-
-    // this.body.push(
-    //   new Polygon([
-    //     { x: -20, y: -20 },
-    //     { x: -20, y: 20 },
-    //     { x: 20, y: 20 },
-    //     { x: 20, y: -20 }
-    //   ])
-    // );
 
     // creates
     this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
 
-    // this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
+    this.translate(400, 400);
+    this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
     // this.centrePoint = Utils.calculateCentrePoint(this.body[0].points);
-    this.centrePoint = { x: 400, y: 400 };
+
+    // this.centrePoint = Utils.calculateCentrePoint(x);
+
+    // this.centrePoint = { x: 400, y: 400 };
 
     this.body[0].fillColour = Colours.white;
     this.body[1].fillColour = Colours.red;
     // this.body[2].fillColour = Colours.blue;
+
+    this.angle = -90;
   }
 
   public updateBoundingBox(): void {
@@ -173,6 +167,13 @@ export class Player {
     // add drag
     // this.velocityVector.x *= this.drag;
     // this.velocityVector.y *= this.drag;
+
+    if (this.centrePoint.y <= 50 || this.centrePoint.y >= 700) {
+      this.velocityVector.y *= -1;
+    }
+    if (this.centrePoint.x <= 50 || this.centrePoint.x >= 700) {
+      this.velocityVector.x *= -1;
+    }
   }
 
   public updateOLD(keyCode: number): void {

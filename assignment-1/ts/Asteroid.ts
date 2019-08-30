@@ -46,9 +46,9 @@ export class Asteroid extends Polygon {
   constructor(centrePoint: IPoint, resolution: any) {
     super(Asteroid.generatePoints(centrePoint), true);
     this.resolution = resolution;
-    this.rotationSpeed = 10 + Utils.randomInt(9) - 5;
-    this.velocity.x = Utils.randomInt(10) - 5;
-    this.velocity.y = Utils.randomInt(10) - 5;
+    this.rotationSpeed = 10 + Utils.randomInt(90) - 50;
+    this.velocity.x = Utils.randomInt(50) - 25;
+    this.velocity.y = Utils.randomInt(50) - 25;
 
     this.colour = Colours.white;
     // this.fillColour = Colours.red;

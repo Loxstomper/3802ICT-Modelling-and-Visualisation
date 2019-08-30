@@ -44,7 +44,7 @@ window.addEventListener("keydown", getInput, false);
 ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
-let maxNumberAsteroids: number = 0;
+let maxNumberAsteroids: number = 4;
 let spawnProb: number = 1;
 let numberAsteroids: number = 0;
 
@@ -77,6 +77,15 @@ const loop = (timestamp: number) => {
 
   lge.drawPolygon(playerCentrePoly);
 
+  lge.drawLine(
+    player.centrePoint,
+    {
+      x: player.centrePoint.x + 50 * Math.cos(player.angle),
+      y: player.centrePoint.y + 50 * Math.sin(player.angle)
+    },
+    Colours.green
+  );
+
   numberAsteroids -= player.handleCollision(asteroids);
   ctx.fillText(`Score: ${player.score}`, 10, 50);
 
@@ -96,6 +105,7 @@ const loop = (timestamp: number) => {
   ) {
     console.log("spawned");
     asteroids.push(asteroidFactory());
+    asteroids[numberAsteroids].fillColour = Colours.blue;
     numberAsteroids++;
   }
 
