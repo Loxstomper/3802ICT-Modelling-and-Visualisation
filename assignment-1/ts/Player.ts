@@ -17,12 +17,12 @@ export class Player {
   public velocityVector: any = { x: 0, y: 0 };
   public velocity: number = 1;
   public maxVelocity: number = 5;
-  public rotationSpeed: number = 360;
+  public rotationSpeed: number = 720;
   public angle: number = 0;
   public score: number = 0;
   public centrePoint: IPoint;
   public thrustPower: number = 10;
-  public drag: number = 0.99;
+  public drag: number = 1;
 
   constructor() {
     // just using a single polygon for testing
@@ -50,17 +50,17 @@ export class Player {
     // );
 
     // left fin
-    this.body.push(
-      new Polygon([{ x: -25, y: -50 }, { x: -15, y: -50 }, { x: -15, y: -30 }])
-    );
+    // this.body.push(
+    //   new Polygon([{ x: -25, y: -50 }, { x: -15, y: -50 }, { x: -15, y: -30 }])
+    // );
 
     // middle
     this.body.push(
       new Polygon([
-        { x: -35, y: -50 },
-        { x: -35, y: 20 },
-        { x: 5, y: 20 },
-        { x: 5, y: -50 }
+        { x: -40, y: 20 },
+        { x: 40, y: 20 },
+        { x: 40, y: -20 },
+        { x: -40, y: -20 }
       ])
     );
 
@@ -77,10 +77,7 @@ export class Player {
     // this.centrePoint = { x: 400, y: 400 };
 
     this.body[0].fillColour = Colours.white;
-    this.body[1].fillColour = Colours.red;
     // this.body[2].fillColour = Colours.blue;
-
-    this.angle = -90;
   }
 
   public updateBoundingBox(): void {
@@ -99,13 +96,13 @@ export class Player {
   }
 
   public rotate(angle: number): void {
-    this.angle += angle;
+    this.angle += (angle * Math.PI) / 180;
 
-    if (this.angle >= 360) {
-      this.angle -= 360;
+    if (this.angle >= 2 * Math.PI) {
+      this.angle -= 2 * Math.PI;
     }
-    if (this.angle <= -360) {
-      this.angle += 360;
+    if (this.angle <= -2 * Math.PI) {
+      this.angle += 2 * Math.PI;
     }
 
     // console.log(this.angle);
@@ -130,10 +127,14 @@ export class Player {
   public update(keyCode: number, deltaTime: number): void {
     switch (keyCode) {
       case controls.FORWARD:
+        // this.velocityVector.y +=
+        //   this.thrustPower * -Math.cos(this.angle) * deltaTime;
+        // this.velocityVector.x +=
+        //   this.thrustPower * Math.sin(this.angle) * deltaTime;
         this.velocityVector.y +=
-          this.thrustPower * -Math.cos(this.angle) * deltaTime;
-        this.velocityVector.x +=
           this.thrustPower * Math.sin(this.angle) * deltaTime;
+        this.velocityVector.x +=
+          this.thrustPower * Math.cos(this.angle) * deltaTime;
         break;
 
       case controls.BACKWARD:
@@ -169,10 +170,10 @@ export class Player {
     // this.velocityVector.y *= this.drag;
 
     if (this.centrePoint.y <= 50 || this.centrePoint.y >= 700) {
-      this.velocityVector.y *= -1;
+      this.velocityVector.y *= -0.5;
     }
     if (this.centrePoint.x <= 50 || this.centrePoint.x >= 700) {
-      this.velocityVector.x *= -1;
+      this.velocityVector.x *= -0.5;
     }
   }
 
