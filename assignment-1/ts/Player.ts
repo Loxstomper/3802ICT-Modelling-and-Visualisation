@@ -17,28 +17,62 @@ export class Player {
   public velocityVector: any = { x: 0, y: 0 };
   public velocity: number = 1;
   public maxVelocity: number = 5;
-  public rotationSpeed: number = 720;
+  public rotationSpeed: number = 180;
   public angle: number = 0;
   public score: number = 0;
   public centrePoint: IPoint;
   public thrustPower: number = 10;
-  public drag: number = 1;
+  public drag: number = 0.995;
   public resolution: any;
+  public flames: Polygon[];
+  public isBoosted: boolean = false;
 
   constructor(resolution: any) {
     this.resolution = resolution;
-    this.body.push(
+    this.body = [
       new Polygon([
         { x: -40, y: 20 },
         { x: 40, y: 20 },
         { x: 40, y: -20 },
         { x: -40, y: -20 }
+      ]),
+      new Polygon([{ x: 40, y: 20 }, { x: 60, y: 0 }, { x: 40, y: -20 }]),
+      new Polygon([{ x: -40, y: 20 }, { x: -40, y: 40 }, { x: -20, y: 20 }]),
+      new Polygon([{ x: -40, y: -20 }, { x: -40, y: -40 }, { x: -20, y: -20 }]),
+      new Polygon([
+        { x: -20, y: 10 },
+        { x: 20, y: 10 },
+        { x: 20, y: -10 },
+        { x: -20, y: -10 }
       ])
-    );
+    ];
 
     // creates
     this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
+
+    this.body[0].colour = Colours.silver;
+    this.body[0].fillColour = Colours.silver;
+    this.body[1].colour = Colours.silver;
+    this.body[1].fillColour = Colours.silver;
+    this.body[2].colour = Colours.silver;
+    this.body[2].fillColour = Colours.silver;
+    this.body[3].colour = Colours.silver;
+    this.body[3].fillColour = Colours.silver;
+    this.body[4].colour = Colours.blue;
+    this.body[4].fillColour = Colours.blue;
+
+    // flames
+    this.flames = [
+      new Polygon([{ x: -40, y: 20 }, { x: -60, y: 10 }, { x: -40, y: 0 }]),
+      new Polygon([{ x: -40, y: 0 }, { x: -60, y: -10 }, { x: -40, y: -20 }]),
+      new Polygon([{ x: -40, y: 10 }, { x: -80, y: 0 }, { x: -40, y: -10 }])
+    ];
+
+    this.flames.forEach((p: Polygon) => {
+      p.colour = Colours.orange;
+      p.fillColour = Colours.orange;
+    });
 
     this.translate(this.resolution.x / 2, this.resolution.y / 2);
     this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
@@ -48,7 +82,6 @@ export class Player {
 
     // this.centrePoint = { x: 400, y: 400 };
 
-    this.body[0].fillColour = Colours.white;
     // this.body[2].fillColour = Colours.blue;
   }
 
@@ -79,17 +112,25 @@ export class Player {
 
     // console.log(this.angle);
 
-    this.body.forEach((p: Polygon) => {
+    [...this.body, ...this.flames].forEach((p: Polygon) => {
       p.rotate(angle, this.centrePoint);
     });
 
     // this.boundingBox.rotate(angle, this.centrePoint);
-    // this.updateBoundingBox();
-    this.boundingBox.rotate(angle, this.centrePoint);
+    this.updateBoundingBox();
+    // this.boundingBox.rotate(angle, this.centrePoint);
   }
 
   public translate(deltaX: number, deltaY: number): void {
-    this.body.forEach((p: Polygon) => {
+    // this.body.forEach((p: Polygon) => {
+    //   p.translate(deltaX, deltaY);
+    // });
+
+    // this.flames.forEach((p: Polygon) => {
+    //   p.translate(deltaX, deltaY);
+    // });
+
+    [...this.body, ...this.flames].forEach((p: Polygon) => {
       p.translate(deltaX, deltaY);
     });
 
@@ -97,23 +138,19 @@ export class Player {
   }
 
   public update(keyCode: number, deltaTime: number): void {
+    this.isBoosted = false;
+
     switch (keyCode) {
       case controls.FORWARD:
-        // this.velocityVector.y +=
-        //   this.thrustPower * -Math.cos(this.angle) * deltaTime;
-        // this.velocityVector.x +=
-        //   this.thrustPower * Math.sin(this.angle) * deltaTime;
         this.velocityVector.y +=
           this.thrustPower * Math.sin(this.angle) * deltaTime;
         this.velocityVector.x +=
           this.thrustPower * Math.cos(this.angle) * deltaTime;
+
+        this.isBoosted = true;
         break;
 
       case controls.BACKWARD:
-        this.velocityVector.y +=
-          -this.thrustPower * -Math.cos(this.angle) * deltaTime;
-        this.velocityVector.x +=
-          -this.thrustPower * Math.sin(this.angle) * deltaTime;
         break;
 
       case controls.LEFT:
@@ -125,21 +162,16 @@ export class Player {
         break;
     }
 
-    console.log(this.angle);
-
-    // console.log(this.centrePoint);
-
-    // move the spaceship
-    console.log(this.velocityVector);
     this.translate(this.velocityVector.x, this.velocityVector.y);
 
     // update centrepoint
     this.centrePoint.x += this.velocityVector.x;
     this.centrePoint.y += this.velocityVector.y;
 
-    // add drag
-    // this.velocityVector.x *= this.drag;
-    // this.velocityVector.y *= this.drag;
+    if (this.drag !== 1) {
+      this.velocityVector.x *= this.drag;
+      this.velocityVector.y *= this.drag;
+    }
 
     if (
       this.centrePoint.y <= 50 ||

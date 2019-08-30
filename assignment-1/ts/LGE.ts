@@ -277,16 +277,18 @@ export class LGE {
       this.scanLineFill(poly, poly.fillColour);
     }
 
+    const outlineColour = colour ? colour : poly.colour;
+
     for (let i = 0; i < points.length - 1; i++) {
-      this.drawLine(points[i], points[i + 1], poly.colour);
+      this.drawLine(points[i], points[i + 1], outlineColour);
     }
 
-    this.drawLine(points[points.length - 1], points[0], poly.colour);
+    this.drawLine(points[points.length - 1], points[0], outlineColour);
   }
 
-  public drawPolygonBuffer(buffer: any): void {
-    buffer.forEach(x => {
-      this.drawPolygon(x.poly, x.colour);
+  public drawPolygonBuffer(buffer: Polygon[]): void {
+    buffer.forEach((p: Polygon) => {
+      this.drawPolygon(p);
     });
   }
 
@@ -445,7 +447,12 @@ export class LGE {
       const width = bb[1].x - x;
       const height = bb[2].y - y;
 
-      this.ctx.clearRect(x - 4, y - 4, width + 8, height + 8);
+      this.ctx.clearRect(
+        x - 10 * this.PIXEL_SIZE,
+        y - 10 * this.PIXEL_SIZE,
+        width + 10 * this.PIXEL_SIZE,
+        height + 10 * this.PIXEL_SIZE
+      );
     });
 
     // clear the score

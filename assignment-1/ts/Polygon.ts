@@ -175,16 +175,20 @@ export class Polygon {
     });
 
     // update the bounding box
-    if (this.boundingBox !== undefined) {
-      this.boundingBox.points.forEach((p: IPoint, i: number) => {
-        const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
-        const res: Matrix = tm.multiply(pMatrix);
+    // if (this.boundingBox !== undefined) {
+    //   this.boundingBox.points.forEach((p: IPoint, i: number) => {
+    //     const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
+    //     const res: Matrix = tm.multiply(pMatrix);
 
-        this.boundingBox.points[i] = {
-          x: res.values[0][0],
-          y: res.values[1][0]
-        };
-      });
+    //     this.boundingBox.points[i] = {
+    //       x: res.values[0][0],
+    //       y: res.values[1][0]
+    //     };
+    //   });
+    // }
+
+    if (this.boundingBox !== undefined) {
+      this.updateBoundingBox();
     }
 
     // update the transformation matrix [reset angle]
