@@ -23,38 +23,10 @@ export class Player {
   public centrePoint: IPoint;
   public thrustPower: number = 10;
   public drag: number = 1;
+  public resolution: any;
 
-  constructor() {
-    // just using a single polygon for testing
-    // this.body.push(
-    //   new Polygon([
-    //     { x: 350, y: 350 },
-    //     { x: 375, y: 325 },
-    //     { x: 400, y: 350 },
-    //     { x: 400, y: 400 },
-    //     { x: 350, y: 400 }
-    //   ])
-    // );
-
-    // this.body.push(
-    //   new Polygon([
-    //     { x: 375, y: 375 },
-    //     { x: 425, y: 375 },
-    //     { x: 425, y: 425 },
-    //     { x: 375, y: 425 }
-    //   ])
-    // );
-
-    // this.body.push(
-    //   new Polygon([{ x: 375, y: 375 }, { x: 400, y: 350 }, { x: 425, y: 375 }])
-    // );
-
-    // left fin
-    // this.body.push(
-    //   new Polygon([{ x: -25, y: -50 }, { x: -15, y: -50 }, { x: -15, y: -30 }])
-    // );
-
-    // middle
+  constructor(resolution: any) {
+    this.resolution = resolution;
     this.body.push(
       new Polygon([
         { x: -40, y: 20 },
@@ -68,7 +40,7 @@ export class Player {
     this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
 
-    this.translate(400, 400);
+    this.translate(this.resolution.x / 2, this.resolution.y / 2);
     this.centrePoint = Utils.calculateCentrePoint(this.boundingBox.points);
     // this.centrePoint = Utils.calculateCentrePoint(this.body[0].points);
 
@@ -169,10 +141,16 @@ export class Player {
     // this.velocityVector.x *= this.drag;
     // this.velocityVector.y *= this.drag;
 
-    if (this.centrePoint.y <= 50 || this.centrePoint.y >= 700) {
+    if (
+      this.centrePoint.y <= 50 ||
+      this.centrePoint.y >= this.resolution.y - 50
+    ) {
       this.velocityVector.y *= -0.5;
     }
-    if (this.centrePoint.x <= 50 || this.centrePoint.x >= 700) {
+    if (
+      this.centrePoint.x <= 50 ||
+      this.centrePoint.x >= this.resolution.x - 50
+    ) {
       this.velocityVector.x *= -0.5;
     }
   }
@@ -233,7 +211,12 @@ export class Player {
       // this is really bad needs to be removed
       // check if the asteroid is off the canvas and remove it - prob get index issue tho...
       const cp: IPoint = asteroids[i].centrePoint;
-      if (cp.x < 0 || cp.x > 800 || cp.y < 0 || cp.y > 800) {
+      if (
+        cp.x < 0 ||
+        cp.x > this.resolution.x ||
+        cp.y < 0 ||
+        cp.y > this.resolution.y
+      ) {
         asteroids.splice(i, 1);
         numberCollisions++;
         console.log("ran away");
