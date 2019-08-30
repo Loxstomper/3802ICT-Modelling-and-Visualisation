@@ -160,6 +160,20 @@ export class Polygon {
       this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
     });
 
+    // update the bounding box
+    // console.log(this.boundingBox !== undefined);
+    if (this.boundingBox !== undefined) {
+      this.boundingBox.points.forEach((p: IPoint, i: number) => {
+        const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
+        const res: Matrix = tm.multiply(pMatrix);
+
+        this.boundingBox.points[i] = {
+          x: res.values[0][0],
+          y: res.values[1][0]
+        };
+      });
+    }
+
     // update the transformation matrix [reset angle]
     tm.values[0][0] = 1;
     tm.values[0][1] = 0;
