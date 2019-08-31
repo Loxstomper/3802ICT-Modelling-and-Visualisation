@@ -104,7 +104,9 @@ export class Polygon {
     this.transformationMatrix.values[1][2] = 0;
 
     // update centrepoint and bounding box
-    this.centrePoint = Utils.calculateCentrePoint(this.points);
+    // this.centrePoint = Utils.calculateCentrePoint(this.points);
+    this.centrePoint.x += deltaX;
+    this.centrePoint.y += deltaY;
 
     if (this.boundingBox) {
       // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
@@ -149,8 +151,20 @@ export class Polygon {
     const rp: IPoint = point ? point : this.centrePoint;
 
     // this can be incorporated into another matrix operation
-    tm.values[0][2] = rp.x - cosTheta * rp.x - -sinTheta * rp.y;
-    tm.values[1][2] = rp.y - sinTheta * rp.y - cosTheta * rp.y;
+    // tm.values[0][2] = rp.x - cosTheta * rp.x - -sinTheta * rp.y;
+    // tm.values[1][2] = rp.y - sinTheta * rp.y - cosTheta * rp.y;
+
+    // tm.values[0][2] = rp.y - cosTheta * rp.y - -sinTheta * rp.x;
+    // tm.values[1][2] = rp.x - sinTheta * rp.x - cosTheta * rp.x;
+
+    // tm.values[0][2] = rp.y - cosTheta * rp.y - -sinTheta * rp.x;
+    // tm.values[1][2] = rp.x - sinTheta * rp.x - cosTheta * rp.x;
+
+    tm.values = [
+      [cosTheta, -sinTheta, rp.x - cosTheta * rp.x - -sinTheta * rp.y],
+      [sinTheta, cosTheta, rp.y - sinTheta * rp.x - cosTheta * rp.y],
+      [0, 0, 1]
+    ];
 
     // update all the points
     this.points.forEach((p: IPoint, i: number) => {
@@ -160,6 +174,23 @@ export class Polygon {
       this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
     });
 
+    // update the bounding box
+    // if (this.boundingBox !== undefined) {
+    //   this.boundingBox.points.forEach((p: IPoint, i: number) => {
+    //     const pMatrix: Matrix = new Matrix([[p.x], [p.y], [1]]);
+    //     const res: Matrix = tm.multiply(pMatrix);
+
+    //     this.boundingBox.points[i] = {
+    //       x: res.values[0][0],
+    //       y: res.values[1][0]
+    //     };
+    //   });
+    // }
+
+    if (this.boundingBox !== undefined) {
+      this.updateBoundingBox();
+    }
+
     // update the transformation matrix [reset angle]
     tm.values[0][0] = 1;
     tm.values[0][1] = 0;
@@ -168,12 +199,6 @@ export class Polygon {
     // translation
     tm.values[0][2] = 0;
     tm.values[1][2] = 0;
-
-    // recalculate bounding box if this polygon has one
-    // if (this.boundingBox) {
-    //   // this.boundingBox = new Polygon(Utils.calculateBoundingBox(this.points));
-    //   this.boundingBox.rotate(angle);
-    // }
   }
 
   public updateBoundingBox(): void {

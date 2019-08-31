@@ -8,6 +8,11 @@ export class Asteroid extends Polygon {
   private static minRadius: number = 30;
   private static maxRadius: number = 40;
   private static nPoints: number = 24;
+  private static colours: Colour[] = [
+    Colours.brown,
+    new Colour(110, 44, 0, 100),
+    new Colour(93, 64, 55, 100)
+  ];
 
   /**
    * Creates points for asteroid polygon
@@ -46,18 +51,19 @@ export class Asteroid extends Polygon {
   constructor(centrePoint: IPoint, resolution: any) {
     super(Asteroid.generatePoints(centrePoint), true);
     this.resolution = resolution;
-    this.rotationSpeed = 1 + Utils.randomInt(9) - 5;
-    this.velocity.x = Utils.randomInt(5) - 2.5;
-    this.velocity.y = Utils.randomInt(5) - 2.5;
+    this.rotationSpeed = 10 + Utils.randomInt(90) - 50;
+    this.velocity.x = Utils.randomInt(50) - 25;
+    this.velocity.y = Utils.randomInt(50) - 25;
 
-    this.colour = Colours.white;
-    // this.fillColour = Colours.red;
+    const colour = Asteroid.colours[Utils.randomInt(Asteroid.colours.length)];
+    this.colour = colour;
+    this.fillColour = colour;
     this.boundingBox.colour = Colours.green;
 
     // console.log(this.boundingBox);
   }
 
-  public update() {
+  public update(timeDelta: number) {
     // use the bounding box for bounds checking
     const bb = this.boundingBox.points;
 
@@ -86,9 +92,39 @@ export class Asteroid extends Polygon {
     }
 
     // going to generate the bounding box twice...
-    this.rotate(this.rotationSpeed);
-    this.translate(this.velocity.x, this.velocity.y);
-    this.updateBoundingBox();
+    this.rotate(this.rotationSpeed * timeDelta);
+    this.translate(this.velocity.x * timeDelta, this.velocity.y * timeDelta);
+    // this.updateBoundingBox();
     this.boundingBox.colour = Colours.green;
+  }
+
+  public handleCollision(asteroids: Asteroid[], currIndex: number) {
+    const bb = this.boundingBox.points;
+    const bbWidth = bb[2].x - bb[0].x;
+    const bbHeight = bb[3].y - bb[0].y;
+
+    // check for collision
+    for (let i = 0; i < asteroids.length; i++) {
+      if (i === currIndex) {
+        continue;
+      }
+
+      const abb = asteroids[i].boundingBox.points;
+      const abbWidth = abb[2].x - bb[0].x;
+      const abbHeight = abb[3].y - bb[0].y;
+
+      // double check this!
+      if (
+        !(
+          bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb
+          abb[0].x + abbWidth < bb[0].x || // abb is to the left of bb
+          bb[0].y + bbHeight < abb[0].y || // bb is above abb
+          abb[0].y + abbHeight < bb[0].y
+        ) // abb is above bb
+      ) {
+        this.velocity.x *= -1;
+        this.velocity.y *= -1;
+      }
+    }
   }
 }

@@ -13,11 +13,21 @@ const canvas: HTMLCanvasElement = document.getElementById(
 ) as HTMLCanvasElement;
 const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
 
-canvas.width = 800;
-canvas.height = 800;
+canvas.width = 1920;
+canvas.height = 1080;
 
 const lge = new LGE(ctx, 4, "scanLine");
 const sf: ShapeFactory = new ShapeFactory();
+
+// const sounds = {
+//   thrust: new Audio("./sounds/rocket.mp3"),
+//   explosion: new Audio("./sounds/explosion.mp3")
+// };
+
+const sounds = {
+  thrust: new Audio("./sounds/rocket.mp3"),
+  explosion: "./sounds/explosion.mp3"
+};
 
 const fps = 30;
 const renderDelay = 1000 / fps;
@@ -32,67 +42,110 @@ const asteroidFactory = () => {
 };
 
 const asteroids: Asteroid[] = [];
-const player: Player = new Player();
+const player: Player = new Player(lge.resolution);
 
 let pressedKey = null;
+const pressedKeys = {};
 const getInput = (e: KeyboardEvent) => {
+  pressedKeys[e.keyCode] = true;
   pressedKey = e.keyCode;
 };
 
+const onKeyUp = (e: KeyboardEvent) => {
+  pressedKeys[e.keyCode] = false;
+};
+
+let cssSelectedFilter = 0;
+const cssFilterList = [
+  "",
+  "blur(2px)",
+  "hue-rotate(90deg)",
+  "grayscale(100%)",
+  "invert(100%)",
+  "saturate(200%)"
+];
+const cssFilters = () => {
+  canvas.style.filter = cssFilterList[cssSelectedFilter];
+  cssSelectedFilter = (cssSelectedFilter + 1) % cssFilterList.length;
+};
+
 window.addEventListener("keydown", getInput, false);
+window.addEventListener("keyup", onKeyUp, false);
+window.addEventListener("click", cssFilters, false);
+// window.addEventListener("keypress", getInput, false);
 ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
-let maxNumberAsteroids: number = 5;
+let maxNumberAsteroids: number = 10;
 let spawnProb: number = 1;
 let numberAsteroids: number = 0;
 
-const loop = () => {
-  // lge.clear();
-  lge.clearSmart(asteroids, player);
+let lastFrameTimeMS = 0;
+let delta = 0;
 
-  player.update(pressedKey);
+const loop = (timestamp: number) => {
+  delta = (timestamp - lastFrameTimeMS) / 1000;
+  lastFrameTimeMS = timestamp;
 
-  player.body.forEach((p: Polygon) => {
-    lge.drawPolygon(p);
-  });
-  lge.drawPolygon(player.boundingBox);
-  // console.log(player);
+  console.log(pressedKeys);
 
-  numberAsteroids -= player.handleCollision(asteroids);
-  ctx.fillText(`Score: ${player.score}`, 10, 50);
+  lge.clear();
 
-  asteroids.forEach((a: Asteroid) => {
-    a.update();
-    lge.drawPolygon(a);
-    lge.drawPolygon(a.boundingBox);
-  });
-
+  // updates
+  player.update(pressedKeys, delta);
   pressedKey = null;
+
+  asteroids.forEach((a: Asteroid, index: number) => {
+    a.handleCollision(asteroids, index);
+  });
+
+  asteroids.forEach((a: Asteroid, index: number) => {
+    a.update(delta);
+  });
+
+  let prevAsteroids = numberAsteroids;
+  numberAsteroids -= player.handleCollision(asteroids);
+
+  if (prevAsteroids !== numberAsteroids) {
+    // sounds.explosion.play();
+    new Audio(sounds.explosion).play();
+  }
 
   if (
     numberAsteroids < maxNumberAsteroids &&
     Utils.randomInt(10) <= spawnProb
   ) {
-    console.log("spawned");
     asteroids.push(asteroidFactory());
     numberAsteroids++;
   }
 
-  setTimeout(loop, renderDelay);
+  // drawing
+  // player.body.forEach((p: Polygon) => {
+  //   lge.drawPolygon(p);
+  // });
+
+  const toDraw = [...asteroids, ...player.body];
+
+  if (player.isBoosted) {
+    sounds.thrust.play();
+    // sounds.thrust.volume = 1;
+    // sounds.thrust.loop = true;
+    // new Audio(sounds.thrust).play();
+    toDraw.push(...player.flames);
+  } else {
+    if (!sounds.thrust.paused) {
+      sounds.thrust.pause();
+      sounds.thrust.currentTime = 0;
+    }
+  }
+
+  lge.drawPolygonBuffer(toDraw);
+
+  ctx.fillStyle = Colours.white.toString();
+  ctx.fillText(`Score: ${player.score}`, 10, 50);
+  ctx.fillText(`FPS: ${Math.floor(1 / delta)}`, 10, 100);
+
+  requestAnimationFrame(loop);
 };
 
-// requestAnimationFrame(loop);
-
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// asteroids.push(asteroidFactory());
-// numberAsteroids = asteroids.length;
-
-// player.translate(canvas.width / 2, canvas.height / 2);
-
-// asteroids.push(new Asteroid({400, 400}))
-
-loop();
+requestAnimationFrame(loop);
