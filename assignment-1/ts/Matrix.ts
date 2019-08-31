@@ -1,12 +1,13 @@
 /**
- * Matrix Class
+ * The Matrix class is used for matrix operations most commonly for translating and rotating polygons
+ * which is performed using transformation matrices.
  */
 export class Matrix {
   public values: number[][];
   public width: number;
   public height: number;
 
-  public identityMatrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  public identityMatrix: number[][] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
   constructor(values: number[][] | null) {
     if (values === null) {
@@ -26,8 +27,8 @@ export class Matrix {
     const out: Matrix = new Matrix(null);
     out.zero();
 
-    for (let i = 0; i < this.height; i++) {
-      for (let j = 0; j < this.width; j++) {
+    for (let i: number = 0; i < this.height; i++) {
+      for (let j: number = 0; j < this.width; j++) {
         out.values[i][j] = this.values[i][j] + b.values[i][j];
       }
     }
@@ -58,7 +59,7 @@ export class Matrix {
     return new Matrix([[res[0]], [res[1]], [res[2]]]);
   }
 
-  public zero() {
+  public zero(): void {
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {
         this.values[i][j] = 0;

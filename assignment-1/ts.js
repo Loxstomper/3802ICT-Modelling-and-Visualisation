@@ -14,18 +14,36 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var Colour_1 = require("./Colour");
 var Polygon_1 = require("./Polygon");
 var Utils_1 = require("./Utils");
 var Asteroid = /** @class */ (function (_super) {
     __extends(Asteroid, _super);
-    function Asteroid(centrePoint) {
-        var _this = _super.call(this, Asteroid.generatePoints(centrePoint)) || this;
-        _this.boundingBox = new Polygon_1.Polygon(Utils_1.Utils.calculateBoundingBox(_this.points));
+    function Asteroid(centrePoint, resolution) {
+        var _this = 
+        // create the polygon
+        _super.call(this, Asteroid.generatePoints(centrePoint), true) || this;
+        _this.velocity = { x: 0, y: 0 };
+        // set resolution
+        _this.resolution = resolution;
+        // rotation and velocity
+        _this.rotationSpeed = 10 + Utils_1.Utils.randomInt(90) - 50;
+        _this.velocity.x =
+            Utils_1.Utils.randomInt(Asteroid.maxVelocity) - Asteroid.maxVelocity / 2;
+        _this.velocity.y =
+            Utils_1.Utils.randomInt(Asteroid.maxVelocity) - Asteroid.maxVelocity / 2;
+        // colour
+        var colour = Asteroid.colours[Utils_1.Utils.randomInt(Asteroid.colours.length)];
+        _this.colour = colour;
+        _this.fillColour = colour;
+        _this.boundingBox.colour = Colour_1.Colours.green;
         return _this;
     }
     /**
      * Creates points for asteroid polygon
      * nPoints equally spaced around a circle within min/max radius
+     *
+     * @returns IPoint[]
      */
     Asteroid.generatePoints = function (centrePoint) {
         var points = [];
@@ -42,15 +60,87 @@ var Asteroid = /** @class */ (function (_super) {
         }
         return points;
     };
-    // concave
+    /**
+     * Update physics
+     * @param timeDelta time since last update
+     */
+    Asteroid.prototype.update = function (timeDelta) {
+        // check if hit side of the canvas
+        if (this.centrePoint.x + Asteroid.maxRadius >= this.resolution.x ||
+            this.centrePoint.x - Asteroid.maxRadius <= 0) {
+            this.velocity.x *= -1;
+        }
+        // check if hit top/bottom of canvas
+        if (this.centrePoint.y + Asteroid.maxRadius >= this.resolution.y ||
+            this.centrePoint.y - Asteroid.maxRadius <= 0) {
+            this.velocity.y *= -1;
+        }
+        this.rotate(this.rotationSpeed * timeDelta);
+        this.translate(this.velocity.x * timeDelta, this.velocity.y * timeDelta);
+    };
+    /**
+     * inverts the velocity
+     */
+    Asteroid.prototype.bounce = function () {
+        this.velocity.x *= -1;
+        this.velocity.y *= -1;
+        this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
+    };
+    /**
+     * handle collisions with other asteroids
+     *
+     * @param asteroids the asteroids array
+     * @param currIndex the index of the current asteroid
+     *
+     * @returns number[] - indices of all the colliding asteroids
+     */
+    Asteroid.prototype.handleCollision = function (asteroids, currIndex) {
+        var bb = this.boundingBox.points;
+        var bbWidth = bb[2].x - bb[0].x;
+        var bbHeight = bb[3].y - bb[0].y;
+        var collisions = [];
+        // check for collision
+        for (var i = 0; i < asteroids.length; i++) {
+            if (i === currIndex) {
+                continue;
+            }
+            var abb = asteroids[i].boundingBox.points;
+            var abbWidth = abb[2].x - bb[0].x;
+            var abbHeight = abb[3].y - bb[0].y;
+            if (!(bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb
+                abb[0].x + abbWidth < bb[0].x || // abb is to the left of bb
+                bb[0].y + bbHeight < abb[0].y || // bb is above abb
+                abb[0].y + abbHeight < bb[0].y) // abb is above bb
+            ) {
+                // invert velocity
+                // this.velocity.x *= -1;
+                // this.velocity.y *= -1;
+                // // translate a bit to bounce
+                // this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
+                collisions.push(i);
+            }
+        }
+        return collisions;
+    };
     Asteroid.minRadius = 30;
     Asteroid.maxRadius = 40;
     Asteroid.nPoints = 24;
+    Asteroid.maxVelocity = 50;
+    Asteroid.colours = [
+        Colour_1.Colours.brown1,
+        Colour_1.Colours.brown2,
+        Colour_1.Colours.brown3
+    ];
     return Asteroid;
 }(Polygon_1.Polygon));
 exports.Asteroid = Asteroid;
+exports.asteroidFactory = function (resolution) {
+    var x = 50 + Utils_1.Utils.randomInt(resolution.x - 100);
+    var y = 50 + Utils_1.Utils.randomInt(resolution.y - 50);
+    return new Asteroid({ x: x, y: y }, resolution);
+};
 
-},{"./Polygon":9,"./Utils":12}],2:[function(require,module,exports){
+},{"./Colour":2,"./Polygon":9,"./Utils":12}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 /**
@@ -73,6 +163,7 @@ var Colour = /** @class */ (function () {
     }
     /**
      * string representation
+     *
      * @returns returns string format 'rgba(r, g, b, a)'
      */
     Colour.prototype.toString = function () {
@@ -84,8 +175,13 @@ exports.Colour = Colour;
 exports.Colours = {
     black: new Colour(0, 0, 0, 100),
     blue: new Colour(0, 0, 255, 100),
+    brown1: new Colour(135, 54, 0, 100),
+    brown2: new Colour(110, 44, 0, 100),
+    brown3: new Colour(93, 64, 55, 100),
     green: new Colour(0, 255, 0, 100),
+    orange: new Colour(243, 156, 18, 100),
     red: new Colour(255, 0, 0, 100),
+    silver: new Colour(192, 192, 192, 100),
     white: new Colour(255, 255, 255, 100)
 };
 
@@ -114,6 +210,7 @@ var Pixel_1 = require("./Pixel");
 var Polygon_1 = require("./Polygon");
 /**
  * Lochie Graphics Engine
+ *
  */
 var LGE = /** @class */ (function () {
     /**
@@ -148,58 +245,36 @@ var LGE = /** @class */ (function () {
         this.transformationMatrices.push(res);
         return res;
     };
+    /**
+     * sets rotation
+     * @param angle
+     */
     LGE.prototype.setRotation = function (angle) {
         var cosTheta = Math.cos(angle);
         var sinTheta = Math.sin(angle);
         this.rotationMatrix.values = [[cosTheta, -sinTheta], [sinTheta, cosTheta]];
         this.updateTransformationMatrix();
     };
+    /**
+     * sets translation
+     *
+     * @param dX change in x
+     * @param dY change in y
+     */
     LGE.prototype.setTranslation = function (dX, dY) {
         this.translationMatrix.values = [[dX], [dY]];
         this.updateTransformationMatrix();
     };
     /**
-     * scale points
-     * @remarks doesn't actual scale due to issues
+     * Draws a coloured line between two points using the DDA algorithm
      *
-     * @param points points to be scaled
-     * @returns IPoint[]
-     */
-    LGE.prototype.scalePoints = function (points) {
-        return points;
-        // points.forEach( (p : IPoint) => {
-        //     p.x = Math.floor(p.x) * this.PIXEL_SIZE;
-        //     p.y = Math.floor(p.y) * this.PIXEL_SIZE;
-        // })
-        // return points;
-    };
-    /**
-     * Draws a coloured line between two points
      * @param start first IPoint
      * @param end end IPoint
      * @param colour Colour
      */
     LGE.prototype.drawLine = function (start, end, colour) {
-        var _a;
-        var p0;
-        var p1;
-        _a = this.scalePoints([start, end]), p0 = _a[0], p1 = _a[1];
-        // const dx = p1.x - p0.x,
-        //       dy = p1.y - p0.y,
-        //       s  = Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) / this.PIXEL_SIZE : Math.abs(dy) / this.PIXEL_SIZE,
-        //       xi = dx * 1.0 / s,
-        //       yi = dy * 1.0 / s
-        // let x = p0.x,
-        //     y = p0.y,
-        //     out = []
-        // out.push({x: x, y: y});
-        // for (let i = 0; i < s; i++) {
-        //     x += xi;
-        //     y += yi;
-        //     out.push({x: x, y: y});
-        // }
-        // // out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
-        // out.map(pos => new Pixel(pos.x, pos.y, this.PIXEL_SIZE, this.ctx, colour));
+        var p0 = start;
+        var p1 = end;
         var dx = Math.ceil(p1.x - p0.x);
         var dy = Math.ceil(p1.y - p0.y);
         var steps = Math.abs(dx) > Math.abs(dy)
@@ -223,6 +298,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Draws lines between the points
+     *
      * @param points IPoint[]
      * @param colour Colour
      */
@@ -233,15 +309,18 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Fills a polygon with the given colour
+     *
      * @param poly Polygon
      * @param colour Colour
      */
     LGE.prototype.scanLineFill = function (poly, colour) {
         var points = poly.points;
-        var minY = points.reduce(function (prev, curr) { return (prev.y < curr.y ? prev : curr); })
-            .y;
-        var maxY = points.reduce(function (prev, curr) { return (prev.y > curr.y ? prev : curr); })
-            .y;
+        var minY = points.reduce(function (prev, curr) {
+            return prev.y < curr.y ? prev : curr;
+        }).y;
+        var maxY = points.reduce(function (prev, curr) {
+            return prev.y > curr.y ? prev : curr;
+        }).y;
         var start = points[points.length - 1];
         var edges = [];
         // tslint:disable-next-line: prefer-for-of
@@ -269,27 +348,15 @@ var LGE = /** @class */ (function () {
             }
             Xs.sort();
             for (var xi = 0; xi < Xs.length - 1; xi += 2) {
-                // let left  = Xs[xi]     % 1 == 0 ? Xs[xi] : Math.ceil(Xs[xi]);
-                // let right = Xs[xi + 1] % 1 == 0 ? Xs[xi + 1] : Math.floor(Xs[xi + 1]);
                 var left = Xs[xi];
                 var right = Xs[xi + 1];
-                // console.log("BEFORE: ", left, right);
-                // left  = Xs[xi]     % 1 === 0 ? Xs[xi]     : Math.ceil(Xs[xi]);
-                // right = Xs[xi + 1] % 1 === 0 ? Xs[xi + 1] : Math.floor(Xs[xi]);
-                // console.log("AFTER : ", left, right);
                 this.drawLine({ x: left, y: y }, { x: right, y: y }, colour);
             }
         }
-        // this.drawPolygon(poly, colour);
     };
     /**
-     * Other algorithm to fill a polygon
-     * @param poly Polygon
-     * @param colour Colour
-     */
-    LGE.prototype.otherFill = function (poly, colour) { };
-    /**
      * Fills a polygon based on the method decided on at initialization
+     *
      * @param poly Polygon
      * @param colour Colour
      */
@@ -308,46 +375,36 @@ var LGE = /** @class */ (function () {
         }
     };
     /**
-     * Draws the polygon
+     * Draws the polygon, fills if a colour is provided
+     *
      * @param poly Polygon
-     * @param colour Colour
+     * @param colour Optional Colour - overwrites polygon colour
      */
     LGE.prototype.drawPolygon = function (poly, colour) {
         var points = poly.points;
-        // multiply these points by the translation matrix
-        // points.forEach(p => {
-        //     Utils.matrixMultiply([p.x, p.y, 0], this.translationMatrixs[this.translationMatrixs.length - 1]);
-        // });
-        // console.log("Updating points");
-        // points.forEach(p => {
-        //   const pMatrix = new Matrix([[p.x], [p.y], [1]]);
-        //   console.log("The transformation matrix used is");
-        //   console.log(
-        //     this.transformationMatrices[this.transformationMatrices.length - 1]
-        //   );
-        //   const res: Matrix = this.transformationMatrices[
-        //     this.transformationMatrices.length - 1
-        //   ].multiply(pMatrix);
-        //   console.log("original");
-        //   console.log(pMatrix);
-        //   console.log("after");
-        //   console.log(res);
-        //   p.x = res.values[0][0];
-        //   p.y = res.values[1][0];
-        // });
-        for (var i = 0; i < points.length - 1; i++) {
-            this.drawLine(points[i], points[i + 1], colour);
+        if (poly.fillColour) {
+            this.scanLineFill(poly, poly.fillColour);
         }
-        this.drawLine(points[points.length - 1], points[0], colour);
+        var outlineColour = colour ? colour : poly.colour;
+        for (var i = 0; i < points.length - 1; i++) {
+            this.drawLine(points[i], points[i + 1], outlineColour);
+        }
+        this.drawLine(points[points.length - 1], points[0], outlineColour);
     };
+    /**
+     * Draws an array of Polygons
+     *
+     * @param buffer Polygon[]
+     */
     LGE.prototype.drawPolygonBuffer = function (buffer) {
         var _this = this;
-        buffer.forEach(function (x) {
-            _this.drawPolygon(x.poly, x.colour);
+        buffer.forEach(function (p) {
+            _this.drawPolygon(p);
         });
     };
     /**
      * Draws a triangle from 3 points
+     *
      * @param points Points
      * @param colour Colour
      */
@@ -356,6 +413,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Fills a triangle from 3 points
+     *
      * @param points IPoint[]
      * @param colour Colour
      */
@@ -364,6 +422,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Draws a rectangle
+     *
      * @param x x pos
      * @param y y pos
      * @param width width
@@ -380,6 +439,7 @@ var LGE = /** @class */ (function () {
     };
     /**
      * Fills a rectangle
+     *
      * @param x x pos
      * @param y y pos
      * @param width width
@@ -420,7 +480,6 @@ var LGE = /** @class */ (function () {
             points.push({ y: -y, x: x });
             points.push({ x: y, y: x });
         }
-        // console.log(points);
         this.drawPolygon(new Polygon_1.Polygon(points), colour);
     };
     /**
@@ -446,10 +505,29 @@ var LGE = /** @class */ (function () {
         this.drawPolygon(new Polygon_1.Polygon(points), colour);
     };
     /**
-     * Clears the canvas
+     * Clears the whole canvas
      */
     LGE.prototype.clear = function () {
         this.ctx.clearRect(0, 0, this.resolution.x, this.resolution.y);
+    };
+    /**
+     * Clears the canvas by clearing the polygon's bounding boxes
+     *
+     * @param polygons polygons to be cleared
+     */
+    LGE.prototype.clearSmart = function (polygons) {
+        var _this = this;
+        // going to clear each bounding box
+        polygons.forEach(function (p) {
+            var bb = p.boundingBox.points;
+            var x = bb[0].x;
+            var y = bb[0].y;
+            var width = bb[1].x - x;
+            var height = bb[2].y - y;
+            _this.ctx.clearRect(x - 10 * _this.PIXEL_SIZE, y - 10 * _this.PIXEL_SIZE, width + 10 * _this.PIXEL_SIZE, height + 10 * _this.PIXEL_SIZE);
+        });
+        // clear the score and fps value
+        this.ctx.clearRect(0, 0, 200, 200);
     };
     LGE.prototype.addTranslations = function (translationMatrix) {
         // this.translationMatrixs.push(translationMatrix);
@@ -508,11 +586,11 @@ var Matrix = /** @class */ (function () {
         res[1] =
             this.values[1][0] * b.values[0][0] +
                 this.values[1][1] * b.values[1][0] +
-                this.values[0][2] * b.values[2][0];
+                this.values[1][2] * b.values[2][0];
         res[2] =
             this.values[2][0] * b.values[0][0] +
                 this.values[2][1] * b.values[1][0] +
-                this.values[0][2] * b.values[2][0];
+                this.values[2][2] * b.values[2][0];
         return new Matrix([[res[0]], [res[1]], [res[2]]]);
     };
     Matrix.prototype.zero = function () {
@@ -545,7 +623,6 @@ var Pixel = /** @class */ (function () {
      *
      */
     function Pixel(x, y, size, ctx, colour) {
-        // console.log(x, y);
         this.rec = new Rectangle_1.Rectangle(Math.round(x), Math.round(y), ctx, size, size, colour);
         this.rec.draw();
     }
@@ -556,26 +633,201 @@ exports.Pixel = Pixel;
 },{"./Rectangle":10}],8:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-/**
- * Represents a point
- */
-var Point = /** @class */ (function () {
-    /**
-     *
-     * @param x x pos
-     * @param y y pos
-     */
-    function Point(x, y) {
-        this.x = x;
-        this.y = y;
+var Colour_1 = require("./Colour");
+var Polygon_1 = require("./Polygon");
+var Utils_1 = require("./Utils");
+var controls = {
+    BACKWARD: 83,
+    FORWARD: 87,
+    LEFT: 65,
+    RIGHT: 68
+};
+var Player = /** @class */ (function () {
+    function Player(resolution) {
+        this.body = [];
+        this.velocityVector = { x: 0, y: 0 };
+        this.rotationSpeed = 180;
+        this.angle = 0;
+        this.score = 0;
+        this.thrustPower = 10;
+        this.drag = 1;
+        this.isBoosted = false;
+        this.resolution = resolution;
+        this.body = [
+            new Polygon_1.Polygon([
+                { x: -40, y: 20 },
+                { x: 40, y: 20 },
+                { x: 40, y: -20 },
+                { x: -40, y: -20 }
+            ]),
+            new Polygon_1.Polygon([{ x: 40, y: 20 }, { x: 60, y: 0 }, { x: 40, y: -20 }]),
+            new Polygon_1.Polygon([{ x: -40, y: 20 }, { x: -40, y: 40 }, { x: -20, y: 20 }]),
+            new Polygon_1.Polygon([{ x: -40, y: -20 }, { x: -40, y: -40 }, { x: -20, y: -20 }]),
+            new Polygon_1.Polygon([
+                { x: -20, y: 10 },
+                { x: 20, y: 10 },
+                { x: 20, y: -10 },
+                { x: -20, y: -10 }
+            ])
+        ];
+        // creates bounding box, use a dumby to initialise
+        this.boundingBox = new Polygon_1.Polygon(this.body[0].points, false);
+        this.updateBoundingBox();
+        this.boundingBox.colour = Colour_1.Colours.green;
+        // set colour for the body components
+        this.body[0].colour = Colour_1.Colours.silver;
+        this.body[0].fillColour = Colour_1.Colours.silver;
+        this.body[1].colour = Colour_1.Colours.silver;
+        this.body[1].fillColour = Colour_1.Colours.silver;
+        this.body[2].colour = Colour_1.Colours.silver;
+        this.body[2].fillColour = Colour_1.Colours.silver;
+        this.body[3].colour = Colour_1.Colours.silver;
+        this.body[3].fillColour = Colour_1.Colours.silver;
+        this.body[4].colour = Colour_1.Colours.blue;
+        this.body[4].fillColour = Colour_1.Colours.blue;
+        // flames
+        // this.flames = [
+        //   new Polygon([{ x: -40, y: 20 }, { x: -60, y: 10 }, { x: -40, y: 0 }]),
+        //   new Polygon([{ x: -40, y: 0 }, { x: -60, y: -10 }, { x: -40, y: -20 }]),
+        //   new Polygon([{ x: -40, y: 10 }, { x: -80, y: 0 }, { x: -40, y: -10 }])
+        // ];
+        this.flames = [
+            new Polygon_1.Polygon([
+                { x: -40, y: 20 },
+                { x: -60, y: 10 },
+                { x: -40, y: 0 },
+                { x: -60, y: -10 },
+                { x: -40, y: 10 },
+                { x: -80, y: 0 },
+                { x: -40, y: -10 }
+            ])
+        ];
+        this.flames.forEach(function (p) {
+            p.colour = Colour_1.Colours.orange;
+            p.fillColour = Colour_1.Colours.orange;
+        });
+        // move to the centre of the screen
+        this.translate(this.resolution.x / 2, this.resolution.y / 2);
+        this.centrePoint = Utils_1.Utils.calculateCentrePoint(this.boundingBox.points);
     }
-    return Point;
+    /**
+     * Update the bounding box
+     */
+    Player.prototype.updateBoundingBox = function () {
+        var points = [];
+        this.body.forEach(function (p) {
+            points.push.apply(points, p.points);
+        });
+        this.boundingBox.points = Utils_1.Utils.calculateBoundingBox(points);
+    };
+    /**
+     * Rotate by angle degrees
+     *
+     * @param angle degrees
+     */
+    Player.prototype.rotate = function (angle) {
+        var _this = this;
+        this.angle += (angle * Math.PI) / 180;
+        if (this.angle >= 2 * Math.PI) {
+            this.angle -= 2 * Math.PI;
+        }
+        if (this.angle <= -2 * Math.PI) {
+            this.angle += 2 * Math.PI;
+        }
+        this.body.concat(this.flames).forEach(function (p) {
+            p.rotate(angle, _this.centrePoint);
+        });
+        this.updateBoundingBox();
+    };
+    /**
+     * Translate
+     *
+     * @param deltaX change in x
+     * @param deltaY change in y
+     */
+    Player.prototype.translate = function (deltaX, deltaY) {
+        this.body.concat(this.flames).forEach(function (p) {
+            p.translate(deltaX, deltaY);
+        });
+        this.boundingBox.translate(deltaX, deltaY);
+    };
+    /**
+     * Updates position based on user input
+     *
+     * @param pressedKeys current active keys
+     * @param deltaTime time since last frame was rendered
+     */
+    Player.prototype.update = function (pressedKeys, deltaTime) {
+        this.isBoosted = false;
+        // need to do if ladder for multiple key inputs
+        if (pressedKeys[controls.FORWARD]) {
+            this.velocityVector.y +=
+                this.thrustPower * Math.sin(this.angle) * deltaTime;
+            this.velocityVector.x +=
+                this.thrustPower * Math.cos(this.angle) * deltaTime;
+            this.isBoosted = true;
+        }
+        if (pressedKeys[controls.LEFT]) {
+            this.rotate(-this.rotationSpeed * deltaTime);
+        }
+        if (pressedKeys[controls.RIGHT]) {
+            this.rotate(this.rotationSpeed * deltaTime);
+        }
+        this.translate(this.velocityVector.x, this.velocityVector.y);
+        // update centrepoint
+        this.centrePoint.x += this.velocityVector.x;
+        this.centrePoint.y += this.velocityVector.y;
+        if (this.drag !== 1) {
+            this.velocityVector.x *= this.drag;
+            this.velocityVector.y *= this.drag;
+        }
+        if (this.centrePoint.y <= 50 ||
+            this.centrePoint.y >= this.resolution.y - 50) {
+            this.velocityVector.y *= -0.5;
+        }
+        if (this.centrePoint.x <= 50 ||
+            this.centrePoint.x >= this.resolution.x - 50) {
+            this.velocityVector.x *= -0.5;
+        }
+    };
+    /**
+     * Checks if there is any collisions with the asteroids.
+     *
+     *
+     * @param asteroids Asteroid[]
+     * @returns number of collisions
+     */
+    Player.prototype.handleCollision = function (asteroids) {
+        var bb = this.boundingBox.points;
+        var bbWidth = bb[2].x - bb[0].x;
+        var bbHeight = bb[3].y - bb[0].y;
+        var numberCollisions = 0;
+        // check for collision
+        for (var i = 0; i < asteroids.length; i++) {
+            var abb = asteroids[i].boundingBox.points;
+            var abbWidth = abb[2].x - bb[0].x;
+            var abbHeight = abb[3].y - bb[0].y;
+            if (!(bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb
+                abb[0].x + abbWidth < bb[0].x || // abb is to the left of bb
+                bb[0].y + bbHeight < abb[0].y || // bb is above abb
+                abb[0].y + abbHeight < bb[0].y) // abb is above bb
+            ) {
+                // delete asteroids[i];
+                asteroids.splice(i, 1);
+                numberCollisions++;
+                this.score++;
+            }
+        }
+        return numberCollisions;
+    };
+    return Player;
 }());
-exports.Point = Point;
+exports.Player = Player;
 
-},{}],9:[function(require,module,exports){
+},{"./Colour":2,"./Polygon":9,"./Utils":12}],9:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+var Colour_1 = require("./Colour");
 var Matrix_1 = require("./Matrix");
 var Utils_1 = require("./Utils");
 /**
@@ -586,20 +838,24 @@ var Polygon = /** @class */ (function () {
      *
      * @param points points that represent the polygon
      */
-    function Polygon(points) {
-        this.translationMatrix = new Matrix_1.Matrix(null);
-        this.rotationMatrix = new Matrix_1.Matrix(null);
+    function Polygon(points, hasBoundingBox) {
         this.transformationMatrix = new Matrix_1.Matrix(null);
+        this.fillColour = null;
         this.points = points;
         this.triangles = [];
         this.centrePoint = Utils_1.Utils.calculateCentrePoint(points);
+        this.colour = Colour_1.Colours.black;
+        if (hasBoundingBox) {
+            this.boundingBox = new Polygon(Utils_1.Utils.calculateBoundingBox(this.points));
+            this.boundingBox.colour = Colour_1.Colours.green;
+        }
         this.scale = 1;
-        this.angle = 0;
-        // init the matrices
     }
     /**
-     * decomposes the polygon into triangles
-     * @returns an array of polygons
+     * decomposes the polygon into triangles.
+     * returns the triangles but also updates the triangles property
+     *
+     * @returns Polygon[]
      */
     Polygon.prototype.decompose = function () {
         if (this.points.length === 3) {
@@ -634,6 +890,7 @@ var Polygon = /** @class */ (function () {
     };
     /**
      * Translate position by deltaX, deltaY
+     *
      * @param deltaX change in x
      * @param deltaY change in y
      *
@@ -641,18 +898,32 @@ var Polygon = /** @class */ (function () {
      */
     Polygon.prototype.translate = function (deltaX, deltaY) {
         var _this = this;
-        // update value
-        this.translationMatrix.values[0][2] = deltaX;
-        this.translationMatrix.values[1][2] = deltaY;
+        // update values
+        this.transformationMatrix.values[0][2] = deltaX;
+        this.transformationMatrix.values[1][2] = deltaY;
         // update all the points
-        this.points.forEach(function (p) {
+        this.points.forEach(function (p, i) {
             var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
-            var res = _this.translationMatrix.multiply(pMatrix);
-            p.x = res.values[0][0];
-            p.y = res.values[1][0];
+            var res = _this.transformationMatrix.multiply(pMatrix);
+            _this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
         });
+        // update values [reset]
+        this.transformationMatrix.values[0][2] = 0;
+        this.transformationMatrix.values[1][2] = 0;
+        // update centrepoint and bounding box
+        this.centrePoint.x += deltaX;
+        this.centrePoint.y += deltaY;
+        if (this.boundingBox) {
+            this.boundingBox.translate(deltaX, deltaY);
+        }
     };
-    // moves centrepoint to location
+    /**
+     * Moves the centrepoint of the polygon to (x, y)
+     *
+     * @remarks not recommended
+     * @param x x pos
+     * @param y y pos
+     */
     Polygon.prototype.moveTo = function (x, y) {
         var _this = this;
         var offsets = [];
@@ -668,35 +939,61 @@ var Polygon = /** @class */ (function () {
             this.points[i].y = this.centrePoint.y + offsets[i].y;
         }
     };
-    Polygon.prototype.rotate = function (angle) {
+    /**
+     * Rotate the polygon by angle degrees.
+     * If no point is supplied the rotation point is the centrepoint of the polygon
+     *
+     * @param angle degrees
+     * @param point optional point to rotate around
+     */
+    Polygon.prototype.rotate = function (angle, point) {
         var _this = this;
-        // makes it easier
-        var prevPos = this.centrePoint;
-        // move to origin
-        this.moveTo(0, 0);
-        // rotate
-        var cosTheta = Math.cos(angle);
-        var sinTheta = Math.sin(angle);
-        var rv = this.rotationMatrix.values;
-        rv[0][0] = cosTheta;
-        rv[0][1] = -sinTheta;
-        rv[1][0] = sinTheta;
-        rv[1][1] = cosTheta;
+        var theta = (angle * Math.PI) / 180;
+        var cosTheta = Math.cos(theta);
+        var sinTheta = Math.sin(theta);
+        var tm = this.transformationMatrix;
+        // update the transformation matrix
+        tm.values[0][0] = cosTheta;
+        tm.values[0][1] = -sinTheta;
+        tm.values[1][0] = sinTheta;
+        tm.values[1][1] = cosTheta;
+        // rotation point
+        var rp = point ? point : this.centrePoint;
+        // update transformation matrix
+        tm.values = [
+            [cosTheta, -sinTheta, rp.x - cosTheta * rp.x - -sinTheta * rp.y],
+            [sinTheta, cosTheta, rp.y - sinTheta * rp.x - cosTheta * rp.y],
+            [0, 0, 1]
+        ];
         // update all the points
-        this.points.forEach(function (p) {
+        this.points.forEach(function (p, i) {
             var pMatrix = new Matrix_1.Matrix([[p.x], [p.y], [1]]);
-            var res = _this.rotationMatrix.multiply(pMatrix);
-            p.x = res.values[0][0];
-            p.y = res.values[1][0];
+            var res = tm.multiply(pMatrix);
+            _this.points[i] = { x: res.values[0][0], y: res.values[1][0] };
         });
-        // move back
-        this.moveTo(prevPos.x, prevPos.y);
+        if (this.boundingBox !== undefined) {
+            this.updateBoundingBox();
+        }
+        // update the transformation matrix [reset angle]
+        tm.values[0][0] = 1;
+        tm.values[0][1] = 0;
+        tm.values[1][0] = 0;
+        tm.values[1][1] = 1;
+        // translation
+        tm.values[0][2] = 0;
+        tm.values[1][2] = 0;
+    };
+    /**
+     * Update the bounding box of the polygon
+     */
+    Polygon.prototype.updateBoundingBox = function () {
+        this.boundingBox.points = Utils_1.Utils.calculateBoundingBox(this.points);
     };
     return Polygon;
 }());
 exports.Polygon = Polygon;
 
-},{"./Matrix":6,"./Utils":12}],10:[function(require,module,exports){
+},{"./Colour":2,"./Matrix":6,"./Utils":12}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
 var Rectangle = /** @class */ (function () {
@@ -750,13 +1047,13 @@ var ShapeFactory = /** @class */ (function () {
      *
      * @returns Polygon
      */
-    ShapeFactory.prototype.square = function (x, y, width, height) {
+    ShapeFactory.prototype.square = function (x, y, width, height, boundingBox) {
         var points = [];
         points.push({ x: x, y: y });
         points.push({ x: x + width, y: y });
         points.push({ x: x + width, y: y + height });
         points.push({ x: x, y: y + height });
-        return new Polygon_1.Polygon(points);
+        return new Polygon_1.Polygon(points, boundingBox);
     };
     /**
      * Creates a polygon with n points
@@ -802,6 +1099,7 @@ var Utils = /** @class */ (function () {
     };
     /**
      * Are the points on the same side
+     *
      * @param a IPoint
      * @param b IPoint
      * @param l1 line1
@@ -816,6 +1114,7 @@ var Utils = /** @class */ (function () {
     };
     /**
      * Is a IPoint in a triangle
+     *
      * @param p IPoint
      * @param t triangle
      *
@@ -827,6 +1126,12 @@ var Utils = /** @class */ (function () {
             this.sameSide(p, b, a, c) &&
             this.sameSide(p, c, a, b));
     };
+    /**
+     * Calculates a rectangle bounding box from the supplied points
+     *
+     * @param points IPoint[]
+     * @returns IPoint[]
+     */
     Utils.calculateBoundingBox = function (points) {
         var minX = Number.POSITIVE_INFINITY;
         var minY = Number.POSITIVE_INFINITY;
@@ -855,11 +1160,17 @@ var Utils = /** @class */ (function () {
             { x: minX, y: maxY }
         ];
     };
+    /**
+     * Calculates the centre point from a series of points from the bounding box
+     *
+     * @param points IPoint[]
+     * @returns IPoint
+     */
     Utils.calculateCentrePoint = function (points) {
         var boundingBox = Utils.calculateBoundingBox(points);
         return {
-            x: boundingBox[2].x - boundingBox[0].x,
-            y: boundingBox[3].y - boundingBox[0].y
+            x: (boundingBox[2].x + boundingBox[0].x) / 2,
+            y: (boundingBox[3].y + boundingBox[0].y) / 2
         };
     };
     return Utils;
@@ -872,19 +1183,221 @@ exports.__esModule = true;
 var Asteroid_1 = require("./Asteroid");
 var Colour_1 = require("./Colour");
 var LGE_1 = require("./LGE");
-var ShapeFactory_1 = require("./ShapeFactory");
-var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 800;
-var lge = new LGE_1.LGE(ctx, 1, "scanLine");
-var sf = new ShapeFactory_1.ShapeFactory();
-var square = sf.square(350, 350, 100, 100);
-var a = new Asteroid_1.Asteroid({ x: 400, y: 400 });
-lge.drawPolygon(square, Colour_1.Colours.black);
-// square.rotate(45);
-// square.translate(100, 100);
-square.moveTo(400, 400);
-lge.drawPolygon(square, Colour_1.Colours.red);
+var Player_1 = require("./Player");
+var Utils_1 = require("./Utils");
+/**
+ * binds HTML elements to functions and populates input fields
+ */
+var HtmlElementBindings = function () {
+    document
+        .getElementById("canvas")
+        .addEventListener("click", Game.filters.switchFilter, false);
+    document.getElementById("toggleBoundingBox").addEventListener("click", function (e) {
+        Game.config.showBoundingBoxes = !Game.config.showBoundingBoxes;
+    }, false);
+    document.getElementById("toggleFpsDisplay").addEventListener("click", function (e) {
+        Game.config.showFps = !Game.config.showFps;
+    }, false);
+    document.getElementById("updateResolution").addEventListener("click", function (e) {
+        var x = parseInt(document.getElementById("resolutionX").value, 10);
+        var y = parseInt(document.getElementById("resolutionY").value, 10);
+        Game.config.resolution = { x: x, y: y };
+        setup();
+    }, false);
+    document.getElementById("updateMaxAsteroids").addEventListener("click", function (e) {
+        Game.config.maxNumberAsteroids = parseInt(document.getElementById("maxNumberAsteroids")
+            .value, 10);
+        while (Game.state.numberAsteroids > Game.config.maxNumberAsteroids) {
+            Game.objects.asteroids.pop();
+            Game.state.numberAsteroids--;
+        }
+    }, false);
+    document.getElementById("updatePixelSize").addEventListener("click", function (e) {
+        var pixelSize = parseInt(document.getElementById("pixelSize").value, 10);
+        Game.config.pixelSize = pixelSize;
+        setup();
+    }, false);
+};
+var updateHtmlElementValues = function () {
+    document.getElementById("resolutionX").value = Game.config.resolution.x.toString();
+    document.getElementById("resolutionY").value = Game.config.resolution.y.toString();
+    document.getElementById("maxNumberAsteroids").value = Game.config.maxNumberAsteroids.toString();
+    document.getElementById("pixelSize").value = Game.config.pixelSize.toString();
+};
+/**
+ * Ran on start
+ */
+var setup = function () {
+    // Fetch canvas and set size
+    Game.canvas = document.getElementById("canvas");
+    Game.canvasCtx = Game.canvas.getContext("2d");
+    Game.canvas.width = Game.config.resolution.x;
+    Game.canvas.height = Game.config.resolution.y;
+    // Event listeners for input
+    window.addEventListener("keydown", Game.input.onKeyDown, false);
+    window.addEventListener("keyup", Game.input.onKeyUp, false);
+    // window.addEventListener("click", Game.filters.switchFilter, false);
+    // Instantiate graphics engine
+    Game.graphicsEngine = new LGE_1.LGE(Game.canvasCtx, Game.config.pixelSize, "scanLine");
+    // Instantiate player
+    Game.objects.player = new Player_1.Player(Game.config.resolution);
+    // in case of resetting the game
+    Game.state.numberAsteroids = 0;
+    Game.objects.asteroids = [];
+    // create the initial asteroids
+    while (Game.state.numberAsteroids < Game.config.maxNumberAsteroids) {
+        Game.objects.asteroids.push(Asteroid_1.asteroidFactory(Game.config.resolution));
+        Game.state.numberAsteroids++;
+    }
+    updateHtmlElementValues();
+};
+/**
+ * Called before Draw function.
+ * Updates the physics
+ *
+ */
+var update = function () {
+    // updates
+    Game.objects.player.update(Game.input.pressedKeys, Game.state.frameTimeDelta);
+    var colliders = [];
+    // split on purpose
+    Game.objects.asteroids.forEach(function (a, index) {
+        colliders.push.apply(colliders, a.handleCollision(Game.objects.asteroids, index));
+    });
+    colliders = colliders.filter(function (v, i, a) { return a.indexOf(v) === i; });
+    colliders.forEach(function (i) {
+        Game.objects.asteroids[i].bounce();
+    });
+    Game.objects.asteroids.forEach(function (a, index) {
+        a.update(Game.state.frameTimeDelta);
+    });
+    var prevAsteroids = Game.state.numberAsteroids;
+    Game.state.numberAsteroids -= Game.objects.player.handleCollision(Game.objects.asteroids);
+    if (prevAsteroids !== Game.state.numberAsteroids) {
+        new Audio(Game.sounds.explosion).play();
+    }
+    if (Game.state.numberAsteroids < Game.config.maxNumberAsteroids &&
+        Utils_1.Utils.randomInt(10) <= Game.config.asteroidSpawnProbability) {
+        Game.objects.asteroids.push(Asteroid_1.asteroidFactory(Game.config.resolution));
+        Game.state.numberAsteroids++;
+    }
+};
+/**
+ * Draws frame
+ */
+var draw = function () {
+    Game.graphicsEngine.clear();
+    var toDraw = Game.objects.player.body.concat(Game.objects.asteroids);
+    if (Game.objects.player.isBoosted) {
+        Game.sounds.thrust.play();
+        toDraw.push.apply(toDraw, Game.objects.player.flames);
+    }
+    else {
+        if (!Game.sounds.thrust.paused) {
+            Game.sounds.thrust.pause();
+            Game.sounds.thrust.currentTime = 0;
+        }
+    }
+    // do this then commit
+    if (Game.config.showBoundingBoxes) {
+        toDraw.push(Game.objects.player.boundingBox);
+        Game.objects.asteroids.forEach(function (a) {
+            toDraw.push(a.boundingBox);
+        });
+    }
+    Game.graphicsEngine.drawPolygonBuffer(toDraw);
+    Game.canvasCtx.fillStyle = Colour_1.Colours.white.toString();
+    Game.canvasCtx.font = "30px Arial";
+    Game.canvasCtx.fillText("Score: " + Game.objects.player.score, 10, 50);
+    if (Game.config.showFps) {
+        Game.canvasCtx.fillText("FPS: " + Math.floor(1 / Game.state.frameTimeDelta), 10, 100);
+    }
+};
+/**
+ * Key press event
+ * @param e
+ */
+var onKeyDown = function (e) {
+    Game.input.pressedKeys[e.keyCode] = true;
+};
+/**
+ * Key release event
+ * @param e
+ */
+var onKeyUp = function (e) {
+    Game.input.pressedKeys[e.keyCode] = false;
+};
+/**
+ * Switches applied CSS filter to the canvas
+ */
+var switchFilter = function () {
+    Game.canvas.style.filter = Game.filters.list[Game.filters.selectedFilter];
+    Game.filters.selectedFilter =
+        (Game.filters.selectedFilter + 1) % Game.filters.list.length;
+};
+var Game = {
+    canvas: null,
+    canvasCtx: null,
+    config: {
+        asteroidSpawnProbability: 1,
+        maxNumberAsteroids: 10,
+        pixelSize: 4,
+        resolution: { x: 1280, y: 720 },
+        showBoundingBoxes: true,
+        showFps: true
+    },
+    draw: draw,
+    filters: {
+        list: [
+            "",
+            "blur(2px)",
+            "hue-rotate(90deg)",
+            "grayscale(100%)",
+            "invert(100%)",
+            "saturate(200%)"
+        ],
+        selectedFilter: 0,
+        switchFilter: switchFilter
+    },
+    graphicsEngine: null,
+    input: {
+        onKeyDown: onKeyDown,
+        onKeyUp: onKeyUp,
+        pressedKeys: {}
+    },
+    objects: {
+        asteroids: [],
+        player: null
+    },
+    setup: setup,
+    sounds: {
+        explosion: "./sounds/explosion.mp3",
+        thrust: new Audio("./sounds/rocket.mp3") // only one instance
+    },
+    state: {
+        frameTimeDelta: 0,
+        lastFrameTime: 0,
+        numberAsteroids: 0
+    },
+    update: update
+};
+/**
+ * The game loop
+ * @param timestamp time since last called
+ */
+var loop = function (timestamp) {
+    // Calculate delta
+    Game.state.frameTimeDelta = (timestamp - Game.state.lastFrameTime) / 1000;
+    Game.state.lastFrameTime = timestamp;
+    Game.update();
+    Game.draw();
+    // Call the game loop on the next animation frame
+    requestAnimationFrame(loop);
+};
+HtmlElementBindings();
+// Setup game
+Game.setup();
+// Start the game loop
+requestAnimationFrame(loop);
 
-},{"./Asteroid":1,"./Colour":2,"./LGE":5,"./ShapeFactory":11}]},{},[1,2,3,4,5,6,7,8,9,10,11,13,12]);
+},{"./Asteroid":1,"./Colour":2,"./LGE":5,"./Player":8,"./Utils":12}]},{},[1,2,3,4,5,13,6,7,8,9,10,11,12]);
