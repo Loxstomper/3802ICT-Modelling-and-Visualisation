@@ -19,9 +19,14 @@ canvas.height = 1080;
 const lge = new LGE(ctx, 4, "scanLine");
 const sf: ShapeFactory = new ShapeFactory();
 
+// const sounds = {
+//   thrust: new Audio("./sounds/rocket.mp3"),
+//   explosion: new Audio("./sounds/explosion.mp3")
+// };
+
 const sounds = {
   thrust: new Audio("./sounds/rocket.mp3"),
-  explosion: new Audio("./sounds/explosion.mp3")
+  explosion: "./sounds/explosion.mp3"
 };
 
 const fps = 30;
@@ -102,7 +107,8 @@ const loop = (timestamp: number) => {
   numberAsteroids -= player.handleCollision(asteroids);
 
   if (prevAsteroids !== numberAsteroids) {
-    sounds.explosion.play();
+    // sounds.explosion.play();
+    new Audio(sounds.explosion).play();
   }
 
   if (
@@ -122,7 +128,15 @@ const loop = (timestamp: number) => {
 
   if (player.isBoosted) {
     sounds.thrust.play();
+    // sounds.thrust.volume = 1;
+    // sounds.thrust.loop = true;
+    // new Audio(sounds.thrust).play();
     toDraw.push(...player.flames);
+  } else {
+    if (!sounds.thrust.paused) {
+      sounds.thrust.pause();
+      sounds.thrust.currentTime = 0;
+    }
   }
 
   lge.drawPolygonBuffer(toDraw);
