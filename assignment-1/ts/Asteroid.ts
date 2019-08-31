@@ -17,6 +17,8 @@ export class Asteroid extends Polygon {
   /**
    * Creates points for asteroid polygon
    * nPoints equally spaced around a circle within min/max radius
+   *
+   * @returns IPoint[]
    */
   private static generatePoints(centrePoint: IPoint): IPoint[] {
     const points: IPoint[] = [];
@@ -71,7 +73,7 @@ export class Asteroid extends Polygon {
    * Update physics
    * @param timeDelta time since last update
    */
-  public update(timeDelta: number) {
+  public update(timeDelta: number): void {
     // check if hit side of the canvas
     if (
       this.centrePoint.x + Asteroid.maxRadius >= this.resolution.x ||
@@ -98,20 +100,20 @@ export class Asteroid extends Polygon {
    * @param asteroids the asteroids array
    * @param currIndex the index of the current asteroid
    */
-  public handleCollision(asteroids: Asteroid[], currIndex: number) {
-    const bb = this.boundingBox.points;
-    const bbWidth = bb[2].x - bb[0].x;
-    const bbHeight = bb[3].y - bb[0].y;
+  public handleCollision(asteroids: Asteroid[], currIndex: number): void {
+    const bb: IPoint[] = this.boundingBox.points;
+    const bbWidth: number = bb[2].x - bb[0].x;
+    const bbHeight: number = bb[3].y - bb[0].y;
 
     // check for collision
-    for (let i = 0; i < asteroids.length; i++) {
+    for (let i: number = 0; i < asteroids.length; i++) {
       if (i === currIndex) {
         continue;
       }
 
-      const abb = asteroids[i].boundingBox.points;
-      const abbWidth = abb[2].x - bb[0].x;
-      const abbHeight = abb[3].y - bb[0].y;
+      const abb: IPoint[] = asteroids[i].boundingBox.points;
+      const abbWidth: number = abb[2].x - bb[0].x;
+      const abbHeight: number = abb[3].y - bb[0].y;
 
       if (
         !(
@@ -132,9 +134,9 @@ export class Asteroid extends Polygon {
   }
 }
 
-export const asteroidFactory = (resolution: IPoint) => {
-  const x = 50 + Utils.randomInt(resolution.x - 100);
-  const y = 50 + Utils.randomInt(resolution.y - 50);
+export const asteroidFactory = (resolution: IPoint): Asteroid => {
+  const x: number = 50 + Utils.randomInt(resolution.x - 100);
+  const y: number = 50 + Utils.randomInt(resolution.y - 50);
 
   return new Asteroid({ x, y }, resolution);
 };

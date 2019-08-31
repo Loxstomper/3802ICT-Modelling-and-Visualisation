@@ -28,6 +28,12 @@ const setup = () => {
 
   // Instantiate player
   Game.objects.player = new Player(Game.config.resolution);
+
+  // create the initial asteroids
+  while (Game.state.numberAsteroids < Game.config.maxNumberAsteroids) {
+    Game.objects.asteroids.push(asteroidFactory(Game.config.resolution));
+    Game.state.numberAsteroids++;
+  }
 };
 
 /**
@@ -39,6 +45,7 @@ const update = () => {
   // updates
   Game.objects.player.update(Game.input.pressedKeys, Game.state.frameTimeDelta);
 
+  // split on purpose
   Game.objects.asteroids.forEach((a: Asteroid, index: number) => {
     a.handleCollision(Game.objects.asteroids, index);
   });
@@ -47,7 +54,7 @@ const update = () => {
     a.update(Game.state.frameTimeDelta);
   });
 
-  const prevAsteroids = Game.state.numberAsteroids;
+  const prevAsteroids: number = Game.state.numberAsteroids;
   Game.state.numberAsteroids -= Game.objects.player.handleCollision(
     Game.objects.asteroids
   );
@@ -81,6 +88,15 @@ const draw = () => {
       Game.sounds.thrust.pause();
       Game.sounds.thrust.currentTime = 0;
     }
+  }
+
+  // do this then commit
+  if (Game.config.showBoundingBoxes) {
+    toDraw.push(Game.objects.player.boundingBox);
+
+    Game.objects.asteroids.forEach((a: Asteroid) => {
+      toDraw.push(a.boundingBox);
+    });
   }
 
   Game.graphicsEngine.drawPolygonBuffer(toDraw);
@@ -130,7 +146,8 @@ const Game = {
     asteroidSpawnProbability: 1,
     maxNumberAsteroids: 10,
     pixelSize: 4,
-    resolution: { x: 1920, y: 1080 },
+    resolution: { x: 1280, y: 720 },
+    showBoundingBoxes: true,
     showFps: true
   },
   draw: draw,

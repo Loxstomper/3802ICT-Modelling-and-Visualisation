@@ -24,6 +24,7 @@ export class Colour {
 
   /**
    * string representation
+   *
    * @returns returns string format 'rgba(r, g, b, a)'
    */
   public toString(): string {
@@ -31,13 +32,15 @@ export class Colour {
   }
 }
 
-export let Colours = {
+export const Colours = {
   black: new Colour(0, 0, 0, 100),
   blue: new Colour(0, 0, 255, 100),
+  brown1: new Colour(135, 54, 0, 100),
+  brown2: new Colour(110, 44, 0, 100),
+  brown3: new Colour(93, 64, 55, 100),
   green: new Colour(0, 255, 0, 100),
-  red: new Colour(255, 0, 0, 100),
-  white: new Colour(255, 255, 255, 100),
-  silver: new Colour(192, 192, 192, 100),
   orange: new Colour(243, 156, 18, 100),
-  brown: new Colour(135, 54, 0, 100)
+  red: new Colour(255, 0, 0, 100),
+  silver: new Colour(192, 192, 192, 100),
+  white: new Colour(255, 255, 255, 100)
 };

@@ -3,22 +3,19 @@ import { IPoint } from "./IPoint";
 import { Matrix } from "./Matrix";
 import { Pixel } from "./Pixel";
 import { Polygon } from "./Polygon";
-import { Utils } from "./Utils";
 
 /**
  * Lochie Graphics Engine
  *
- * MAKE THIS A STATIC CLASS!!! - then can easily use
  */
 export class LGE {
+  public resolution: IPoint;
   private PIXEL_SIZE: number;
   private fillMethod: string | null;
-  // maybe make these a stack too?
   private translationMatrix: Matrix;
   private rotationMatrix: Matrix;
   private transformationMatrices: Matrix[] = [];
   private ctx: CanvasRenderingContext2D;
-  public resolution: any;
 
   /**
    *
@@ -48,10 +45,10 @@ export class LGE {
    * combines the translation matrix and rotation matrix into a single one and adds to stack
    */
   public updateTransformationMatrix(): Matrix {
-    const r = this.rotationMatrix;
-    const t = this.translationMatrix;
+    const r: Matrix = this.rotationMatrix;
+    const t: Matrix = this.translationMatrix;
 
-    const values = [
+    const values: number[][] = [
       [r.values[0][0], r.values[0][1], t.values[0][0]],
       [r.values[1][0], r.values[1][1], t.values[1][0]],
       [0, 0, 1]
@@ -63,15 +60,25 @@ export class LGE {
     return res;
   }
 
+  /**
+   * sets rotation
+   * @param angle
+   */
   public setRotation(angle: number): void {
-    const cosTheta = Math.cos(angle);
-    const sinTheta = Math.sin(angle);
+    const cosTheta: number = Math.cos(angle);
+    const sinTheta: number = Math.sin(angle);
 
     this.rotationMatrix.values = [[cosTheta, -sinTheta], [sinTheta, cosTheta]];
 
     this.updateTransformationMatrix();
   }
 
+  /**
+   * sets translation
+   *
+   * @param dX change in x
+   * @param dY change in y
+   */
   public setTranslation(dX: number, dY: number): void {
     this.translationMatrix.values = [[dX], [dY]];
 
@@ -79,59 +86,20 @@ export class LGE {
   }
 
   /**
-   * scale points
-   * @remarks doesn't actual scale due to issues
+   * Draws a coloured line between two points using the DDA algorithm
    *
-   * @param points points to be scaled
-   * @returns IPoint[]
-   */
-  public scalePoints(points: IPoint[]): IPoint[] {
-    return points;
-
-    // points.forEach( (p : IPoint) => {
-    //     p.x = Math.floor(p.x) * this.PIXEL_SIZE;
-    //     p.y = Math.floor(p.y) * this.PIXEL_SIZE;
-    // })
-
-    // return points;
-  }
-
-  /**
-   * Draws a coloured line between two points
    * @param start first IPoint
    * @param end end IPoint
    * @param colour Colour
    */
   public drawLine(start: IPoint, end: IPoint, colour: Colour): void {
-    let p0: IPoint;
-    let p1: IPoint;
+    const p0: IPoint = start;
+    const p1: IPoint = end;
 
-    [p0, p1] = this.scalePoints([start, end]);
+    const dx: number = Math.ceil(p1.x - p0.x);
+    const dy: number = Math.ceil(p1.y - p0.y);
 
-    // const dx = p1.x - p0.x,
-    //       dy = p1.y - p0.y,
-    //       s  = Math.abs(dx) > Math.abs(dy) ? Math.abs(dx) / this.PIXEL_SIZE : Math.abs(dy) / this.PIXEL_SIZE,
-    //       xi = dx * 1.0 / s,
-    //       yi = dy * 1.0 / s
-
-    // let x = p0.x,
-    //     y = p0.y,
-    //     out = []
-
-    // out.push({x: x, y: y});
-
-    // for (let i = 0; i < s; i++) {
-    //     x += xi;
-    //     y += yi;
-    //     out.push({x: x, y: y});
-    // }
-
-    // // out.map(pos => new Pixel(Math.floor(pos.x), Math.floor(pos.y), this.PIXEL_SIZE, this.ctx, colour));
-    // out.map(pos => new Pixel(pos.x, pos.y, this.PIXEL_SIZE, this.ctx, colour));
-
-    const dx = Math.ceil(p1.x - p0.x);
-    const dy = Math.ceil(p1.y - p0.y);
-    const steps =
+    const steps: number =
       Math.abs(dx) > Math.abs(dy)
         ? Math.ceil(Math.abs(dx) / this.PIXEL_SIZE)
         : Math.ceil(Math.abs(dy) / this.PIXEL_SIZE);
@@ -142,11 +110,11 @@ export class LGE {
       return;
     }
 
-    const xInc = dx / steps;
-    const yInc = dy / steps;
+    const xInc: number = dx / steps;
+    const yInc: number = dy / steps;
 
-    let x = p0.x;
-    let y = p0.y;
+    let x: number = p0.x;
+    let y: number = p0.y;
 
     for (let i = 0; i < steps; i++) {
       // tslint:disable-next-line: no-unused-expression
@@ -158,6 +126,7 @@ export class LGE {
 
   /**
    * Draws lines between the points
+   *
    * @param points IPoint[]
    * @param colour Colour
    */
@@ -169,28 +138,33 @@ export class LGE {
 
   /**
    * Fills a polygon with the given colour
+   *
    * @param poly Polygon
    * @param colour Colour
    */
   public scanLineFill(poly: Polygon, colour: Colour): void {
     const points: IPoint[] = poly.points;
 
-    const minY = points.reduce((prev, curr) => (prev.y < curr.y ? prev : curr))
-      .y;
-    const maxY = points.reduce((prev, curr) => (prev.y > curr.y ? prev : curr))
-      .y;
+    const minY: number = points.reduce((prev, curr) =>
+      prev.y < curr.y ? prev : curr
+    ).y;
 
-    let start = points[points.length - 1];
-    const edges = [];
+    const maxY: number = points.reduce((prev, curr) =>
+      prev.y > curr.y ? prev : curr
+    ).y;
+
+    let start: IPoint = points[points.length - 1];
+
+    const edges: any[] = [];
 
     // tslint:disable-next-line: prefer-for-of
-    for (let i = 0; i < points.length; i++) {
+    for (let i: number = 0; i < points.length; i++) {
       edges.push({ 0: start, 1: points[i] });
       start = points[i];
     }
 
-    for (let y = minY; y < maxY; y += this.PIXEL_SIZE) {
-      const Xs = [];
+    for (let y: number = minY; y < maxY; y += this.PIXEL_SIZE) {
+      const Xs: number[] = [];
 
       // tslint:disable-next-line: one-variable-per-declaration
       let x, x1, x2, y1, y2, deltaX, deltaY;
@@ -217,36 +191,18 @@ export class LGE {
 
       Xs.sort();
 
-      for (let xi = 0; xi < Xs.length - 1; xi += 2) {
-        // let left  = Xs[xi]     % 1 == 0 ? Xs[xi] : Math.ceil(Xs[xi]);
-        // let right = Xs[xi + 1] % 1 == 0 ? Xs[xi + 1] : Math.floor(Xs[xi + 1]);
-
-        const left = Xs[xi];
-        const right = Xs[xi + 1];
-
-        // console.log("BEFORE: ", left, right);
-
-        // left  = Xs[xi]     % 1 === 0 ? Xs[xi]     : Math.ceil(Xs[xi]);
-        // right = Xs[xi + 1] % 1 === 0 ? Xs[xi + 1] : Math.floor(Xs[xi]);
-
-        // console.log("AFTER : ", left, right);
+      for (let xi: number = 0; xi < Xs.length - 1; xi += 2) {
+        const left: number = Xs[xi];
+        const right: number = Xs[xi + 1];
 
         this.drawLine({ x: left, y }, { x: right, y }, colour);
       }
     }
-
-    // this.drawPolygon(poly, colour);
   }
 
   /**
-   * Other algorithm to fill a polygon
-   * @param poly Polygon
-   * @param colour Colour
-   */
-  public otherFill(poly: Polygon, colour: Colour): void {}
-
-  /**
    * Fills a polygon based on the method decided on at initialization
+   *
    * @param poly Polygon
    * @param colour Colour
    */
@@ -266,26 +222,32 @@ export class LGE {
   }
 
   /**
-   * Draws the polygon
+   * Draws the polygon, fills if a colour is provided
+   *
    * @param poly Polygon
-   * @param colour Colour
+   * @param colour Optional Colour - overwrites polygon colour
    */
   public drawPolygon(poly: Polygon, colour?: Colour): void {
-    const points = poly.points;
+    const points: IPoint[] = poly.points;
 
     if (poly.fillColour) {
       this.scanLineFill(poly, poly.fillColour);
     }
 
-    const outlineColour = colour ? colour : poly.colour;
+    const outlineColour: Colour = colour ? colour : poly.colour;
 
-    for (let i = 0; i < points.length - 1; i++) {
+    for (let i: number = 0; i < points.length - 1; i++) {
       this.drawLine(points[i], points[i + 1], outlineColour);
     }
 
     this.drawLine(points[points.length - 1], points[0], outlineColour);
   }
 
+  /**
+   * Draws an array of Polygons
+   *
+   * @param buffer Polygon[]
+   */
   public drawPolygonBuffer(buffer: Polygon[]): void {
     buffer.forEach((p: Polygon) => {
       this.drawPolygon(p);
@@ -294,6 +256,7 @@ export class LGE {
 
   /**
    * Draws a triangle from 3 points
+   *
    * @param points Points
    * @param colour Colour
    */
@@ -303,6 +266,7 @@ export class LGE {
 
   /**
    * Fills a triangle from 3 points
+   *
    * @param points IPoint[]
    * @param colour Colour
    */
@@ -312,6 +276,7 @@ export class LGE {
 
   /**
    * Draws a rectangle
+   *
    * @param x x pos
    * @param y y pos
    * @param width width
@@ -337,6 +302,7 @@ export class LGE {
 
   /**
    * Fills a rectangle
+   *
    * @param x x pos
    * @param y y pos
    * @param width width
@@ -381,7 +347,7 @@ export class LGE {
     const points: IPoint[] = [];
     const step: number = 1 / radius;
 
-    for (let i = 1; i < samples; i++) {
+    for (let i: number = 1; i < samples; i++) {
       const x = xc + radius * Math.cos(i * step);
       const y = yc + radius * Math.sin(i * step);
 
@@ -394,8 +360,6 @@ export class LGE {
       points.push({ y: -y, x: x });
       points.push({ x: y, y: x });
     }
-
-    // console.log(points);
 
     this.drawPolygon(new Polygon(points), colour);
   }
@@ -420,7 +384,7 @@ export class LGE {
   ): void {
     const points: IPoint[] = [];
 
-    for (let i = 1; i < samples; i++) {
+    for (let i: number = 1; i < samples; i++) {
       const p: IPoint = {
         x: radius * Math.cos((2 * Math.PI) / i),
         y: radius * Math.sin((2 * Math.PI) / i)
@@ -432,16 +396,21 @@ export class LGE {
   }
 
   /**
-   * Clears the canvas
+   * Clears the whole canvas
    */
   public clear(): void {
     this.ctx.clearRect(0, 0, this.resolution.x, this.resolution.y);
   }
 
-  public clearSmart(asteroids: any[], player: any): void {
+  /**
+   * Clears the canvas by clearing the polygon's bounding boxes
+   *
+   * @param polygons polygons to be cleared
+   */
+  public clearSmart(polygons: Polygon[]): void {
     // going to clear each bounding box
-    [...asteroids, player].forEach(o => {
-      const bb = o.boundingBox.points;
+    polygons.forEach(p => {
+      const bb = p.boundingBox.points;
       const x = bb[0].x;
       const y = bb[0].y;
       const width = bb[1].x - x;
@@ -455,8 +424,8 @@ export class LGE {
       );
     });
 
-    // clear the score
-    this.ctx.clearRect(0, 0, 200, 50);
+    // clear the score and fps value
+    this.ctx.clearRect(0, 0, 200, 200);
   }
 
   public addTranslations(translationMatrix: any): void {

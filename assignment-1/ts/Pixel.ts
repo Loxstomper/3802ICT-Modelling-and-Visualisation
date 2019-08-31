@@ -26,7 +26,6 @@ export class Pixel {
     ctx: CanvasRenderingContext2D,
     colour: Colour
   ) {
-    // console.log(x, y);
     this.rec = new Rectangle(
       Math.round(x),
       Math.round(y),
