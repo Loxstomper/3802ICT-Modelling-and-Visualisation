@@ -5,6 +5,98 @@ import { Player } from "./Player";
 import { Utils } from "./Utils";
 
 /**
+ * binds HTML elements to functions and populates input fields
+ */
+const HtmlElementBindings = () => {
+  document
+    .getElementById("canvas")
+    .addEventListener("click", Game.filters.switchFilter, false);
+
+  document.getElementById("toggleBoundingBox").addEventListener(
+    "click",
+    e => {
+      Game.config.showBoundingBoxes = !Game.config.showBoundingBoxes;
+    },
+    false
+  );
+
+  document.getElementById("toggleFpsDisplay").addEventListener(
+    "click",
+    e => {
+      Game.config.showFps = !Game.config.showFps;
+    },
+    false
+  );
+
+  document.getElementById("updateResolution").addEventListener(
+    "click",
+    e => {
+      const x: number = parseInt(
+        (document.getElementById("resolutionX") as HTMLInputElement).value,
+        10
+      );
+      const y: number = parseInt(
+        (document.getElementById("resolutionY") as HTMLInputElement).value,
+        10
+      );
+
+      Game.config.resolution = { x: x, y: y };
+      setup();
+    },
+    false
+  );
+
+  document.getElementById("updateMaxAsteroids").addEventListener(
+    "click",
+    e => {
+      Game.config.maxNumberAsteroids = parseInt(
+        (document.getElementById("maxNumberAsteroids") as HTMLInputElement)
+          .value,
+        10
+      );
+
+      while (Game.state.numberAsteroids > Game.config.maxNumberAsteroids) {
+        Game.objects.asteroids.pop();
+        Game.state.numberAsteroids--;
+      }
+    },
+    false
+  );
+
+  document.getElementById("updatePixelSize").addEventListener(
+    "click",
+    e => {
+      const pixelSize: number = parseInt(
+        (document.getElementById("pixelSize") as HTMLInputElement).value,
+        10
+      );
+
+      Game.config.pixelSize = pixelSize;
+      setup();
+    },
+    false
+  );
+};
+
+const updateHtmlElementValues = () => {
+  (document.getElementById(
+    "resolutionX"
+  ) as HTMLInputElement).value = Game.config.resolution.x.toString();
+
+  (document.getElementById(
+    "resolutionY"
+  ) as HTMLInputElement).value = Game.config.resolution.y.toString();
+
+  (document.getElementById(
+    "maxNumberAsteroids"
+  ) as HTMLInputElement).value = Game.config.maxNumberAsteroids.toString();
+
+  (document.getElementById(
+    "pixelSize"
+  ) as HTMLInputElement).value = Game.config.pixelSize.toString();
+};
+
+/**
  * Ran on start
  */
 const setup = () => {
@@ -17,8 +109,7 @@ const setup = () => {
   // Event listeners for input
   window.addEventListener("keydown", Game.input.onKeyDown, false);
   window.addEventListener("keyup", Game.input.onKeyUp, false);
-  window.addEventListener("click", Game.filters.switchFilter, false);
-
+  // window.addEventListener("click", Game.filters.switchFilter, false);
   // Instantiate graphics engine
   Game.graphicsEngine = new LGE(
     Game.canvasCtx,
@@ -29,11 +120,17 @@ const setup = () => {
   // Instantiate player
   Game.objects.player = new Player(Game.config.resolution);
 
+  // in case of resetting the game
+  Game.state.numberAsteroids = 0;
+  Game.objects.asteroids = [];
+
   // create the initial asteroids
   while (Game.state.numberAsteroids < Game.config.maxNumberAsteroids) {
     Game.objects.asteroids.push(asteroidFactory(Game.config.resolution));
     Game.state.numberAsteroids++;
   }
+
+  updateHtmlElementValues();
 };
 
 /**
@@ -45,9 +142,17 @@ const update = () => {
   // updates
   Game.objects.player.update(Game.input.pressedKeys, Game.state.frameTimeDelta);
 
+  let colliders: number[] = [];
+
   // split on purpose
   Game.objects.asteroids.forEach((a: Asteroid, index: number) => {
-    a.handleCollision(Game.objects.asteroids, index);
+    colliders.push(...a.handleCollision(Game.objects.asteroids, index));
+  });
+
+  colliders = colliders.filter((v, i, a) => a.indexOf(v) === i);
+
+  colliders.forEach((i: number) => {
+    Game.objects.asteroids[i].bounce();
   });
 
   Game.objects.asteroids.forEach((a: Asteroid, index: number) => {
@@ -103,9 +208,9 @@ const draw = () => {
 
   Game.canvasCtx.fillStyle = Colours.white.toString();
   Game.canvasCtx.font = "30px Arial";
+  Game.canvasCtx.fillText(`Score: ${Game.objects.player.score}`, 10, 50);
 
   if (Game.config.showFps) {
-    Game.canvasCtx.fillText(`Score: ${Game.objects.player.score}`, 10, 50);
     Game.canvasCtx.fillText(
       `FPS: ${Math.floor(1 / Game.state.frameTimeDelta)}`,
       10,
@@ -202,6 +307,7 @@ const loop = (timestamp: number) => {
   requestAnimationFrame(loop);
 };
 
+HtmlElementBindings();
 // Setup game
 Game.setup();
 // Start the game loop

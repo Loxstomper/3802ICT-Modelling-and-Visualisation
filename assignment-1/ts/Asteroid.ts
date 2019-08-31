@@ -95,15 +95,29 @@ export class Asteroid extends Polygon {
   }
 
   /**
+   * inverts the velocity
+   */
+  public bounce(): void {
+    this.velocity.x *= -1;
+    this.velocity.y *= -1;
+
+    this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
+  }
+
+  /**
    * handle collisions with other asteroids
    *
    * @param asteroids the asteroids array
    * @param currIndex the index of the current asteroid
+   *
+   * @returns number[] - indices of all the colliding asteroids
    */
-  public handleCollision(asteroids: Asteroid[], currIndex: number): void {
+  public handleCollision(asteroids: Asteroid[], currIndex: number): number[] {
     const bb: IPoint[] = this.boundingBox.points;
     const bbWidth: number = bb[2].x - bb[0].x;
     const bbHeight: number = bb[3].y - bb[0].y;
+
+    const collisions: number[] = [];
 
     // check for collision
     for (let i: number = 0; i < asteroids.length; i++) {
@@ -124,13 +138,16 @@ export class Asteroid extends Polygon {
         ) // abb is above bb
       ) {
         // invert velocity
-        this.velocity.x *= -1;
-        this.velocity.y *= -1;
+        // this.velocity.x *= -1;
+        // this.velocity.y *= -1;
 
-        // translate a bit to bounce
-        this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
+        // // translate a bit to bounce
+        // this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
+        collisions.push(i);
       }
     }
+
+    return collisions;
   }
 }
 
