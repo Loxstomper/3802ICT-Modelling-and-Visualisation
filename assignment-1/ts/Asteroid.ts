@@ -1,17 +1,17 @@
+import { Colour, Colours } from "./Colour";
 import { IPoint } from "./IPoint";
 import { Polygon } from "./Polygon";
 import { Utils } from "./Utils";
-import { Colour, Colours } from "./Colour";
 
 export class Asteroid extends Polygon {
-  // concave
   private static minRadius: number = 30;
   private static maxRadius: number = 40;
   private static nPoints: number = 24;
+  private static maxVelocity: number = 50;
   private static colours: Colour[] = [
-    Colours.brown,
-    new Colour(110, 44, 0, 100),
-    new Colour(93, 64, 55, 100)
+    Colours.brown1,
+    Colours.brown2,
+    Colours.brown3
   ];
 
   /**
@@ -40,43 +40,39 @@ export class Asteroid extends Polygon {
     return points;
   }
 
-  public velocity: any = { x: 0, y: 0 };
-  public rotationSpeed: number;
-  public polygon: Polygon;
-  // does this really need to be a polygon?
   public boundingBox: Polygon;
-  public resolution: any;
-  public ID: number;
+  public resolution: IPoint;
+
+  private velocity: IPoint = { x: 0, y: 0 };
+  private rotationSpeed: number;
 
   constructor(centrePoint: IPoint, resolution: any) {
+    // create the polygon
     super(Asteroid.generatePoints(centrePoint), true);
-    this.resolution = resolution;
-    this.rotationSpeed = 10 + Utils.randomInt(90) - 50;
-    this.velocity.x = Utils.randomInt(50) - 25;
-    this.velocity.y = Utils.randomInt(50) - 25;
 
+    // set resolution
+    this.resolution = resolution;
+
+    // rotation and velocity
+    this.rotationSpeed = 10 + Utils.randomInt(90) - 50;
+    this.velocity.x =
+      Utils.randomInt(Asteroid.maxVelocity) - Asteroid.maxVelocity / 2;
+    this.velocity.y =
+      Utils.randomInt(Asteroid.maxVelocity) - Asteroid.maxVelocity / 2;
+
+    // colour
     const colour = Asteroid.colours[Utils.randomInt(Asteroid.colours.length)];
     this.colour = colour;
     this.fillColour = colour;
     this.boundingBox.colour = Colours.green;
-
-    // console.log(this.boundingBox);
   }
 
+  /**
+   * Update physics
+   * @param timeDelta time since last update
+   */
   public update(timeDelta: number) {
-    // use the bounding box for bounds checking
-    const bb = this.boundingBox.points;
-
-    // if (
-    //   bb[0].x <= 0 ||
-    //   bb[0].y <= 0 ||
-    //   bb[3].x >= this.resolution.x ||
-    //   bb[3].y >= this.resolution.y
-    // ) {
-    //   this.velocity.x *= -1;
-    //   this.velocity.y *= -1;
-    // }
-
+    // check if hit side of the canvas
     if (
       this.centrePoint.x + Asteroid.maxRadius >= this.resolution.x ||
       this.centrePoint.x - Asteroid.maxRadius <= 0
@@ -84,6 +80,7 @@ export class Asteroid extends Polygon {
       this.velocity.x *= -1;
     }
 
+    // check if hit top/bottom of canvas
     if (
       this.centrePoint.y + Asteroid.maxRadius >= this.resolution.y ||
       this.centrePoint.y - Asteroid.maxRadius <= 0
@@ -91,13 +88,16 @@ export class Asteroid extends Polygon {
       this.velocity.y *= -1;
     }
 
-    // going to generate the bounding box twice...
     this.rotate(this.rotationSpeed * timeDelta);
     this.translate(this.velocity.x * timeDelta, this.velocity.y * timeDelta);
-    // this.updateBoundingBox();
-    this.boundingBox.colour = Colours.green;
   }
 
+  /**
+   * handle collisions with other asteroids
+   *
+   * @param asteroids the asteroids array
+   * @param currIndex the index of the current asteroid
+   */
   public handleCollision(asteroids: Asteroid[], currIndex: number) {
     const bb = this.boundingBox.points;
     const bbWidth = bb[2].x - bb[0].x;
@@ -113,7 +113,6 @@ export class Asteroid extends Polygon {
       const abbWidth = abb[2].x - bb[0].x;
       const abbHeight = abb[3].y - bb[0].y;
 
-      // double check this!
       if (
         !(
           bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb
@@ -122,9 +121,20 @@ export class Asteroid extends Polygon {
           abb[0].y + abbHeight < bb[0].y
         ) // abb is above bb
       ) {
+        // invert velocity
         this.velocity.x *= -1;
         this.velocity.y *= -1;
+
+        // translate a bit to bounce
+        this.translate(this.velocity.x * 1.5, this.velocity.y * 1.5);
       }
     }
   }
 }
+
+export const asteroidFactory = (resolution: IPoint) => {
+  const x = 50 + Utils.randomInt(resolution.x - 100);
+  const y = 50 + Utils.randomInt(resolution.y - 50);
+
+  return new Asteroid({ x, y }, resolution);
+};
