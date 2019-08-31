@@ -4,17 +4,49 @@ import { Matrix } from "./Matrix";
 import { Utils } from "./Utils";
 
 /**
- * Represents a polygon.
+ * # Polygon
+ *
+ * Represents a polygon by an array of IPoints.
+ *
  * The polygon is the most important component for LGE.
  *
  * Each polygon keeps track of its centrepoint and bounding box if specified.
+ *
  * The polygon stores the colour, fill colour and provides functions to translate and rotate.
  * The angle of the polygon is also stored for convenience.
  *
  * the decompose function decomposes the polygon into triangles and stored in the triangles property.
  *
- * <b> Note: <b> when translating and rotating the bounding box will be updated if present
- * <b> Note: <b> The points are absolute and transform/rotate functions modify the points in place
+ * <b> Note: </b> when translating and rotating the bounding box will be updated if present
+ *
+ * <b> Note: </b> The points are absolute and transform/rotate functions modify the points in place
+ *
+ * ## Example
+ *
+ * ```js
+ *
+ * // define the points
+ * const points: IPoint[] = [
+ *  {x: 100, y: 100},
+ *  {x: 200, y: 100},
+ *  {x: 150, y: 200}
+ * ];
+ *
+ * // create the triangle defined by the points
+ * const triangle: Polygon = new Polygon(points);
+ *
+ * // update the fill colour of the polygon to be red
+ * triangle.fillColour = new Colour(255, 0, 0, 100);
+ *
+ * // output the points
+ * console.log(triangle.points);
+ *
+ * // translate the polygon
+ * triangle.translate(100, 100);
+ *
+ * // output the points
+ * console.log(triangle.points);
+ * ```
  *
  */
 export class Polygon {
@@ -29,7 +61,6 @@ export class Polygon {
   public boundingBox: Polygon;
 
   /**
-   *
    * @param points points that represent the polygon
    */
   constructor(points: IPoint[], hasBoundingBox?: boolean) {

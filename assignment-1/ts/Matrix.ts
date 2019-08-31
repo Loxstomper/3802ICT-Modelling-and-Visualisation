@@ -1,6 +1,19 @@
 /**
+ * # Matrix
+ *
  * The Matrix class is used for matrix operations most commonly for translating and rotating polygons
- * which is performed using transformation matrices.
+ * which is performed using transformation matrices. If no values are provided in the constructor the values are
+ * the identity matrix.
+ *
+ * ## Example
+ *
+ * ```js
+ *
+ *  const identityMatrix: Matrix: = new Matrix(null);
+ *  const otherMatrix: Matrix = new Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+ *
+ *  console.log(identityMatrix.multiply(otherMatrix));
+ * ```
  */
 export class Matrix {
   public values: number[][];
@@ -19,6 +32,12 @@ export class Matrix {
     this.height = this.values.length;
   }
 
+  /**
+   * Adds two matrices and returns the result
+   *
+   * @param b Matrix
+   * @returns Matrix
+   */
   public add(b: Matrix): Matrix {
     if (this.width !== b.width && this.height !== b.height) {
       throw new Error("Dimension miss match");
@@ -36,6 +55,12 @@ export class Matrix {
     return out;
   }
 
+  /**
+   * Multiples by Matrix b and returns the result
+   *
+   * @param b Matrix
+   * @returns Matrix
+   */
   public multiply(b: Matrix): Matrix {
     // if (this.width != b.height || this.height != b.width) {
     //     throw new Error('Dimension miss match');
@@ -59,6 +84,9 @@ export class Matrix {
     return new Matrix([[res[0]], [res[1]], [res[2]]]);
   }
 
+  /**
+   * Zeros the matrix values
+   */
   public zero(): void {
     for (let i = 0; i < this.height; i++) {
       for (let j = 0; j < this.width; j++) {

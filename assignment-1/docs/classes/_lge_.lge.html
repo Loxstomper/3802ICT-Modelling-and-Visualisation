@@ -72,13 +72,26 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Lochie&#39;s Graphics Engine.</p>
+						<a href="#lochie39s-graphics-engine" id="lochie39s-graphics-engine" style="color: inherit; text-decoration: none;">
+							<h1>Lochie&#39;s Graphics Engine</h1>
+						</a>
 					</div>
+					<a href="#components" id="components" style="color: inherit; text-decoration: none;">
+						<h2>Components</h2>
+					</a>
+					<p>Lochie&#39;s Graphics Engine (LGE) is comprised of multiple components this is the main class which handles rendering.</p>
+					<p>See <a href="../interfaces/_ipoint_.ipoint.html">IPoint</a>,
+						<a href="_polygon_.polygon.html">Polygon</a>
+						<a href="_rectangle_.rectangle.html">Rectangle</a>,
+						<a href="_pixel_.pixel.html">Pixel</a>,
+						<a href="_utils_.utils.html">Utils</a>,
+						<a href="_shapefactory_.shapefactory.html">ShapeFactory</a>,
+					<a href="_colour_.colour.html">Colour</a> for more details.</p>
 					<a href="#coordinate-spaces" id="coordinate-spaces" style="color: inherit; text-decoration: none;">
 						<h2>Coordinate Spaces</h2>
 					</a>
 					<p>The origin (0, 0) is the top left of the canvas, when drawing coordinates are taken as is - there is no manipulation.
-					The resolution is determined from the canvas in the constructor as well as the pixel size.</p>
+					The resolution is determined from the canvas in the constructor.</p>
 					<a href="#pixel-size" id="pixel-size" style="color: inherit; text-decoration: none;">
 						<h2>Pixel size</h2>
 					</a>
@@ -86,13 +99,66 @@
 					<a href="#rendering-process" id="rendering-process" style="color: inherit; text-decoration: none;">
 						<h2>Rendering process</h2>
 					</a>
-					<p>LGE primarily deals with polygons drawPolygon(poly: Polygon, colour?: Colour) will be used as an example.</p>
+					<p>LGE primarily deals with polygons <a href="#drawpolygon">drawPolygon(poly: Polygon, colour?: Colour)</a> will be used as an
+					example.</p>
 					<ol>
 						<li>the points are extracted from the polygon</li>
-						<li>if the polygon has a fill colour the scan line fill algorithm is used to draw the polygon</li>
-						<li>if a colour was provided when calling the function that will be the outline colour else the polygon&#39;s colour</li>
+						<li>if the polygon has a fill colour the scan line fill algorithm is used to draw and fill the polygon</li>
+						<li>if a colour was provided when calling the function that will be the outline colour else the polygon&#39;s colour
+						will be used</li>
 						<li>the outline of the polygon is drawn using the DDA algorithm</li>
 					</ol>
+					<p>The polygon will now stay on the canvas until the canvas has been cleared.</p>
+					<a href="#rendering-example" id="rendering-example" style="color: inherit; text-decoration: none;">
+						<h3>Rendering example</h3>
+					</a>
+					<p>The following simple example will render two squares on the canvas and rotate them.
+						The <a href="#drawpolygonbuffer">drawPolygonBuffer(buffer: Polygon[]</a> function is used which iterates over the buffer and
+					calls <a href="#drawpolygon">drawPolygon(poly: Polygon, colour?: Colour)</a></p>
+					<p><br> Assuming: </b> ctx variable is the CanvasRenderingContext2D</p>
+					<pre><code class="language-js">
+<span class="hljs-comment">// instantiate LGE</span>
+<span class="hljs-keyword">const</span> lge: LGE = <span class="hljs-keyword">new</span> LGE(ctx, <span class="hljs-number">1</span>, <span class="hljs-string">'scanLine'</span>)
+
+<span class="hljs-comment">// degrees / second</span>
+<span class="hljs-keyword">const</span> rotationSpeed = <span class="hljs-number">360</span>;
+
+<span class="hljs-comment">// polygons</span>
+<span class="hljs-keyword">const</span> square1: Polygon = sf.square(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+<span class="hljs-keyword">const</span> square2: Polygon = sf.square(<span class="hljs-number">400</span>, <span class="hljs-number">400</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+
+<span class="hljs-comment">// frame rendering time deltas</span>
+<span class="hljs-keyword">let</span> frameTimeDelta = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> lastFrameTime = <span class="hljs-number">0</span>;
+
+
+<span class="hljs-comment">// the draw function</span>
+<span class="hljs-keyword">const</span> draw = <span class="hljs-function">(<span class="hljs-params">timestamp: number</span>) =&gt;</span> {
+
+   <span class="hljs-comment">// clear the canvas</span>
+   lge.clear();
+
+   <span class="hljs-comment">// calculate time delta</span>
+   frameTimeDelta = (timestamp - lastFrameTime) / <span class="hljs-number">1000</span>;
+   lastFrameTime = timestamp;
+
+   <span class="hljs-comment">// rotate the squares accurately (taking previous frame render time into account)</span>
+   square1.rotate(rotationSpeed * frameTimeDelta);
+   square2.rotate(rotationSpeed * frameTimeDelta);
+
+   <span class="hljs-comment">// create the buffer of polygons to draw</span>
+   <span class="hljs-keyword">const</span> polygonBuffer: Polygon[] = [square1, square2];
+
+   <span class="hljs-comment">// draw every polygon in the buffer</span>
+   lge.drawPolygonBuffer(polygonBuffer);
+
+   <span class="hljs-comment">// call this function on the next animation frame</span>
+   requestAnimationFrame(draw);
+}
+
+<span class="hljs-comment">// start the draw loop</span>
+requestAnimationFrame(draw);
+</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -164,7 +230,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L33">LGE.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L101">LGE.ts:101</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -209,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">PIXEL_<wbr>SIZE<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L28">LGE.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L96">LGE.ts:96</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -219,7 +285,7 @@
 					<div class="tsd-signature tsd-kind-icon">ctx<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CanvasRenderingContext2D</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L33">LGE.ts:33</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L101">LGE.ts:101</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -229,7 +295,7 @@
 					<div class="tsd-signature tsd-kind-icon">fill<wbr>Method<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L29">LGE.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L97">LGE.ts:97</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -239,7 +305,7 @@
 					<div class="tsd-signature tsd-kind-icon">resolution<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_ipoint_.ipoint.html" class="tsd-signature-type">IPoint</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L27">LGE.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L95">LGE.ts:95</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -249,7 +315,7 @@
 					<div class="tsd-signature tsd-kind-icon">rotation<wbr>Matrix<span class="tsd-signature-symbol">:</span> <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L31">LGE.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L99">LGE.ts:99</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -259,7 +325,7 @@
 					<div class="tsd-signature tsd-kind-icon">transformation<wbr>Matrices<span class="tsd-signature-symbol">:</span> <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L32">LGE.ts:32</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L100">LGE.ts:100</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -269,7 +335,7 @@
 					<div class="tsd-signature tsd-kind-icon">translation<wbr>Matrix<span class="tsd-signature-symbol">:</span> <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L30">LGE.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L98">LGE.ts:98</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -286,7 +352,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L446">LGE.ts:446</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L515">LGE.ts:515</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -309,7 +375,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L416">LGE.ts:416</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L485">LGE.ts:485</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -331,7 +397,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L425">LGE.ts:425</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L494">LGE.ts:494</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -362,7 +428,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L355">LGE.ts:355</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L424">LGE.ts:424</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -422,12 +488,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L110">LGE.ts:110</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L179">LGE.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Draws a coloured line between two points using the DDA algorithm</p>
+									<p>Draws a coloured line between two IPoints using the DDA algorithm where each pixel is the size of PIXEL_SIZE</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -465,12 +531,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L148">LGE.ts:148</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L217">LGE.ts:217</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Draws lines between the points</p>
+									<p>Draws a path between a series of IPoints using drawLine();</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -502,12 +568,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L245">LGE.ts:245</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L314">LGE.ts:314</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Draws the polygon, fills if a colour is provided</p>
+									<p>Fills the polygon using the Polygons fill colour and draws the outline with colour or the Polygons colour</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -539,12 +605,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L266">LGE.ts:266</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L335">LGE.ts:335</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Draws an array of Polygons</p>
+									<p>Draws an array of Polygons using drawPolygon()</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -570,7 +636,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L301">LGE.ts:301</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L370">LGE.ts:370</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -625,7 +691,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L278">LGE.ts:278</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L347">LGE.ts:347</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -662,7 +728,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L393">LGE.ts:393</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L462">LGE.ts:462</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -716,7 +782,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L224">LGE.ts:224</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L293">LGE.ts:293</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -753,7 +819,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L327">LGE.ts:327</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L396">LGE.ts:396</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -808,7 +874,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L288">LGE.ts:288</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L357">LGE.ts:357</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -845,7 +911,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L450">LGE.ts:450</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L519">LGE.ts:519</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -868,12 +934,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L160">LGE.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L229">LGE.ts:229</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Fills a polygon with the given colour</p>
+									<p>Fills a Polygon using the scanLineFill algorithm with the colour provided</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -905,12 +971,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L82">LGE.ts:82</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L151">LGE.ts:151</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>sets rotation</p>
+									<p>updates rotation matrix and applies to transformation matrix</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -918,6 +984,7 @@
 								<li>
 									<h5>angle: <span class="tsd-signature-type">number</span></h5>
 									<div class="tsd-comment tsd-typography">
+										<p>radians</p>
 									</div>
 								</li>
 							</ul>
@@ -935,12 +1002,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L97">LGE.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L166">LGE.ts:166</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>sets translation</p>
+									<p>sets translation matrix values and updates the transformation matrix</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -972,12 +1039,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/LGE.ts#L62">LGE.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/LGE.ts#L130">LGE.ts:130</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>combines the translation matrix and rotation matrix into a single one and adds to stack</p>
+									<p>combines the translation matrix and rotation matrix into a single matrix and adds to stack</p>
 								</div>
 							</div>
 							<h4 class="tsd-returns-title">Returns <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></h4>

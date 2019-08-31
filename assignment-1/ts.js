@@ -144,7 +144,18 @@ exports.asteroidFactory = function (resolution) {
 "use strict";
 exports.__esModule = true;
 /**
- *  Represents a colour (r, g, b, a)
+ * # Colour
+ * Represents a colour (red, green, blue, alpha).
+ *
+ * A wrapper over the html rgba format
+ *
+ * ## Example
+ *
+ * ```js
+ *  const red = new Colour(255, 0, 0, 100);
+ *  console.log(red.toString());
+ * ```
+ *
  */
 var Colour = /** @class */ (function () {
     /**
@@ -172,6 +183,10 @@ var Colour = /** @class */ (function () {
     return Colour;
 }());
 exports.Colour = Colour;
+/**
+ * # Colours
+ * A library of colours
+ */
 exports.Colours = {
     black: new Colour(0, 0, 0, 100),
     blue: new Colour(0, 0, 255, 100),
@@ -209,7 +224,90 @@ var Matrix_1 = require("./Matrix");
 var Pixel_1 = require("./Pixel");
 var Polygon_1 = require("./Polygon");
 /**
- * Lochie Graphics Engine
+ * # Lochie's Graphics Engine
+ *
+ * ## Components
+ * Lochie's Graphics Engine (LGE) is comprised of multiple components this is the main class which handles rendering.
+ *
+ * See [IPoint](../interfaces/_ipoint_.ipoint.html),
+ * [Polygon](_polygon_.polygon.html)
+ * [Rectangle](_rectangle_.rectangle.html),
+ * [Pixel](_pixel_.pixel.html),
+ * [Utils](_utils_.utils.html),
+ * [ShapeFactory](_shapefactory_.shapefactory.html),
+ * [Colour](_colour_.colour.html) for more details.
+ *
+ * ## Coordinate Spaces
+ * The origin (0, 0) is the top left of the canvas, when drawing coordinates are taken as is - there is no manipulation.
+ * The resolution is determined from the canvas in the constructor.
+ *
+ * ## Pixel size
+ * The pixel size determines the size of each pixel but does not modify the coordinate system.
+ *
+ * ## Rendering process
+ * LGE primarily deals with polygons [drawPolygon(poly: Polygon, colour?: Colour)](#drawpolygon) will be used as an
+ * example.
+ *
+ * 1. the points are extracted from the polygon
+ * 2. if the polygon has a fill colour the scan line fill algorithm is used to draw and fill the polygon
+ * 3. if a colour was provided when calling the function that will be the outline colour else the polygon's colour
+ *    will be used
+ * 4. the outline of the polygon is drawn using the DDA algorithm
+ *
+ * The polygon will now stay on the canvas until the canvas has been cleared.
+ *
+ * ### Rendering example
+ * The following simple example will render two squares on the canvas and rotate them.
+ * The [drawPolygonBuffer(buffer: Polygon[]](#drawpolygonbuffer) function is used which iterates over the buffer and
+ * calls [drawPolygon(poly: Polygon, colour?: Colour)](#drawpolygon)
+ *
+ * <br> Assuming: </b> ctx variable is the CanvasRenderingContext2D
+ *
+ * ```js
+ *
+ * // instantiate LGE
+ * const lge: LGE = new LGE(ctx, 1, 'scanLine')
+ *
+ * // degrees / second
+ * const rotationSpeed = 360;
+ *
+ * // polygons
+ * const square1: Polygon = sf.square(100, 100, 100, 100);
+ * const square2: Polygon = sf.square(400, 400, 100, 100);
+ *
+ * // frame rendering time deltas
+ * let frameTimeDelta = 0;
+ * let lastFrameTime = 0;
+ *
+ *
+ * // the draw function
+ * const draw = (timestamp: number) => {
+ *
+ *    // clear the canvas
+ *    lge.clear();
+ *
+ *    // calculate time delta
+ *    frameTimeDelta = (timestamp - lastFrameTime) / 1000;
+ *    lastFrameTime = timestamp;
+ *
+ *    // rotate the squares accurately (taking previous frame render time into account)
+ *    square1.rotate(rotationSpeed * frameTimeDelta);
+ *    square2.rotate(rotationSpeed * frameTimeDelta);
+ *
+ *    // create the buffer of polygons to draw
+ *    const polygonBuffer: Polygon[] = [square1, square2];
+ *
+ *    // draw every polygon in the buffer
+ *    lge.drawPolygonBuffer(polygonBuffer);
+ *
+ *    // call this function on the next animation frame
+ *    requestAnimationFrame(draw);
+ * }
+ *
+ * // start the draw loop
+ * requestAnimationFrame(draw);
+ *
+ * ```
  *
  */
 var LGE = /** @class */ (function () {
@@ -231,7 +329,7 @@ var LGE = /** @class */ (function () {
         this.updateTransformationMatrix();
     }
     /**
-     * combines the translation matrix and rotation matrix into a single one and adds to stack
+     * combines the translation matrix and rotation matrix into a single matrix and adds to stack
      */
     LGE.prototype.updateTransformationMatrix = function () {
         var r = this.rotationMatrix;
@@ -246,8 +344,9 @@ var LGE = /** @class */ (function () {
         return res;
     };
     /**
-     * sets rotation
-     * @param angle
+     * updates rotation matrix and applies to transformation matrix
+     *
+     * @param angle radians
      */
     LGE.prototype.setRotation = function (angle) {
         var cosTheta = Math.cos(angle);
@@ -256,7 +355,7 @@ var LGE = /** @class */ (function () {
         this.updateTransformationMatrix();
     };
     /**
-     * sets translation
+     * sets translation matrix values and updates the transformation matrix
      *
      * @param dX change in x
      * @param dY change in y
@@ -266,7 +365,7 @@ var LGE = /** @class */ (function () {
         this.updateTransformationMatrix();
     };
     /**
-     * Draws a coloured line between two points using the DDA algorithm
+     * Draws a coloured line between two IPoints using the DDA algorithm where each pixel is the size of PIXEL_SIZE
      *
      * @param start first IPoint
      * @param end end IPoint
@@ -297,7 +396,7 @@ var LGE = /** @class */ (function () {
         }
     };
     /**
-     * Draws lines between the points
+     * Draws a path between a series of IPoints using drawLine();
      *
      * @param points IPoint[]
      * @param colour Colour
@@ -308,7 +407,7 @@ var LGE = /** @class */ (function () {
         }
     };
     /**
-     * Fills a polygon with the given colour
+     * Fills a Polygon using the scanLineFill algorithm with the colour provided
      *
      * @param poly Polygon
      * @param colour Colour
@@ -375,7 +474,7 @@ var LGE = /** @class */ (function () {
         }
     };
     /**
-     * Draws the polygon, fills if a colour is provided
+     * Fills the polygon using the Polygons fill colour and draws the outline with colour or the Polygons colour
      *
      * @param poly Polygon
      * @param colour Optional Colour - overwrites polygon colour
@@ -392,7 +491,7 @@ var LGE = /** @class */ (function () {
         this.drawLine(points[points.length - 1], points[0], outlineColour);
     };
     /**
-     * Draws an array of Polygons
+     * Draws an array of Polygons using drawPolygon()
      *
      * @param buffer Polygon[]
      */
@@ -547,7 +646,21 @@ exports.LGE = LGE;
 "use strict";
 exports.__esModule = true;
 /**
- * Matrix Class
+ * # Matrix
+ *
+ * The Matrix class is used for matrix operations most commonly for translating and rotating polygons
+ * which is performed using transformation matrices. If no values are provided in the constructor the values are
+ * the identity matrix.
+ *
+ * ## Example
+ *
+ * ```js
+ *
+ *  const identityMatrix: Matrix: = new Matrix(null);
+ *  const otherMatrix: Matrix = new Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+ *
+ *  console.log(identityMatrix.multiply(otherMatrix));
+ * ```
  */
 var Matrix = /** @class */ (function () {
     function Matrix(values) {
@@ -561,6 +674,12 @@ var Matrix = /** @class */ (function () {
         this.width = this.values[0].length;
         this.height = this.values.length;
     }
+    /**
+     * Adds two matrices and returns the result
+     *
+     * @param b Matrix
+     * @returns Matrix
+     */
     Matrix.prototype.add = function (b) {
         if (this.width !== b.width && this.height !== b.height) {
             throw new Error("Dimension miss match");
@@ -574,6 +693,12 @@ var Matrix = /** @class */ (function () {
         }
         return out;
     };
+    /**
+     * Multiples by Matrix b and returns the result
+     *
+     * @param b Matrix
+     * @returns Matrix
+     */
     Matrix.prototype.multiply = function (b) {
         // if (this.width != b.height || this.height != b.width) {
         //     throw new Error('Dimension miss match');
@@ -593,6 +718,9 @@ var Matrix = /** @class */ (function () {
                 this.values[2][2] * b.values[2][0];
         return new Matrix([[res[0]], [res[1]], [res[2]]]);
     };
+    /**
+     * Zeros the matrix values
+     */
     Matrix.prototype.zero = function () {
         for (var i = 0; i < this.height; i++) {
             for (var j = 0; j < this.width; j++) {
@@ -609,11 +737,24 @@ exports.Matrix = Matrix;
 exports.__esModule = true;
 var Rectangle_1 = require("./Rectangle");
 /**
- * Represents a 'pixel'
+ * # Pixel
+ *
+ * Represents a 'pixel'.
+ *
+ * The pixel size is provided when instantiating LGE.
+ *
+ * When a pixel is drawn it creates a rectangle and uses the HTML5 canvas API to draw this rectangle.
+ * This is the only part of the engine that uses the HTML5 canvas API directly to draw.
+ *
+ * ## Example
+ *
+ * ```js
+ * new Pixel(100, 100, 4, ctx, new Colour(255, 0, 0, 100));
+ * ```
  */
 var Pixel = /** @class */ (function () {
     /**
-     * Draws a pixel on the canvas
+     * Draws a 'pixel' on the canvas
      *
      * @param x x pos
      * @param y y pos
@@ -831,15 +972,58 @@ var Colour_1 = require("./Colour");
 var Matrix_1 = require("./Matrix");
 var Utils_1 = require("./Utils");
 /**
- * Represents a polygon
+ * # Polygon
+ *
+ * Represents a polygon by an array of IPoints.
+ *
+ * The polygon is the most important component for LGE.
+ *
+ * Each polygon keeps track of its centrepoint and bounding box if specified.
+ *
+ * The polygon stores the colour, fill colour and provides functions to translate and rotate.
+ * The angle of the polygon is also stored for convenience.
+ *
+ * the decompose function decomposes the polygon into triangles and stored in the triangles property.
+ *
+ * <b> Note: </b> when translating and rotating the bounding box will be updated if present
+ *
+ * <b> Note: </b> The points are absolute and transform/rotate functions modify the points in place
+ *
+ * ## Example
+ *
+ * ```js
+ *
+ * // define the points
+ * const points: IPoint[] = [
+ *  {x: 100, y: 100},
+ *  {x: 200, y: 100},
+ *  {x: 150, y: 200}
+ * ];
+ *
+ * // create the triangle defined by the points
+ * const triangle: Polygon = new Polygon(points);
+ *
+ * // update the fill colour of the polygon to be red
+ * triangle.fillColour = new Colour(255, 0, 0, 100);
+ *
+ * // output the points
+ * console.log(triangle.points);
+ *
+ * // translate the polygon
+ * triangle.translate(100, 100);
+ *
+ * // output the points
+ * console.log(triangle.points);
+ * ```
+ *
  */
 var Polygon = /** @class */ (function () {
     /**
-     *
      * @param points points that represent the polygon
      */
     function Polygon(points, hasBoundingBox) {
         this.transformationMatrix = new Matrix_1.Matrix(null);
+        this.angle = 0;
         this.fillColour = null;
         this.points = points;
         this.triangles = [];
@@ -951,6 +1135,7 @@ var Polygon = /** @class */ (function () {
         var theta = (angle * Math.PI) / 180;
         var cosTheta = Math.cos(theta);
         var sinTheta = Math.sin(theta);
+        this.angle += theta;
         var tm = this.transformationMatrix;
         // update the transformation matrix
         tm.values[0][0] = cosTheta;
@@ -996,6 +1181,24 @@ exports.Polygon = Polygon;
 },{"./Colour":2,"./Matrix":6,"./Utils":12}],10:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
+/**
+ * # Rectangle
+ *
+ * The Rectangle is drawn using the HTML5 canvas API and its main purpose is to be used by the Pixel class.
+ *
+ * ## Example
+ *
+ * ```js
+ * // instantiate the rectangle
+ * const rect: Rectangle = new Rectangle(100, 100, ctx, 200, 50, new Colour(255, 0, 0, 100));
+ *
+ * // draw the rectangle
+ * // ctx.fillStyle = this.fill;
+ * // ctx.fillRect(this.x, this.y, this.width, this.height);
+ * rect.draw();
+ *
+ * ```
+ */
 var Rectangle = /** @class */ (function () {
     /**
      *
@@ -1032,7 +1235,15 @@ exports.__esModule = true;
 var Polygon_1 = require("./Polygon");
 var Utils_1 = require("./Utils");
 /**
- * Factory to that returns shapes
+ * # ShapeFactory
+ * provides the ability to generate squares and random polygons using the Factory design pattern.
+ *
+ * ## Example
+ *
+ * ```js
+ *  const square: Polygon = ShapeFactory.square(100, 100, 100, 100);
+ *  const randomPolygon: Polygon = ShapeFactory.polygon(400, 400, 50, 50, 20);
+ * ```
  */
 var ShapeFactory = /** @class */ (function () {
     function ShapeFactory() {
@@ -1047,7 +1258,7 @@ var ShapeFactory = /** @class */ (function () {
      *
      * @returns Polygon
      */
-    ShapeFactory.prototype.square = function (x, y, width, height, boundingBox) {
+    ShapeFactory.square = function (x, y, width, height, boundingBox) {
         var points = [];
         points.push({ x: x, y: y });
         points.push({ x: x + width, y: y });
@@ -1066,7 +1277,7 @@ var ShapeFactory = /** @class */ (function () {
      *
      * @returns Polygon
      */
-    ShapeFactory.prototype.polygon = function (x, y, width, height, nPoints) {
+    ShapeFactory.polygon = function (x, y, width, height, nPoints) {
         var points = [];
         for (var i = 0; i < nPoints; i++) {
             points.push({
@@ -1084,7 +1295,10 @@ exports.ShapeFactory = ShapeFactory;
 "use strict";
 exports.__esModule = true;
 /**
- * Utility Class
+ * # Utils
+ *
+ * Utility Class used throughout LGE and the game engine.
+ *
  */
 var Utils = /** @class */ (function () {
     function Utils() {

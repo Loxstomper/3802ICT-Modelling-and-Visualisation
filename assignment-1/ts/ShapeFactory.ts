@@ -3,7 +3,15 @@ import { Polygon } from "./Polygon";
 import { Utils } from "./Utils";
 
 /**
- *  The ShapeFactory class provides the ability to generate squares and random polygons.
+ * # ShapeFactory
+ * provides the ability to generate squares and random polygons using the Factory design pattern.
+ *
+ * ## Example
+ *
+ * ```js
+ *  const square: Polygon = ShapeFactory.square(100, 100, 100, 100);
+ *  const randomPolygon: Polygon = ShapeFactory.polygon(400, 400, 50, 50, 20);
+ * ```
  */
 export class ShapeFactory {
   /**
@@ -16,7 +24,7 @@ export class ShapeFactory {
    *
    * @returns Polygon
    */
-  public square(
+  public static square(
     x: number,
     y: number,
     width: number,
@@ -45,7 +53,7 @@ export class ShapeFactory {
    *
    * @returns Polygon
    */
-  public polygon(
+  public static polygon(
     x: number,
     y: number,
     width: number,

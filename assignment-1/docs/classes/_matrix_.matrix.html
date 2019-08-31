@@ -72,9 +72,21 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The Matrix class is used for matrix operations most commonly for translating and rotating polygons
-						which is performed using transformation matrices.</p>
+						<a href="#matrix" id="matrix" style="color: inherit; text-decoration: none;">
+							<h1>Matrix</h1>
+						</a>
 					</div>
+					<p>The Matrix class is used for matrix operations most commonly for translating and rotating polygons
+						which is performed using transformation matrices. If no values are provided in the constructor the values are
+					the identity matrix.</p>
+					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+						<h2>Example</h2>
+					</a>
+					<pre><code class="language-js">
+ <span class="hljs-keyword">const</span> identityMatrix: Matrix: = <span class="hljs-keyword">new</span> Matrix(<span class="hljs-literal">null</span>);
+ <span class="hljs-keyword">const</span> otherMatrix: Matrix = <span class="hljs-keyword">new</span> Matrix([[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>], [<span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>]]);
+
+ <span class="hljs-built_in">console</span>.log(identityMatrix.multiply(otherMatrix));</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -127,7 +139,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L10">Matrix.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L23">Matrix.ts:23</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -149,7 +161,7 @@
 					<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L8">Matrix.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L21">Matrix.ts:21</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -159,7 +171,7 @@
 					<div class="tsd-signature tsd-kind-icon">identity<wbr>Matrix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> =&nbsp;[[1, 0, 0], [0, 1, 0], [0, 0, 1]]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L10">Matrix.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L23">Matrix.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -169,7 +181,7 @@
 					<div class="tsd-signature tsd-kind-icon">values<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L6">Matrix.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L19">Matrix.ts:19</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -179,7 +191,7 @@
 					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L7">Matrix.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L20">Matrix.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -196,16 +208,25 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L22">Matrix.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L41">Matrix.ts:41</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Adds two matrices and returns the result</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>b: <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Matrix</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></h4>
+							<p>Matrix</p>
 						</li>
 					</ul>
 				</section>
@@ -219,16 +240,25 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L39">Matrix.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L64">Matrix.ts:64</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Multiples by Matrix b and returns the result</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>b: <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Matrix</p>
+									</div>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a></h4>
+							<p>Matrix</p>
 						</li>
 					</ul>
 				</section>
@@ -242,9 +272,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Matrix.ts#L62">Matrix.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Matrix.ts#L90">Matrix.ts:90</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Zeros the matrix values</p>
+								</div>
+							</div>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>

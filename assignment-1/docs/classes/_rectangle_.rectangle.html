@@ -72,8 +72,22 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>The Rectangle is drawn using the HTML5 canvas API and its main purpose is to be used by the Pixel class.</p>
+						<a href="#rectangle" id="rectangle" style="color: inherit; text-decoration: none;">
+							<h1>Rectangle</h1>
+						</a>
 					</div>
+					<p>The Rectangle is drawn using the HTML5 canvas API and its main purpose is to be used by the Pixel class.</p>
+					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+						<h2>Example</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-comment">// instantiate the rectangle</span>
+<span class="hljs-keyword">const</span> rect: Rectangle = <span class="hljs-keyword">new</span> Rectangle(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, ctx, <span class="hljs-number">200</span>, <span class="hljs-number">50</span>, <span class="hljs-keyword">new</span> Colour(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>));
+
+<span class="hljs-comment">// draw the rectangle</span>
+<span class="hljs-comment">// ctx.fillStyle = this.fill;</span>
+<span class="hljs-comment">// ctx.fillRect(this.x, this.y, this.width, this.height);</span>
+rect.draw();
+</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -126,7 +140,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L12">Rectangle.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L27">Rectangle.ts:27</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -195,7 +209,7 @@
 					<div class="tsd-signature tsd-kind-icon">ctx<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">CanvasRenderingContext2D</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L9">Rectangle.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L24">Rectangle.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -205,7 +219,7 @@
 					<div class="tsd-signature tsd-kind-icon">fill<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L12">Rectangle.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L27">Rectangle.ts:27</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -215,7 +229,7 @@
 					<div class="tsd-signature tsd-kind-icon">height<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L11">Rectangle.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L26">Rectangle.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -225,7 +239,7 @@
 					<div class="tsd-signature tsd-kind-icon">width<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L10">Rectangle.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L25">Rectangle.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -235,7 +249,7 @@
 					<div class="tsd-signature tsd-kind-icon">x<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L7">Rectangle.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L22">Rectangle.ts:22</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -245,7 +259,7 @@
 					<div class="tsd-signature tsd-kind-icon">y<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L8">Rectangle.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L23">Rectangle.ts:23</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -262,7 +276,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Rectangle.ts#L44">Rectangle.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Rectangle.ts#L59">Rectangle.ts:59</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

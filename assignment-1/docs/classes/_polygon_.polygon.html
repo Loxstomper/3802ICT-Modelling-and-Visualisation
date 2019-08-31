@@ -72,15 +72,43 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p>Represents a polygon.
-						The polygon is the most important component for LGE.</p>
+						<a href="#polygon" id="polygon" style="color: inherit; text-decoration: none;">
+							<h1>Polygon</h1>
+						</a>
 					</div>
-					<p>Each polygon keeps track of its centrepoint and bounding box if specified.
-						The polygon stores the colour, fill colour and provides functions to translate and rotate.
+					<p>Represents a polygon by an array of IPoints.</p>
+					<p>The polygon is the most important component for LGE.</p>
+					<p>Each polygon keeps track of its centrepoint and bounding box if specified.</p>
+					<p>The polygon stores the colour, fill colour and provides functions to translate and rotate.
 					The angle of the polygon is also stored for convenience.</p>
 					<p>the decompose function decomposes the polygon into triangles and stored in the triangles property.</p>
-					<p><b> Note: <b> when translating and rotating the bounding box will be updated if present
-					<b> Note: <b> The points are absolute and transform/rotate functions modify the points in place</p>
+					<p><b> Note: </b> when translating and rotating the bounding box will be updated if present</p>
+					<p><b> Note: </b> The points are absolute and transform/rotate functions modify the points in place</p>
+					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+						<h2>Example</h2>
+					</a>
+					<pre><code class="language-js">
+<span class="hljs-comment">// define the points</span>
+<span class="hljs-keyword">const</span> points: IPoint[] = [
+ {<span class="hljs-attr">x</span>: <span class="hljs-number">100</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">100</span>},
+ {<span class="hljs-attr">x</span>: <span class="hljs-number">200</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">100</span>},
+ {<span class="hljs-attr">x</span>: <span class="hljs-number">150</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">200</span>}
+];
+
+<span class="hljs-comment">// create the triangle defined by the points</span>
+<span class="hljs-keyword">const</span> triangle: Polygon = <span class="hljs-keyword">new</span> Polygon(points);
+
+<span class="hljs-comment">// update the fill colour of the polygon to be red</span>
+triangle.fillColour = <span class="hljs-keyword">new</span> Colour(<span class="hljs-number">255</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">100</span>);
+
+<span class="hljs-comment">// output the points</span>
+<span class="hljs-built_in">console</span>.log(triangle.points);
+
+<span class="hljs-comment">// translate the polygon</span>
+triangle.translate(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+
+<span class="hljs-comment">// output the points</span>
+<span class="hljs-built_in">console</span>.log(triangle.points);</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -145,7 +173,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L29">Polygon.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L61">Polygon.ts:61</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -177,7 +205,7 @@
 					<div class="tsd-signature tsd-kind-icon">angle<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L25">Polygon.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L57">Polygon.ts:57</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -187,7 +215,7 @@
 					<div class="tsd-signature tsd-kind-icon">bounding<wbr>Box<span class="tsd-signature-symbol">:</span> <a href="_polygon_.polygon.html" class="tsd-signature-type">Polygon</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L29">Polygon.ts:29</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L61">Polygon.ts:61</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -197,7 +225,7 @@
 					<div class="tsd-signature tsd-kind-icon">centre<wbr>Point<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_ipoint_.ipoint.html" class="tsd-signature-type">IPoint</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L28">Polygon.ts:28</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L60">Polygon.ts:60</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -207,7 +235,7 @@
 					<div class="tsd-signature tsd-kind-icon">colour<span class="tsd-signature-symbol">:</span> <a href="_colour_.colour.html" class="tsd-signature-type">Colour</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L26">Polygon.ts:26</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L58">Polygon.ts:58</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -217,7 +245,7 @@
 					<div class="tsd-signature tsd-kind-icon">fill<wbr>Colour<span class="tsd-signature-symbol">:</span> <a href="_colour_.colour.html" class="tsd-signature-type">Colour</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> =&nbsp;null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L27">Polygon.ts:27</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L59">Polygon.ts:59</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -227,7 +255,7 @@
 					<div class="tsd-signature tsd-kind-icon">points<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_ipoint_.ipoint.html" class="tsd-signature-type">IPoint</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L21">Polygon.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L53">Polygon.ts:53</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -237,7 +265,7 @@
 					<div class="tsd-signature tsd-kind-icon">scale<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L24">Polygon.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L56">Polygon.ts:56</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -247,7 +275,7 @@
 					<div class="tsd-signature tsd-kind-icon">transformation<wbr>Matrix<span class="tsd-signature-symbol">:</span> <a href="_matrix_.matrix.html" class="tsd-signature-type">Matrix</a><span class="tsd-signature-symbol"> =&nbsp;new Matrix(null)</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L23">Polygon.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L55">Polygon.ts:55</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -257,7 +285,7 @@
 					<div class="tsd-signature tsd-kind-icon">triangles<span class="tsd-signature-symbol">:</span> <a href="_polygon_.polygon.html" class="tsd-signature-type">Polygon</a><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L22">Polygon.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L54">Polygon.ts:54</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -274,7 +302,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L56">Polygon.ts:56</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L87">Polygon.ts:87</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -298,7 +326,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L136">Polygon.ts:136</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L167">Polygon.ts:167</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -340,7 +368,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L161">Polygon.ts:161</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L192">Polygon.ts:192</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -378,7 +406,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L103">Polygon.ts:103</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L134">Polygon.ts:134</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -416,7 +444,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/Polygon.ts#L211">Polygon.ts:211</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/Polygon.ts#L242">Polygon.ts:242</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">

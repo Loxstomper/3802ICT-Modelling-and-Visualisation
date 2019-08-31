@@ -1,7 +1,15 @@
 /**
- *  Represents a colour (red, green, blue, alpha).
+ * # Colour
+ * Represents a colour (red, green, blue, alpha).
  *
- *  A wrapper over the html rgba format
+ * A wrapper over the html rgba format
+ *
+ * ## Example
+ *
+ * ```js
+ *  const red = new Colour(255, 0, 0, 100);
+ *  console.log(red.toString());
+ * ```
  *
  */
 export class Colour {
@@ -35,6 +43,10 @@ export class Colour {
   }
 }
 
+/**
+ * # Colours
+ * A library of colours
+ */
 export const Colours = {
   black: new Colour(0, 0, 0, 100),
   blue: new Colour(0, 0, 255, 100),

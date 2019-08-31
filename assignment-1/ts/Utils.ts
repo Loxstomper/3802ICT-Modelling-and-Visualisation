@@ -2,7 +2,10 @@ import { IPoint } from "./IPoint";
 import { Polygon } from "./Polygon";
 
 /**
- * Utility Class
+ * # Utils
+ *
+ * Utility Class used throughout LGE and the game engine.
+ *
  */
 export class Utils {
   /**

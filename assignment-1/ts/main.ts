@@ -14,7 +14,7 @@ const HtmlElementBindings = () => {
 
   document.getElementById("toggleBoundingBox").addEventListener(
     "click",
-    e => {
+    (e: MouseEvent) => {
       Game.config.showBoundingBoxes = !Game.config.showBoundingBoxes;
     },
     false
@@ -22,7 +22,7 @@ const HtmlElementBindings = () => {
 
   document.getElementById("toggleFpsDisplay").addEventListener(
     "click",
-    e => {
+    (e: MouseEvent) => {
       Game.config.showFps = !Game.config.showFps;
     },
     false
@@ -30,7 +30,7 @@ const HtmlElementBindings = () => {
 
   document.getElementById("updateResolution").addEventListener(
     "click",
-    e => {
+    (e: MouseEvent) => {
       const x: number = parseInt(
         (document.getElementById("resolutionX") as HTMLInputElement).value,
         10
@@ -48,7 +48,7 @@ const HtmlElementBindings = () => {
 
   document.getElementById("updateMaxAsteroids").addEventListener(
     "click",
-    e => {
+    (e: MouseEvent) => {
       Game.config.maxNumberAsteroids = parseInt(
         (document.getElementById("maxNumberAsteroids") as HTMLInputElement)
           .value,
@@ -65,7 +65,7 @@ const HtmlElementBindings = () => {
 
   document.getElementById("updatePixelSize").addEventListener(
     "click",
-    e => {
+    (e: MouseEvent) => {
       const pixelSize: number = parseInt(
         (document.getElementById("pixelSize") as HTMLInputElement).value,
         10

@@ -5,22 +5,90 @@ import { Pixel } from "./Pixel";
 import { Polygon } from "./Polygon";
 
 /**
- * Lochie's Graphics Engine.
+ * # Lochie's Graphics Engine
+ *
+ * ## Components
+ * Lochie's Graphics Engine (LGE) is comprised of multiple components this is the main class which handles rendering.
+ *
+ * See [IPoint](../interfaces/_ipoint_.ipoint.html),
+ * [Polygon](_polygon_.polygon.html)
+ * [Rectangle](_rectangle_.rectangle.html),
+ * [Pixel](_pixel_.pixel.html),
+ * [Utils](_utils_.utils.html),
+ * [ShapeFactory](_shapefactory_.shapefactory.html),
+ * [Colour](_colour_.colour.html) for more details.
  *
  * ## Coordinate Spaces
  * The origin (0, 0) is the top left of the canvas, when drawing coordinates are taken as is - there is no manipulation.
- * The resolution is determined from the canvas in the constructor as well as the pixel size.
+ * The resolution is determined from the canvas in the constructor.
  *
  * ## Pixel size
  * The pixel size determines the size of each pixel but does not modify the coordinate system.
  *
  * ## Rendering process
- * LGE primarily deals with polygons drawPolygon(poly: Polygon, colour?: Colour) will be used as an example.
+ * LGE primarily deals with polygons [drawPolygon(poly: Polygon, colour?: Colour)](#drawpolygon) will be used as an
+ * example.
  *
  * 1. the points are extracted from the polygon
- * 2. if the polygon has a fill colour the scan line fill algorithm is used to draw the polygon
+ * 2. if the polygon has a fill colour the scan line fill algorithm is used to draw and fill the polygon
  * 3. if a colour was provided when calling the function that will be the outline colour else the polygon's colour
+ *    will be used
  * 4. the outline of the polygon is drawn using the DDA algorithm
+ *
+ * The polygon will now stay on the canvas until the canvas has been cleared.
+ *
+ * ### Rendering example
+ * The following simple example will render two squares on the canvas and rotate them.
+ * The [drawPolygonBuffer(buffer: Polygon[]](#drawpolygonbuffer) function is used which iterates over the buffer and
+ * calls [drawPolygon(poly: Polygon, colour?: Colour)](#drawpolygon)
+ *
+ * <br> Assuming: </b> ctx variable is the CanvasRenderingContext2D
+ *
+ * ```js
+ *
+ * // instantiate LGE
+ * const lge: LGE = new LGE(ctx, 1, 'scanLine')
+ *
+ * // degrees / second
+ * const rotationSpeed = 360;
+ *
+ * // polygons
+ * const square1: Polygon = sf.square(100, 100, 100, 100);
+ * const square2: Polygon = sf.square(400, 400, 100, 100);
+ *
+ * // frame rendering time deltas
+ * let frameTimeDelta = 0;
+ * let lastFrameTime = 0;
+ *
+ *
+ * // the draw function
+ * const draw = (timestamp: number) => {
+ *
+ *    // clear the canvas
+ *    lge.clear();
+ *
+ *    // calculate time delta
+ *    frameTimeDelta = (timestamp - lastFrameTime) / 1000;
+ *    lastFrameTime = timestamp;
+ *
+ *    // rotate the squares accurately (taking previous frame render time into account)
+ *    square1.rotate(rotationSpeed * frameTimeDelta);
+ *    square2.rotate(rotationSpeed * frameTimeDelta);
+ *
+ *    // create the buffer of polygons to draw
+ *    const polygonBuffer: Polygon[] = [square1, square2];
+ *
+ *    // draw every polygon in the buffer
+ *    lge.drawPolygonBuffer(polygonBuffer);
+ *
+ *    // call this function on the next animation frame
+ *    requestAnimationFrame(draw);
+ * }
+ *
+ * // start the draw loop
+ * requestAnimationFrame(draw);
+ *
+ * ```
  *
  */
 export class LGE {
@@ -57,7 +125,7 @@ export class LGE {
   }
 
   /**
-   * combines the translation matrix and rotation matrix into a single one and adds to stack
+   * combines the translation matrix and rotation matrix into a single matrix and adds to stack
    */
   public updateTransformationMatrix(): Matrix {
     const r: Matrix = this.rotationMatrix;
@@ -76,8 +144,9 @@ export class LGE {
   }
 
   /**
-   * sets rotation
-   * @param angle
+   * updates rotation matrix and applies to transformation matrix
+   *
+   * @param angle radians
    */
   public setRotation(angle: number): void {
     const cosTheta: number = Math.cos(angle);
@@ -89,7 +158,7 @@ export class LGE {
   }
 
   /**
-   * sets translation
+   * sets translation matrix values and updates the transformation matrix
    *
    * @param dX change in x
    * @param dY change in y
@@ -101,7 +170,7 @@ export class LGE {
   }
 
   /**
-   * Draws a coloured line between two points using the DDA algorithm
+   * Draws a coloured line between two IPoints using the DDA algorithm where each pixel is the size of PIXEL_SIZE
    *
    * @param start first IPoint
    * @param end end IPoint
@@ -140,7 +209,7 @@ export class LGE {
   }
 
   /**
-   * Draws lines between the points
+   * Draws a path between a series of IPoints using drawLine();
    *
    * @param points IPoint[]
    * @param colour Colour
@@ -152,7 +221,7 @@ export class LGE {
   }
 
   /**
-   * Fills a polygon with the given colour
+   * Fills a Polygon using the scanLineFill algorithm with the colour provided
    *
    * @param poly Polygon
    * @param colour Colour
@@ -237,7 +306,7 @@ export class LGE {
   }
 
   /**
-   * Draws the polygon, fills if a colour is provided
+   * Fills the polygon using the Polygons fill colour and draws the outline with colour or the Polygons colour
    *
    * @param poly Polygon
    * @param colour Optional Colour - overwrites polygon colour
@@ -259,7 +328,7 @@ export class LGE {
   }
 
   /**
-   * Draws an array of Polygons
+   * Draws an array of Polygons using drawPolygon()
    *
    * @param buffer Polygon[]
    */

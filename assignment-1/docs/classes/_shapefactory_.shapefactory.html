@@ -72,8 +72,16 @@
 			<section class="tsd-panel tsd-comment">
 				<div class="tsd-comment tsd-typography">
 					<div class="lead">
-						<p> The ShapeFactory class provides the ability to generate squares and random polygons.</p>
+						<a href="#shapefactory" id="shapefactory" style="color: inherit; text-decoration: none;">
+							<h1>ShapeFactory</h1>
+						</a>
+						<p>provides the ability to generate squares and random polygons using the Factory design pattern.</p>
 					</div>
+					<a href="#example" id="example" style="color: inherit; text-decoration: none;">
+						<h2>Example</h2>
+					</a>
+					<pre><code class="language-js"> <span class="hljs-keyword">const</span> square: Polygon = ShapeFactory.square(<span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>, <span class="hljs-number">100</span>);
+ <span class="hljs-keyword">const</span> randomPolygon: Polygon = ShapeFactory.polygon(<span class="hljs-number">400</span>, <span class="hljs-number">400</span>, <span class="hljs-number">50</span>, <span class="hljs-number">50</span>, <span class="hljs-number">20</span>);</code></pre>
 				</div>
 			</section>
 			<section class="tsd-panel tsd-hierarchy">
@@ -91,8 +99,8 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_shapefactory_.shapefactory.html#polygon" class="tsd-kind-icon">polygon</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_shapefactory_.shapefactory.html#square" class="tsd-kind-icon">square</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_shapefactory_.shapefactory.html#polygon" class="tsd-kind-icon">polygon</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-static"><a href="_shapefactory_.shapefactory.html#square" class="tsd-kind-icon">square</a></li>
 							</ul>
 						</section>
 					</div>
@@ -100,17 +108,17 @@
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="polygon" class="tsd-anchor"></a>
-					<h3>polygon</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> polygon</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
 						<li class="tsd-signature tsd-kind-icon">polygon<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, height<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, nPoints<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_polygon_.polygon.html" class="tsd-signature-type">Polygon</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/ShapeFactory.ts#L48">ShapeFactory.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/ShapeFactory.ts#L56">ShapeFactory.ts:56</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -156,17 +164,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-static">
 					<a name="square" class="tsd-anchor"></a>
-					<h3>square</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+					<h3><span class="tsd-flag ts-flagStatic">Static</span> square</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-static">
 						<li class="tsd-signature tsd-kind-icon">square<span class="tsd-signature-symbol">(</span>x<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, y<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, height<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, boundingBox<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="_polygon_.polygon.html" class="tsd-signature-type">Polygon</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/51d1647/assignment-1/ts/ShapeFactory.ts#L19">ShapeFactory.ts:19</a></li>
+									<li>Defined in <a href="https://github.com/Loxstomper/3802ICT-Modelling-and-Visualisation/blob/220c405/assignment-1/ts/ShapeFactory.ts#L27">ShapeFactory.ts:27</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -262,10 +270,10 @@
 					<li class="current tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_shapefactory_.shapefactory.html" class="tsd-kind-icon">Shape<wbr>Factory</a>
 						<ul>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_shapefactory_.shapefactory.html#polygon" class="tsd-kind-icon">polygon</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-static">
 								<a href="_shapefactory_.shapefactory.html#square" class="tsd-kind-icon">square</a>
 							</li>
 						</ul>
