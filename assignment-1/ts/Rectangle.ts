@@ -1,5 +1,8 @@
 import { Colour } from "./Colour";
 
+/**
+ * The Rectangle is drawn using the HTML5 canvas API and its main purpose is to be used by the Pixel class.
+ */
 export class Rectangle {
   public x: number;
   public y: number;

@@ -2,7 +2,11 @@ import { Colour } from "./Colour";
 import { Rectangle } from "./Rectangle";
 
 /**
- * Represents a 'pixel'
+ * Represents a 'pixel'.
+ *
+ * The pixel size is provided when instantiating LGE.
+ * When a pixel is drawn it creates a rectangle and uses the HTML5 canvas API to draw this rectangle.
+ * This is the only part of the engine that uses the HTML5 canvas API directly.
  */
 export class Pixel {
   public colour: Colour;

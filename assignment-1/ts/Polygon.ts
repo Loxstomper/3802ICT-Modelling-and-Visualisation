@@ -4,14 +4,25 @@ import { Matrix } from "./Matrix";
 import { Utils } from "./Utils";
 
 /**
- * Represents a polygon
+ * Represents a polygon.
+ * The polygon is the most important component for LGE.
+ *
+ * Each polygon keeps track of its centrepoint and bounding box if specified.
+ * The polygon stores the colour, fill colour and provides functions to translate and rotate.
+ * The angle of the polygon is also stored for convenience.
+ *
+ * the decompose function decomposes the polygon into triangles and stored in the triangles property.
+ *
+ * <b> Note: <b> when translating and rotating the bounding box will be updated if present
+ * <b> Note: <b> The points are absolute and transform/rotate functions modify the points in place
+ *
  */
 export class Polygon {
   public points: IPoint[];
   public triangles: Polygon[];
   public transformationMatrix: Matrix = new Matrix(null);
   public scale: number;
-  public angle: number;
+  public angle: number = 0;
   public colour: Colour;
   public fillColour: Colour | null = null;
   public centrePoint: IPoint;
@@ -151,6 +162,8 @@ export class Polygon {
     const theta: number = (angle * Math.PI) / 180;
     const cosTheta: number = Math.cos(theta);
     const sinTheta: number = Math.sin(theta);
+
+    this.angle += theta;
 
     const tm: Matrix = this.transformationMatrix;
 

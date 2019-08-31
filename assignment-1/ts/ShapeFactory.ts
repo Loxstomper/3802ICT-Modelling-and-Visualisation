@@ -1,8 +1,9 @@
 import { IPoint } from "./IPoint";
 import { Polygon } from "./Polygon";
 import { Utils } from "./Utils";
+
 /**
- * Factory to that returns shapes
+ *  The ShapeFactory class provides the ability to generate squares and random polygons.
  */
 export class ShapeFactory {
   /**

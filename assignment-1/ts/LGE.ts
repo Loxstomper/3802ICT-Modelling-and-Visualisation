@@ -5,7 +5,22 @@ import { Pixel } from "./Pixel";
 import { Polygon } from "./Polygon";
 
 /**
- * Lochie Graphics Engine
+ * Lochie's Graphics Engine.
+ *
+ * ## Coordinate Spaces
+ * The origin (0, 0) is the top left of the canvas, when drawing coordinates are taken as is - there is no manipulation.
+ * The resolution is determined from the canvas in the constructor as well as the pixel size.
+ *
+ * ## Pixel size
+ * The pixel size determines the size of each pixel but does not modify the coordinate system.
+ *
+ * ## Rendering process
+ * LGE primarily deals with polygons drawPolygon(poly: Polygon, colour?: Colour) will be used as an example.
+ *
+ * 1. the points are extracted from the polygon
+ * 2. if the polygon has a fill colour the scan line fill algorithm is used to draw the polygon
+ * 3. if a colour was provided when calling the function that will be the outline colour else the polygon's colour
+ * 4. the outline of the polygon is drawn using the DDA algorithm
  *
  */
 export class LGE {

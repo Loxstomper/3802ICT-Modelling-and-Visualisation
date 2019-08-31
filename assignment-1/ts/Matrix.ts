@@ -1,5 +1,6 @@
 /**
- * Matrix Class
+ * The Matrix class is used for matrix operations most commonly for translating and rotating polygons
+ * which is performed using transformation matrices.
  */
 export class Matrix {
   public values: number[][];

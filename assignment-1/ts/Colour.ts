@@ -1,5 +1,8 @@
 /**
- *  Represents a colour (r, g, b, a)
+ *  Represents a colour (red, green, blue, alpha).
+ *
+ *  A wrapper over the html rgba format
+ *
  */
 export class Colour {
   public r: number;
