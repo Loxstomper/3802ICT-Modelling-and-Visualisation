@@ -137,29 +137,26 @@ export class Player {
     this.boundingBox.translate(deltaX, deltaY);
   }
 
-  public update(keyCode: number, deltaTime: number): void {
+  public update(pressedKeys: any, deltaTime: number): void {
     this.isBoosted = false;
 
-    switch (keyCode) {
-      case controls.FORWARD:
-        this.velocityVector.y +=
-          this.thrustPower * Math.sin(this.angle) * deltaTime;
-        this.velocityVector.x +=
-          this.thrustPower * Math.cos(this.angle) * deltaTime;
+    // need to do if/else ladder for multiple key inputs
 
-        this.isBoosted = true;
-        break;
+    if (pressedKeys[controls.FORWARD]) {
+      this.velocityVector.y +=
+        this.thrustPower * Math.sin(this.angle) * deltaTime;
+      this.velocityVector.x +=
+        this.thrustPower * Math.cos(this.angle) * deltaTime;
 
-      case controls.BACKWARD:
-        break;
+      this.isBoosted = true;
+    }
 
-      case controls.LEFT:
-        this.rotate(-this.rotationSpeed * deltaTime);
-        break;
+    if (pressedKeys[controls.LEFT]) {
+      this.rotate(-this.rotationSpeed * deltaTime);
+    }
 
-      case controls.RIGHT:
-        this.rotate(this.rotationSpeed * deltaTime);
-        break;
+    if (pressedKeys[controls.RIGHT]) {
+      this.rotate(this.rotationSpeed * deltaTime);
     }
 
     this.translate(this.velocityVector.x, this.velocityVector.y);

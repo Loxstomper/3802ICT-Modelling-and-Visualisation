@@ -40,8 +40,14 @@ const asteroids: Asteroid[] = [];
 const player: Player = new Player(lge.resolution);
 
 let pressedKey = null;
+const pressedKeys = {};
 const getInput = (e: KeyboardEvent) => {
+  pressedKeys[e.keyCode] = true;
   pressedKey = e.keyCode;
+};
+
+const onKeyUp = (e: KeyboardEvent) => {
+  pressedKeys[e.keyCode] = false;
 };
 
 let cssSelectedFilter = 0;
@@ -59,12 +65,13 @@ const cssFilters = () => {
 };
 
 window.addEventListener("keydown", getInput, false);
+window.addEventListener("keyup", onKeyUp, false);
 window.addEventListener("click", cssFilters, false);
 // window.addEventListener("keypress", getInput, false);
 ctx.font = "30px Arial";
 
 // change this to requestAnimationFrame
-let maxNumberAsteroids: number = 25;
+let maxNumberAsteroids: number = 10;
 let spawnProb: number = 1;
 let numberAsteroids: number = 0;
 
@@ -75,10 +82,12 @@ const loop = (timestamp: number) => {
   delta = (timestamp - lastFrameTimeMS) / 1000;
   lastFrameTimeMS = timestamp;
 
+  console.log(pressedKeys);
+
   lge.clear();
 
   // updates
-  player.update(pressedKey, delta);
+  player.update(pressedKeys, delta);
   pressedKey = null;
 
   asteroids.forEach((a: Asteroid, index: number) => {
