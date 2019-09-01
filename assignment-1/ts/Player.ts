@@ -213,6 +213,20 @@ export class Player {
       const abbWidth: number = abb[2].x - bb[0].x;
       const abbHeight: number = abb[3].y - bb[0].y;
 
+      // check if the asteroid is off the canvas and remove it - prob get index issue tho...
+      const cp: IPoint = asteroids[i].centrePoint;
+      if (
+        cp.x < 0 ||
+        cp.x > this.resolution.x ||
+        cp.y < 0 ||
+        cp.y > this.resolution.y
+      ) {
+        asteroids.splice(i, 1);
+        numberCollisions++;
+        console.log("ran away");
+        continue;
+      }
+
       if (
         !(
           bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb

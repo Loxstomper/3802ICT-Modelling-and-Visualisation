@@ -226,6 +226,8 @@ var Polygon_1 = require("./Polygon");
 /**
  * # Lochie's Graphics Engine
  *
+ * A 2D graphics engine which uses the HTML5 canvas.
+ *
  * ## Components
  * Lochie's Graphics Engine (LGE) is comprised of multiple components this is the main class which handles rendering.
  *
@@ -764,7 +766,10 @@ var Pixel = /** @class */ (function () {
      *
      */
     function Pixel(x, y, size, ctx, colour) {
-        this.rec = new Rectangle_1.Rectangle(Math.round(x), Math.round(y), ctx, size, size, colour);
+        this.rec = new Rectangle_1.Rectangle(
+        // Math.round(x),
+        // Math.round(y),
+        Math.ceil(x), Math.ceil(y), ctx, size, size, colour);
         this.rec.draw();
     }
     return Pixel;
@@ -948,6 +953,18 @@ var Player = /** @class */ (function () {
             var abb = asteroids[i].boundingBox.points;
             var abbWidth = abb[2].x - bb[0].x;
             var abbHeight = abb[3].y - bb[0].y;
+            console.log(bbWidth, bbHeight);
+            // check if the asteroid is off the canvas and remove it - prob get index issue tho...
+            var cp = asteroids[i].centrePoint;
+            if (cp.x < 0 ||
+                cp.x > this.resolution.x ||
+                cp.y < 0 ||
+                cp.y > this.resolution.y) {
+                asteroids.splice(i, 1);
+                numberCollisions++;
+                console.log("ran away");
+                continue;
+            }
             if (!(bb[0].x + bbWidth < abb[0].x || // bb is to the left of abb
                 abb[0].x + abbWidth < bb[0].x || // abb is to the left of bb
                 bb[0].y + bbHeight < abb[0].y || // bb is above abb
@@ -1493,7 +1510,25 @@ var update = function () {
     if (Game.state.numberAsteroids < Game.config.maxNumberAsteroids &&
         Utils_1.Utils.randomInt(10) <= Game.config.asteroidSpawnProbability) {
         Game.objects.asteroids.push(Asteroid_1.asteroidFactory(Game.config.resolution));
-        Game.state.numberAsteroids++;
+        if (Game.objects.asteroids[Game.state.numberAsteroids].handleCollision(Game.objects.asteroids, Game.state.numberAsteroids).length > 1) {
+            console.log(Game.objects.asteroids[Game.state.numberAsteroids].handleCollision(Game.objects.asteroids, Game.state.numberAsteroids));
+            console.log("Asteroid spawn collision");
+            Game.objects.asteroids.pop();
+        }
+        else {
+            Game.state.numberAsteroids++;
+        }
+        // make sure asteroid doesnt spawn on another asteroid
+        // while (
+        //   Game.objects.asteroids[Game.state.numberAsteroids - 1].handleCollision(
+        //     Game.objects.asteroids,
+        //     Game.state.numberAsteroids
+        //   ).length > 0
+        // ) {
+        //   console.log("failed to spawn asteroid");
+        //   Game.objects.asteroids.pop();
+        //   Game.objects.asteroids.push(asteroidFactory(Game.config.resolution));
+        // }
     }
 };
 /**
@@ -1557,7 +1592,7 @@ var Game = {
         maxNumberAsteroids: 10,
         pixelSize: 4,
         resolution: { x: 1280, y: 720 },
-        showBoundingBoxes: true,
+        showBoundingBoxes: false,
         showFps: true
     },
     draw: draw,
