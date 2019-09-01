@@ -80,3 +80,7 @@ While playing the game the user can change the configuration.
 ## Scoring
 
 Points are earned by colliding into asteroids, 1 point per asteroid.
+
+# Graphics Engine Documentation
+
+Below is the output of Typedoc with the markdown plugin. For a better experience open `./docs/index.html` or go to my website](http://lochieashcroft.com/asteroid/docs/) for the HTML version.
