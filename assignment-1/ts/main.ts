@@ -173,7 +173,24 @@ const update = () => {
     Utils.randomInt(10) <= Game.config.asteroidSpawnProbability
   ) {
     Game.objects.asteroids.push(asteroidFactory(Game.config.resolution));
-    Game.state.numberAsteroids++;
+
+    if (
+      Game.objects.asteroids[Game.state.numberAsteroids].handleCollision(
+        Game.objects.asteroids,
+        Game.state.numberAsteroids
+      ).length > 1
+    ) {
+      console.log(
+        Game.objects.asteroids[Game.state.numberAsteroids].handleCollision(
+          Game.objects.asteroids,
+          Game.state.numberAsteroids
+        )
+      );
+      console.log("Asteroid spawn collision");
+      Game.objects.asteroids.pop();
+    } else {
+      Game.state.numberAsteroids++;
+    }
   }
 };
 
