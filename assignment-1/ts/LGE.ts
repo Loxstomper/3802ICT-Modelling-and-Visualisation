@@ -7,6 +7,8 @@ import { Polygon } from "./Polygon";
 /**
  * # Lochie's Graphics Engine
  *
+ * A 2D graphics engine which uses the HTML5 canvas.
+ *
  * ## Components
  * Lochie's Graphics Engine (LGE) is comprised of multiple components this is the main class which handles rendering.
  *

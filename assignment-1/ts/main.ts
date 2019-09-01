@@ -252,7 +252,7 @@ const Game = {
     maxNumberAsteroids: 10,
     pixelSize: 4,
     resolution: { x: 1280, y: 720 },
-    showBoundingBoxes: true,
+    showBoundingBoxes: false,
     showFps: true
   },
   draw: draw,
