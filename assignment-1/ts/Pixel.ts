@@ -40,8 +40,10 @@ export class Pixel {
     colour: Colour
   ) {
     this.rec = new Rectangle(
-      Math.round(x),
-      Math.round(y),
+      // Math.round(x),
+      // Math.round(y),
+      Math.ceil(x),
+      Math.ceil(y),
       ctx,
       size,
       size,
