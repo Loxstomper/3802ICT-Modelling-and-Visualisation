@@ -1,5 +1,7 @@
+FLAGS=-g
+
 all: main.o
-	g++ -o visualition ./build/main.o
+	g++ $(FLAGS) -o visualisation ./build/main.o
 
 main.o: 
-	g++ -c -o ./build/main.o ./src/main.cpp
+	g++ $(FLAGS) -c -o ./build/main.o ./src/main.cpp
