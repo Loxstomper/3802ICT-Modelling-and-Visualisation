@@ -7,12 +7,16 @@
 
 #define SCREEN_HEIGHT 480
 #define SCREEN_WIDTH 640
+#define WIREFRAME false
 
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
+GLfloat WATER_HEIGHT = 100;
+GLfloat WATER_WIDTH = 1000;
+GLfloat WATER_DEPTH = 1000;
 
-int ROTATION_X = 0;
-int ROTATION_Y = 0;
+GLfloat ROTATION_X = 0.78;
+GLfloat ROTATION_Y = 0;
 
 using Json = nlohmann::json;
 
@@ -109,14 +113,89 @@ void DrawCube( GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLflo
         centerPosX + halfSideLength, centerPosY - halfSideLength, centerPosZ + halfSideLength  // bottom left
     };
     
-    // wire frame
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // normal
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    if (WIREFRAME) 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     glEnableClientState( GL_VERTEX_ARRAY );
     glVertexPointer( 3, GL_FLOAT, 0, vertices );
 
     glDrawArrays( GL_QUADS, 0, 24 );
+    
+    glDisableClientState( GL_VERTEX_ARRAY );
+}
+
+void drawWater() {
+
+    GLfloat colours[] = {
+        0, 0, 255,
+        0, 0, 255,
+        0, 0, 255,
+        0, 0, 255,
+        // 0, 0, 255,
+        // 0, 0, 255,
+        // 0, 0, 255,
+        // 0, 0, 255,
+    };
+
+    GLfloat vertices[] = {
+        // top
+        -WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
+        -WATER_WIDTH, WATER_HEIGHT, WATER_DEPTH,
+        WATER_WIDTH, WATER_HEIGHT, WATER_DEPTH,
+        WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH
+
+        // front
+        // -WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
+        // WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
+        // WATER_WIDTH, 0, -WATER_DEPTH,
+        // -WATER_WIDTH, 0, -WATER_DEPTH
+
+
+        // left
+
+        // right
+    };
+
+    if (WIREFRAME) 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glEnableClientState( GL_VERTEX_ARRAY );
+    glEnableClientState(GL_COLOR_ARRAY);
+
+    glVertexPointer( 3, GL_FLOAT, 0, vertices );
+    glColorPointer(3, GL_FLOAT, 0, colours);
+
+    glDrawArrays( GL_QUADS, 0,  8);
+    
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState( GL_VERTEX_ARRAY );
+
+}
+
+void drawTerrain()
+{
+    drawWater();
+
+    GLfloat vertices[] = {
+        250, 250, -500,
+        300, 250, -500,
+        300, 250, -500,
+        100, 250, -500
+    };
+
+    if (WIREFRAME) 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+
+    glDrawArrays( GL_TRIANGLE_STRIP, 0,  4);
     
     glDisableClientState( GL_VERTEX_ARRAY );
 }
@@ -155,6 +234,7 @@ static void render(void)
     glTranslatef(-HALF_SCREEN_WIDTH, -HALF_SCREEN_HEIGHT, 500);
 
     DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -500, 200);
+    drawTerrain();
 
 
     glPopMatrix();
@@ -182,6 +262,12 @@ static void onKey(unsigned char key, int x, int y)
             break;
         case 'd':
             ROTATION_Y += rotationSpeed;
+            break;
+        case 'z':
+            WATER_HEIGHT += 10;
+            break;
+        case 'x':
+            WATER_HEIGHT -= 10;
             break;
         
         case 'q':
