@@ -1,4 +1,4 @@
-FLAGS=-g
+FLAGS=-g -lglut -lGL 
 
 all: main.o
 	g++ $(FLAGS) -o visualisation ./build/main.o
