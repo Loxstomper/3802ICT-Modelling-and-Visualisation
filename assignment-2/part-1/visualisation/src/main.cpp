@@ -44,48 +44,6 @@ Terrain *terrain;
 
 using Json = nlohmann::json;
 
-// maybe return struct/class?
-void createHeightMap(Json *config, float ***heightMap)
-{
-    int height = (*config)["height"].get<int>();
-    int width = (*config)["width"].get<int>();
-
-    heightMapWidth = width;
-    heightMapHeight = height;
-
-    WATER_HEIGHT = TERRAIN_HEIGHT + (*config)["waterHeight"].get<int>();
-    std::cout << "Width: " << width << " "
-              << "Height: " << height << std::endl;
-
-    // alloc space and fill
-    *heightMap = new float *[height];
-    for (int y = 0; y < height; y++)
-    {
-        (*heightMap)[y] = new float[width];
-
-        std::vector<float> test = (*config)["heightMap"][y].get<std::vector<float>>();
-        for (int x = 0; x < width; x++)
-        {
-            (*heightMap)[y][x] = test[x];
-        }
-    }
-}
-
-void printHeightMap(int width, int height, float ***heightMap) // build_array(values);
-{
-    for (int y = 0; y < height; y++)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            std::cout << (*heightMap)[y][x] << " ";
-        }
-
-        std::cout << "\n";
-    }
-
-    std::cout << std::endl;
-}
-
 void DrawCube(GLfloat centerPosX, GLfloat centerPosY, GLfloat centerPosZ, GLfloat edgeLength)
 {
     GLfloat halfSideLength = edgeLength * 0.5f;

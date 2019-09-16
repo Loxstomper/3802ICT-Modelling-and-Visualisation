@@ -66,21 +66,39 @@ void Terrain::buildVerticies(Json *config, GLfloat terrainLength, GLfloat terrai
     std::cout << "xStep: " << xStep << " "
               << "zStep: " << zStep << std::endl;
 
-    for (int i = 0; i < this->length * this->width * 3; i += 3)
+    // check this indexing
+    for (int i = 0; i < this->length; i++)
     {
-        this->verticies[i] = ((i / 3) % this->length) * xStep;    // x
-        this->verticies[i + 1] = 4;                               // y  - heightMap[y][x]
-        this->verticies[i + 2] = ((i / 3) % this->width) * zStep; // z
-
-        if (i % 4 == 0)
+        for (int j = 0; j < this->width; j++)
         {
-            std::cout << "\n";
-        }
+            int index = i + (j * this->width) * 3;
+            this->verticies[index] = i * xStep;     // x
+            this->verticies[index + 1] = 4;         // y  - heightMap[y][x]
+            this->verticies[index + 2] = j * zStep; // z
+            this->verticies[index + 2] = heightMap[i][j];
 
-        std::cout << "( " << this->verticies[i] << ", " << this->verticies[i + 1] << ", " << this->verticies[i + 2] << " ), ";
+            std::cout << "( " << this->verticies[i] << ", " << this->verticies[i + 1] << ", " << this->verticies[i + 2] << " ), ";
+        }
+        std::cout << "\n";
     }
 
     std::cout << std::endl;
+
+    // for (int i = 0; i < this->length * this->width * 3; i += 3)
+    // {
+    //     this->verticies[i] = ((i / 3) % this->length) * xStep;    // x
+    //     this->verticies[i + 1] = 4;                               // y  - heightMap[y][x]
+    //     this->verticies[i + 2] = ((i / 3) % this->width) * zStep; // z
+
+    //     if (i % 4 == 0)
+    //     {
+    //         std::cout << "\n";
+    //     }
+
+    //     std::cout << "( " << this->verticies[i] << ", " << this->verticies[i + 1] << ", " << this->verticies[i + 2] << " ), ";
+    // }
+
+    // std::cout << std::endl;
 
     this->numberTriangles = this->length * this->width * 2;
 
