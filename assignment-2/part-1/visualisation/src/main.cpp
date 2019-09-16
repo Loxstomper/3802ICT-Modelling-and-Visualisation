@@ -1,10 +1,13 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include "headers/json.hpp"
+#include <vector>
 
 #include <GL/glut.h>
-#include <vector>
+
+#include "headers/Terrain.hpp"
+#include "headers/Utils.hpp"
+#include "headers/json.hpp"
 
 #define SCREEN_HEIGHT 800
 #define SCREEN_WIDTH 800
@@ -14,9 +17,9 @@
 #define NEAR_CLIPPING_PLANE 1
 #define FAR_CLIPPING_PLANE 50000
 
-#define TERRAIN_WIDTH 400 // used to scale
-#define TERRAIN_HEIGHT 0 // height = TERRAIN_HEIGHT + heightMap[x][y]
-#define TERRAIN_DEPTH 400 // used to scale
+GLfloat TERRAIN_WIDTH = 400; // used to scale
+GLfloat TERRAIN_HEIGHT = 0;  // height = TERRAIN_HEIGHT + heightMap[x][y]
+GLfloat TERRAIN_DEPTH = 400; // used to scale
 
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
@@ -37,20 +40,12 @@ int MOUSE_Y = HALF_SCREEN_HEIGHT;
 int heightMapWidth;
 int heightMapHeight;
 
+Terrain *terrain;
+
 using Json = nlohmann::json;
 
-Json fileToJson(std::string *filename)
-{
-    std::ifstream infile(*filename);
-
-    Json j;
-    infile >> j;
-
-    return j;
-}
-
 // maybe return struct/class?
-void createHeightMap(Json *config, float*** heightMap)
+void createHeightMap(Json *config, float ***heightMap)
 {
     int height = (*config)["height"].get<int>();
     int width = (*config)["width"].get<int>();
@@ -59,7 +54,8 @@ void createHeightMap(Json *config, float*** heightMap)
     heightMapHeight = height;
 
     WATER_HEIGHT = TERRAIN_HEIGHT + (*config)["waterHeight"].get<int>();
-    std::cout << "Width: " << width << " " << "Height: " << height  << std::endl;
+    std::cout << "Width: " << width << " "
+              << "Height: " << height << std::endl;
 
     // alloc space and fill
     *heightMap = new float *[height];
@@ -75,7 +71,7 @@ void createHeightMap(Json *config, float*** heightMap)
     }
 }
 
-void printHeightMap(int width, int height, float*** heightMap)    // build_array(values);
+void printHeightMap(int width, int height, float ***heightMap) // build_array(values);
 {
     for (int y = 0; y < height; y++)
     {
@@ -197,36 +193,16 @@ void drawWater()
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void drawTerrain()
-{
-    drawWater();
-
-    // this should just be computer once
-    GLfloat vertices[3];
-
-    if (WIREFRAME)
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(4, GL_FLOAT, 0, vertices);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-}
-
 /* GLUT callback Handlers */
 static void onWindowResize(int width, int height)
 {
-    glViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);             // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
-    glMatrixMode(GL_PROJECTION);                                     // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
-    glLoadIdentity();                                                // replace the current matrix with the identity matrix and starts us a fresh because matrix transforms such as glOrpho and glRotate cumulate, basically puts us at (0, 0, 0)
+    glViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
+    glMatrixMode(GL_PROJECTION);                         // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
+    glLoadIdentity();                                    // replace the current matrix with the identity matrix and starts us a fresh because matrix transforms such as glOrpho and glRotate cumulate, basically puts us at (0, 0, 0)
     // gluPerspective(FOV, 1, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); // perspective
     glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); // ortho
-    glMatrixMode(GL_MODELVIEW);                                      // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
-    glLoadIdentity();                                                // same as above comment
+    glMatrixMode(GL_MODELVIEW);                                                          // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
+    glLoadIdentity();                                                                    // same as above comment
 }
 
 static void render(void)
@@ -254,7 +230,9 @@ static void render(void)
     DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -500, 200);
     glColor4f(0, 1, 0, 1);
     DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -100, 100);
-    drawTerrain();
+    // drawTerrain();
+
+    terrain->draw();
 
     glPopMatrix();
 
@@ -287,9 +265,8 @@ static void onKey(unsigned char key, int x, int y)
 
     std::cout << "X: " << ROTATION_X << " "
               << "Y: " << ROTATION_Y << " "
-              << "Water Height: " << WATER_HEIGHT 
+              << "Water Height: " << WATER_HEIGHT
               << std::endl;
-
 
     const GLfloat movementSpeed = 10;
 
@@ -350,32 +327,9 @@ static void idle(void)
     glutPostRedisplay();
 }
 
-int main(int argc, char **argv)
+void glutSetup(int *argc, char **argv)
 {
-    // if (argc < 2) {
-    //     std::cerr << "Provide a filename" << std::endl;
-    //     exit(1);
-    // }
-
-    // std::string filename = argv[1];
-    std::string filename = "data.json";
-
-    Json config = fileToJson(&filename);
-
-    std::cout << "Input" << std::endl;
-    std::cout << std::setw(4) << config << std::endl;
-
-    float **heightMap;
-
-    createHeightMap(&config, &heightMap);
-    printHeightMap(4, 4, &heightMap);
-    // printHeightMap(4, 4, heightMap);
-    // float a = heightMap[0][0];
-    // a += 5;
-
-    exit(0);
-
-    glutInit(&argc, argv);
+    glutInit(argc, argv);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);
     glutInitWindowPosition(100, 100);
     // glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -391,9 +345,31 @@ int main(int argc, char **argv)
     glutPassiveMotionFunc(onMouseMovement); // mouse movement no buttons
     glutIdleFunc(idle);
 
-    // glClearColor(0,0,0,0);
-
     glutMainLoop();
+}
+
+int main(int argc, char **argv)
+{
+    // if (argc < 2) {
+    //     std::cerr << "Provide a filename" << std::endl;
+    //     exit(1);
+    // }
+
+    // std::string filename = argv[1];
+    std::string filepath = "data.json";
+
+    Json config = Utils::jsonFromFile(filepath);
+
+    std::cout << "Input" << std::endl;
+    std::cout << std::setw(4) << config << std::endl;
+
+    float **heightMap;
+
+    terrain = new Terrain(&config, TERRAIN_WIDTH, TERRAIN_DEPTH);
+
+    // printHeightMap(4, 4, heightMap);
+
+    glutSetup(&argc, argv);
 
     return EXIT_SUCCESS;
 
