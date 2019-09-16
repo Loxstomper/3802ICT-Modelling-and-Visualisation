@@ -16,7 +16,7 @@ class Colour:
         out["height"] = self.height
         out["values"] = self.values
 
-        return json
+        return out
 
 
 class TerrainGenerator:
@@ -36,8 +36,6 @@ class TerrainGenerator:
             Colour("rock2", 50, [0.0, 1.0, 0.0, 1.0]),
             Colour("snow", 100, [1.0, 1.0, 1.0, 1.0])
         ]
-
-        print(colours)
 
         self.colours = [c.json() for c in colours]
 
