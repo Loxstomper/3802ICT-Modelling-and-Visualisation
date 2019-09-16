@@ -14,6 +14,10 @@
 #define NEAR_CLIPPING_PLANE 1
 #define FAR_CLIPPING_PLANE 50000
 
+#define TERRAIN_WIDTH 400 // used to scale
+#define TERRAIN_HEIGHT 0 // height = TERRAIN_HEIGHT + heightMap[x][y]
+#define TERRAIN_DEPTH 400 // used to scale
+
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
 GLfloat WATER_HEIGHT = 100;
@@ -30,6 +34,9 @@ GLfloat CAMERA_Z = 0;
 int MOUSE_X = HALF_SCREEN_WIDTH;
 int MOUSE_Y = HALF_SCREEN_HEIGHT;
 
+int heightMapWidth;
+int heightMapHeight;
+
 using Json = nlohmann::json;
 
 Json fileToJson(std::string *filename)
@@ -42,46 +49,39 @@ Json fileToJson(std::string *filename)
     return j;
 }
 
-void createHeightMap(Json *config, float **heightMap)
+// maybe return struct/class?
+void createHeightMap(Json *config, float*** heightMap)
 {
     int height = (*config)["height"].get<int>();
     int width = (*config)["width"].get<int>();
 
-    std::cout << width << " " << height << std::endl;
+    heightMapWidth = width;
+    heightMapHeight = height;
 
-    // alloc space
-    heightMap = new float *[height];
-    for (int i = 0; i < height; i++)
-    {
-        heightMap[i] = new float[width];
-    }
+    WATER_HEIGHT = TERRAIN_HEIGHT + (*config)["waterHeight"].get<int>();
+    std::cout << "Width: " << width << " " << "Height: " << height  << std::endl;
 
-    // copy the values in
-
+    // alloc space and fill
+    *heightMap = new float *[height];
     for (int y = 0; y < height; y++)
     {
+        (*heightMap)[y] = new float[width];
+
         std::vector<float> test = (*config)["heightMap"][y].get<std::vector<float>>();
-
-        // for (auto i = test.begin(); i != test.end(); ++i)
-        //     std::cout << *i << " ";
-
-        // std::cout << std::endl;
-
         for (int x = 0; x < width; x++)
         {
-            heightMap[y][x] = test[x];
-            // std::cout << heightMap[y][x] << std::endl;
+            (*heightMap)[y][x] = test[x];
         }
     }
 }
 
-void printHeightMap(int width, int height, float **heightMap)
+void printHeightMap(int width, int height, float*** heightMap)    // build_array(values);
 {
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            std::cout << heightMap[y][x] << " ";
+            std::cout << (*heightMap)[y][x] << " ";
         }
 
         std::cout << "\n";
@@ -163,9 +163,9 @@ void drawWater()
     GLfloat vertices[] = {
         // top
         -WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
-        -WATER_WIDTH, WATER_HEIGHT, WATER_DEPTH,
+        WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
         WATER_WIDTH, WATER_HEIGHT, WATER_DEPTH,
-        WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH
+        -WATER_WIDTH, WATER_HEIGHT, WATER_DEPTH
 
         // front
         // -WATER_WIDTH, WATER_HEIGHT, -WATER_DEPTH,
@@ -184,26 +184,25 @@ void drawWater()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    // glEnableClientState(GL_COLOR_ARRAY);
 
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(3, GL_FLOAT, 0, colours);
+    // glVertexPointer(3, GL_FLOAT, 0, vertices);
+    // glColorPointer(3, GL_FLOAT, 0, colours);
 
-    glDrawArrays(GL_QUADS, 0, 8);
+    glColor4f(0, 0, 1, 1);
 
-    glDisableClientState(GL_COLOR_ARRAY);
+    glDrawArrays(GL_QUADS, 0, 1);
+
+    // glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void drawTerrain()
 {
-    //drawWater();
+    drawWater();
 
-    GLfloat vertices[] = {
-        250, 250, -500,
-        300, 250, -500,
-        300, 250, -500,
-        100, 250, -500};
+    // this should just be computer once
+    GLfloat vertices[3];
 
     if (WIREFRAME)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -224,7 +223,8 @@ static void onWindowResize(int width, int height)
     glViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT);             // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
     glMatrixMode(GL_PROJECTION);                                     // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
     glLoadIdentity();                                                // replace the current matrix with the identity matrix and starts us a fresh because matrix transforms such as glOrpho and glRotate cumulate, basically puts us at (0, 0, 0)
-    gluPerspective(FOV, 1, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); // perspective
+    // gluPerspective(FOV, 1, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); // perspective
+    glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE); // ortho
     glMatrixMode(GL_MODELVIEW);                                      // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
     glLoadIdentity();                                                // same as above comment
 }
@@ -253,8 +253,8 @@ static void render(void)
     glColor4f(1, 0, 0, 1);
     DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -500, 200);
     glColor4f(0, 1, 0, 1);
-    DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -100, 200);
-    // drawTerrain();
+    DrawCube(HALF_SCREEN_WIDTH, HALF_SCREEN_HEIGHT, -100, 100);
+    drawTerrain();
 
     glPopMatrix();
 
@@ -286,7 +286,10 @@ static void onKey(unsigned char key, int x, int y)
 {
 
     std::cout << "X: " << ROTATION_X << " "
-              << "Y: " << ROTATION_Y << std::endl;
+              << "Y: " << ROTATION_Y << " "
+              << "Water Height: " << WATER_HEIGHT 
+              << std::endl;
+
 
     const GLfloat movementSpeed = 10;
 
@@ -364,11 +367,13 @@ int main(int argc, char **argv)
 
     float **heightMap;
 
-    createHeightMap(&config, heightMap);
-    // std::cout << heightMap[0][0] << std::endl;
+    createHeightMap(&config, &heightMap);
+    printHeightMap(4, 4, &heightMap);
     // printHeightMap(4, 4, heightMap);
     // float a = heightMap[0][0];
     // a += 5;
+
+    exit(0);
 
     glutInit(&argc, argv);
     glutInitWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT);

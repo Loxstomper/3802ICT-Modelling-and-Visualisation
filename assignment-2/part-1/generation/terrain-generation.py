@@ -2,6 +2,22 @@
 import json
 from opensimplex import OpenSimplex
 from random import randrange
+from collections import OrderedDict
+
+class Colour:
+    def __init__(self, name, height, values):
+        self.name = name
+        self.height = height
+        self.values = values
+    
+    def json(self):
+        out = OrderedDict()
+        out["name"] = self.name
+        out["height"] = self.height
+        out["values"] = self.values
+
+        return json
+
 
 class TerrainGenerator:
     def __init__(self, width=400, height=400, max_height=128, water_height=32, seed=randrange(10000)):
@@ -13,17 +29,30 @@ class TerrainGenerator:
         self.height_map = [[0] * width for _ in range(height)]
         self.simplex = OpenSimplex(seed)
 
+        colours = [
+            Colour("water", None, [0.0, 0.0, 1.0, 0.5]),
+            Colour("rock1", 0, [0.0, 1.0, 0.0, 1.0]),
+            Colour("grass", 10, [0.0, 1.0, 0.0, 1.0]),
+            Colour("rock2", 50, [0.0, 1.0, 0.0, 1.0]),
+            Colour("snow", 100, [1.0, 1.0, 1.0, 1.0])
+        ]
+
+        print(colours)
+
+        self.colours = [c.json() for c in colours]
+
     def noise(self, nx, ny):
         # 0 to self.max_height
         return (self.simplex.noise2d(nx, ny) / 2.0 + 0.5)* self.max_height
 
     def json(self):
-        out = dict()
+        out = OrderedDict()
         out["seed"] = self.seed
         out["width"] = self.width
         out["height"] = self.height
         out["maxHeight"] = self.max_height
         out["waterHeight"] = self.water_height
+        out["colours"] = self.colours
         out["heightMap"] = self.height_map
 
         return json.dumps(out, indent=4)
