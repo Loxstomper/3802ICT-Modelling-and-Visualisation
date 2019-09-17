@@ -27,14 +27,17 @@ void Terrain::draw()
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glEnableClientState(GL_VERTEX_ARRAY);
+
     glVertexPointer(4, GL_FLOAT, 0, this->verticies);
 
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    // check this
+    // glColor4fv(this->colours);
+
+    glDrawArrays(GL_TRIANGLES, 0, this->length * this->width * 2);
 
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-// maybe return struct/class?
 void Terrain::buildVerticies(Json *config, GLfloat terrainLength, GLfloat terrainWidth)
 {
     this->length = (*config)["height"].get<GLfloat>();
@@ -57,8 +60,6 @@ void Terrain::buildVerticies(Json *config, GLfloat terrainLength, GLfloat terrai
         }
     }
 
-    this->verticies = new GLfloat[3 * this->length * this->width];
-
     // check if this is GLfloats
     GLfloat zStep = (GLfloat)(terrainWidth / this->width);
     GLfloat xStep = (GLfloat)(terrainLength / this->length);
@@ -66,43 +67,90 @@ void Terrain::buildVerticies(Json *config, GLfloat terrainLength, GLfloat terrai
     std::cout << "xStep: " << xStep << " "
               << "zStep: " << zStep << std::endl;
 
-    // check this indexing
-    for (int i = 0; i < this->length; i++)
+    // 2d respresentation of the mesh
+    this->verticies = new GLfloat *[this->length];
+    for (int y = 0; y < this->length; y++)
     {
-        for (int j = 0; j < this->width; j++)
-        {
-            int index = i + (j * this->width) * 3;
-            this->verticies[index] = i * xStep;     // x
-            this->verticies[index + 1] = 4;         // y  - heightMap[y][x]
-            this->verticies[index + 2] = j * zStep; // z
-            this->verticies[index + 2] = heightMap[i][j];
+        (this->verticies)[y] = new GLfloat[this->width * 3];
 
-            std::cout << "( " << this->verticies[i] << ", " << this->verticies[i + 1] << ", " << this->verticies[i + 2] << " ), ";
+        std::vector<GLfloat> test = (*config)["heightMap"][y].get<std::vector<GLfloat>>();
+
+        for (int x = 0; x < this->width * 3; x += 3)
+        {
+            (this->verticies)[y][x] = (x / 3) * xStep;           // x
+            (this->verticies)[y][x + 1] = (heightMap)[y][x / 3]; // y
+            (this->verticies)[y][x + 2] = y * zStep;             // z
+
+            std::cout << "( " << this->verticies[y][x] << ", " << this->verticies[y][x + 1] << ", " << this->verticies[y][x + 2] << " ), ";
         }
+
         std::cout << "\n";
     }
 
-    std::cout << std::endl;
+    std::cout << "\n";
 
-    // for (int i = 0; i < this->length * this->width * 3; i += 3)
-    // {
-    //     this->verticies[i] = ((i / 3) % this->length) * xStep;    // x
-    //     this->verticies[i + 1] = 4;                               // y  - heightMap[y][x]
-    //     this->verticies[i + 2] = ((i / 3) % this->width) * zStep; // z
-
-    //     if (i % 4 == 0)
-    //     {
-    //         std::cout << "\n";
-    //     }
-
-    //     std::cout << "( " << this->verticies[i] << ", " << this->verticies[i + 1] << ", " << this->verticies[i + 2] << " ), ";
-    // }
-
-    // std::cout << std::endl;
-
-    this->numberTriangles = this->length * this->width * 2;
+    // not using triangle strip yet, just multiple triangles
+    this->numberTriangles = this->length * this->width * 2 * 3; // 3 because 3 points
 
     // delete heightMap -- when to do this because of the colour values can base of the Y value of the verticies though
+}
+
+void Terrain::buildTriangles()
+{
+    // top left, top right, bottom left, bottom right
+    static GLfloat TLx, TLy, TLz, TRx, TRy, TRz, BLx, BLy, BLz, BRx, BRy, BRz;
+
+    for (int y = 0; y < this->length - 1; y++)
+    {
+        for (int x = 0; x < (this->width * 3) - 3; x += 3)
+        {
+            // top left
+            TLx = this->verticies[y][x];
+            TLy = this->verticies[y][x + 1];
+            TLz = this->verticies[y][x + 2];
+
+            // top right
+            TRx = this->verticies[y][x + 3];
+            TRy = this->verticies[y][x + 4];
+            TRz = this->verticies[y][x + 5];
+
+            // bottom left
+            BLx = this->verticies[y + 1][x];
+            BLy = this->verticies[y + 1][x + 1];
+            BLz = this->verticies[y + 1][x + 2];
+
+            // bottom right
+            BRx = this->verticies[y + 1][x + 1];
+            BRy = this->verticies[y + 1][x + 1];
+            BRz = this->verticies[y + 1][x + 2];
+
+            // triangle 1
+            this->triangles[x] = TLx;
+            this->triangles[x + 1] = TLy;
+            this->triangles[x + 2] = TLz;
+
+            this->triangles[x + 3] = TRx;
+            this->triangles[x + 4] = TRy;
+            this->triangles[x + 5] = TRz;
+
+            this->triangles[x + 6] = BRx;
+            this->triangles[x + 7] = BRy;
+            this->triangles[x + 8] = BRz;
+
+            // triangle 2
+            this->triangles[x + 9] = TLx;
+            this->triangles[x + 10] = TLy;
+            this->triangles[x + 11] = TLz;
+
+            this->triangles[x + 12] = BLx;
+            this->triangles[x + 13] = BLy;
+            this->triangles[x + 14] = BLz;
+
+            this->triangles[x + 15] = BRx;
+            this->triangles[x + 16] = BRy;
+            this->triangles[x + 17] = BRz;
+        }
+    }
 }
 
 void Terrain::buildColours(Json *config)

@@ -15,8 +15,10 @@ private:
 
     void buildColours(Json *config);
 
+    void buildTriangles();
+
 public:
-    GLfloat *verticies;
+    GLfloat **verticies;
     GLfloat *triangles;
     GLfloat *colours;
     GLfloat waterHeight;
