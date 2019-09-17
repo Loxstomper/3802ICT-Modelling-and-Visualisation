@@ -17,9 +17,9 @@
 #define NEAR_CLIPPING_PLANE 1
 #define FAR_CLIPPING_PLANE 50000
 
-GLfloat TERRAIN_WIDTH = 400; // used to scale
+GLfloat TERRAIN_WIDTH = 100; // used to scale
 GLfloat TERRAIN_HEIGHT = 0;  // height = TERRAIN_HEIGHT + heightMap[x][y]
-GLfloat TERRAIN_DEPTH = 400; // used to scale
+GLfloat TERRAIN_DEPTH = 100; // used to scale
 
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
