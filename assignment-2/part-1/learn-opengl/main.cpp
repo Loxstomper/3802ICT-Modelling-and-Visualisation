@@ -20,7 +20,7 @@
 #define NEAR_CLIPPING_PLANE 0.1
 #define FAR_CLIPPING_PLANE 50000.0
 
-GLfloat WATER_HEIGHT = 0.5;
+GLfloat WATER_HEIGHT = 0.01;
 
 GLfloat TERRAIN_WIDTH = 1.0;
 GLfloat TERRAIN_LENGTH = 1.0;
@@ -31,6 +31,8 @@ GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2.0;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
 
 GLfloat CURRENT_Z_DEPTH = -5;
+
+GLfloat alpha = 0;
 
 class Point3
 {
@@ -131,7 +133,6 @@ void drawWater()
             0, 0, 1, 0.5,
         };
 
-    static float alpha = 0;
     //attempt to rotate cube
     glRotatef(alpha, 0, 1, 0);
 
@@ -147,7 +148,6 @@ void drawWater()
     /* Cleanup states */
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-    alpha += 1;
 }
 
 void drawCube()
@@ -170,7 +170,6 @@ void drawCube()
             0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
             0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1};
 
-    static float alpha = 0;
     //attempt to rotate cube
     glRotatef(alpha, 0, 1, 0);
 
@@ -186,7 +185,6 @@ void drawCube()
     /* Cleanup states */
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-    alpha += 1;
 }
 
 static void render(void)
@@ -200,10 +198,12 @@ static void render(void)
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
     // glTranslatef(0, 0, -5);
-    glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    // glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    glTranslatef(0, -1, CURRENT_Z_DEPTH);
 
     // drawCube();
     drawWater();
+    alpha ++;
 
     glutSwapBuffers();
 
@@ -275,15 +275,20 @@ static void onSpecialKey(int key, int x, int y)
 static void onKey(unsigned char key, int x, int y)
 {
     static GLfloat zoomSpeed;
-    zoomSpeed = 2;
+    static GLfloat zoomDistance;
+
+    zoomDistance = 5;
+    zoomSpeed = 0.5;
 
     switch (key) 
     {
         case 'w':
-            CURRENT_Z_DEPTH += zoomSpeed;
+            // if (CURRENT_Z_DEPTH < 2* zoomDistance)
+                CURRENT_Z_DEPTH += zoomSpeed;
             break;
         case 's':
-            CURRENT_Z_DEPTH -= zoomSpeed;
+            // if (CURRENT_Z_DEPTH > zoomDistance)
+                CURRENT_Z_DEPTH -= zoomSpeed;
             break;
         case 'z':
             if (WATER_HEIGHT < 1.0) 
