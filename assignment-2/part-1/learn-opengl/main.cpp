@@ -20,7 +20,7 @@
 #define NEAR_CLIPPING_PLANE 0.1
 #define FAR_CLIPPING_PLANE 50000.0
 
-GLfloat WATER_HEIGHT = 0.01;
+GLfloat WATER_HEIGHT = -0.9;
 
 GLfloat TERRAIN_WIDTH = 1.0;
 GLfloat TERRAIN_LENGTH = 1.0;
@@ -80,30 +80,30 @@ void drawWater()
 {
     GLfloat vertices[] =
         {
-            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
-            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, -1, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, -1, TERRAIN_LENGTH, 
             -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
             -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
-            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
-            TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, -1, -TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, -1, TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
-            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
-            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
-            TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
-            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, -1, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, -1, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, -1, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, -1, -TERRAIN_LENGTH,
             -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
             -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
-            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, -1, -TERRAIN_LENGTH, 
             -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
-            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH,
-            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, -1, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, -1, TERRAIN_LENGTH, 
             -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
             TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
-            TERRAIN_WIDTH, 0, TERRAIN_LENGTH};
+            TERRAIN_WIDTH, -1, TERRAIN_LENGTH};
 
     GLfloat colors[] =
         {
@@ -201,7 +201,7 @@ static void render(void)
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
     glTranslatef(0, -1, CURRENT_Z_DEPTH);
 
-    // drawCube();
+    drawCube();
     drawWater();
     alpha ++;
 
@@ -295,7 +295,7 @@ static void onKey(unsigned char key, int x, int y)
                 WATER_HEIGHT += 0.01;
                 break;
         case 'x':
-            if (WATER_HEIGHT > 0.0)
+            if (WATER_HEIGHT > -1.0)
                 WATER_HEIGHT -= 0.01;
             break;
     }
