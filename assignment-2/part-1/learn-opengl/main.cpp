@@ -1,6 +1,6 @@
 #include <iostream>
-#include <iomanip>
-#include <fstream>
+#include <iomanip> 
+#include <fstream> 
 #include <vector>
 
 #include <GL/glut.h>
@@ -24,6 +24,8 @@ GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2.0;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
+
+GLfloat CURRENT_Z_DEPTH = -5;
 
 class Point3
 {
@@ -62,7 +64,8 @@ static void onWindowResize(int width, int height)
     gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 1000);
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
-    glTranslatef(0, 0, -5);
+    // glTranslatef(0, 0, -5);
+    glTranslatef(0, 0, CURRENT_Z_DEPTH);
 }
 
 void drawCube()
@@ -118,7 +121,8 @@ static void render(void)
     gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 100);
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
-    glTranslatef(0, 0, -5);
+    // glTranslatef(0, 0, -5);
+    glTranslatef(0, 0, CURRENT_Z_DEPTH);
 
     drawCube();
 
@@ -191,6 +195,14 @@ static void onSpecialKey(int key, int x, int y)
 
 static void onKey(unsigned char key, int x, int y)
 {
+    switch (key) 
+    {
+        case 'w':
+            CURRENT_Z_DEPTH ++;
+            break;
+        case 's':
+            CURRENT_Z_DEPTH --;
+    }
     glutPostRedisplay();
 }
 
