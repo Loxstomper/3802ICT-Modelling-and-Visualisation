@@ -59,7 +59,7 @@ static void onWindowResize(int width, int height)
 
     glMatrixMode(GL_PROJECTION_MATRIX);
     glLoadIdentity();
-    gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 1000);
+    gluPerspective(FOV, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
     glTranslatef(0, 0, -5);
@@ -67,9 +67,48 @@ static void onWindowResize(int width, int height)
 
 void drawCube()
 {
+    Point3 plane[] = {
+        {-1, -1, -1},
+        {1, -1, -1},
+        {-1, -1, 1},
+        {1, -1, 1}};
+
+    GLfloat vertices[] = {-1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, 1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1, -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1};
+
+    GLfloat colors[] =
+        {
+            0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0,
+            1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0,
+            0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0,
+            0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
+            0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
+            0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1};
+
+    static float alpha = 0;
+    //attempt to rotate cube
+    glRotatef(alpha, 0, 1, 0);
+
+    /* We have a color array and a vertex array */
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glColorPointer(3, GL_FLOAT, 0, colors);
+
+    /* Send data : 24 vertices */
+    glDrawArrays(GL_QUADS, 0, 24);
+
+    /* Cleanup states */
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    alpha += 1;
+}
+
+void drawTerrain()
+{
     GLfloat vertices[] =
         {
             -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1,
+
             1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
             -1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
             -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1,
@@ -106,11 +145,9 @@ void drawCube()
 
 static void render(void)
 {
-    // glClearColor(255, 253, 208, 100);
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Draw stuff
-    glClearColor(0.0, 0.8, 0.3, 1.0);
+    // set background colour
+    glClearColor(255, 253, 208, 100);
+    // clear the frame
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION_MATRIX);
@@ -120,7 +157,7 @@ static void render(void)
     glMatrixMode(GL_MODELVIEW_MATRIX);
     glTranslatef(0, 0, -5);
 
-    drawCube();
+    drawTerrain();
 
     glutSwapBuffers();
 
