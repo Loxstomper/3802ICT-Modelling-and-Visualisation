@@ -17,8 +17,13 @@
 #define WIREFRAME false
 #define FOV 60
 #define ASPECT_RATIO SCREEN_WIDTH / SCREEN_HEIGHT
-#define NEAR_CLIPPING_PLANE 1
-#define FAR_CLIPPING_PLANE 50000
+#define NEAR_CLIPPING_PLANE 0.1
+#define FAR_CLIPPING_PLANE 50000.0
+
+GLfloat WATER_HEIGHT = 0.5;
+
+GLfloat TERRAIN_WIDTH = 1.0;
+GLfloat TERRAIN_LENGTH = 1.0;
 
 GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
@@ -61,11 +66,88 @@ static void onWindowResize(int width, int height)
 
     glMatrixMode(GL_PROJECTION_MATRIX);
     glLoadIdentity();
-    gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 1000);
+    // gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 1000);
+    gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, NEAR_CLIPPING_PLANE, FAR_CLIPPING_PLANE);
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
     // glTranslatef(0, 0, -5);
     glTranslatef(0, 0, CURRENT_Z_DEPTH);
+}
+
+void drawWater()
+{
+    GLfloat vertices[] =
+        {
+            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
+            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, 0, -TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, -TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, 0, -TERRAIN_LENGTH,
+            -TERRAIN_WIDTH, 0, TERRAIN_LENGTH, 
+            -TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH, 
+            TERRAIN_WIDTH, 0, TERRAIN_LENGTH};
+
+    GLfloat colors[] =
+        {
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+            0, 0, 1, 0.5,
+        };
+
+    static float alpha = 0;
+    //attempt to rotate cube
+    glRotatef(alpha, 0, 1, 0);
+
+    /* We have a color array and a vertex array */
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glColorPointer(4, GL_FLOAT, 0, colors);
+
+    /* Send data : 24 vertices */
+    glDrawArrays(GL_QUADS, 0, 24);
+
+    /* Cleanup states */
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    alpha += 1;
 }
 
 void drawCube()
@@ -109,11 +191,7 @@ void drawCube()
 
 static void render(void)
 {
-    // glClearColor(255, 253, 208, 100);
-    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Draw stuff
-    glClearColor(0.0, 0.8, 0.3, 1.0);
+    glClearColor(255, 253, 208, 100);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION_MATRIX);
@@ -124,7 +202,8 @@ static void render(void)
     // glTranslatef(0, 0, -5);
     glTranslatef(0, 0, CURRENT_Z_DEPTH);
 
-    drawCube();
+    // drawCube();
+    drawWater();
 
     glutSwapBuffers();
 
@@ -195,13 +274,25 @@ static void onSpecialKey(int key, int x, int y)
 
 static void onKey(unsigned char key, int x, int y)
 {
+    static GLfloat zoomSpeed;
+    zoomSpeed = 2;
+
     switch (key) 
     {
         case 'w':
-            CURRENT_Z_DEPTH ++;
+            CURRENT_Z_DEPTH += zoomSpeed;
             break;
         case 's':
-            CURRENT_Z_DEPTH --;
+            CURRENT_Z_DEPTH -= zoomSpeed;
+            break;
+        case 'z':
+            if (WATER_HEIGHT < 1.0) 
+                WATER_HEIGHT += 0.01;
+                break;
+        case 'x':
+            if (WATER_HEIGHT > 0.0)
+                WATER_HEIGHT -= 0.01;
+            break;
     }
     glutPostRedisplay();
 }
