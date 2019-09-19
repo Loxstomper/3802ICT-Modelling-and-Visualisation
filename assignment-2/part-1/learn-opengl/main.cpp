@@ -76,6 +76,81 @@ static void onWindowResize(int width, int height)
     glTranslatef(0, 0, CURRENT_Z_DEPTH);
 }
 
+
+
+void drawTerrain() 
+{
+    int numberX = 10;
+    int numberZ = 10;
+
+    GLfloat verts2[numberZ * numberX * 3];
+
+    GLfloat xStep = numberX / 2.0;
+    GLfloat zStep = numberZ / 2.0;
+
+    int index = 0;
+
+    for (int z = 1; z < numberZ; z ++ )
+    {
+        for (int x = 1; x < numberX; x ++) 
+        {
+            GLfloat y = 1; // change this to height map
+
+            verts2[index + 0] = (x * xStep) - 1.0;
+            verts2[index + 1] = y;
+            verts2[index + 2] = (z * zStep) - 1.0;
+
+            index += 3;
+        }
+    }
+
+
+    int numberVericies = 2 * 2;
+
+    GLfloat vertices[numberVericies * 3] = 
+    {
+        -1, 0, 1,   -1, -1, -1,
+        1, 0, -1,    1, 1, 1
+    };
+
+    GLfloat colors[numberVericies * 4];
+
+    for (int i = 0; i <= numberVericies; i ++) 
+    {
+        // 4 values per colour
+        int index = i * 4;
+        colors[index++] = 0; // red
+        colors[index++] = 1; // green
+        colors[index++] = 0; // blue
+        colors[index] = 1; // alpha
+    }
+
+    int numberIndicies = numberVericies;
+    unsigned int indicies[numberIndicies];
+
+    for (int i = 0; i < numberIndicies / 4; i += 4) 
+    {
+        // indicies[i] = i;
+        indicies[i] = i;
+        indicies[i + 1] = i + 1;
+        indicies[i + 2] = i + 2;
+        indicies[i + 3] = i + 2 + 1;
+
+    }
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glColorPointer(4, GL_FLOAT, 0, colors);
+
+    // draw the quads
+    glDrawElements(GL_QUADS, numberIndicies, GL_UNSIGNED_INT, indicies);
+
+    /* Cleanup states */
+    glDisableClientState(GL_COLOR_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
+}
+
 void drawWater()
 {
     GLfloat vertices[] =
@@ -134,7 +209,7 @@ void drawWater()
         };
 
     //attempt to rotate cube
-    glRotatef(alpha, 0, 1, 0);
+    // glRotatef(alpha, 0, 1, 0);
 
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -171,7 +246,7 @@ void drawCube()
             0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1};
 
     //attempt to rotate cube
-    glRotatef(alpha, 0, 1, 0);
+    // glRotatef(alpha, 0, 1, 0);
 
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -196,12 +271,16 @@ static void render(void)
     glLoadIdentity();
     gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 100);
 
+
     glMatrixMode(GL_MODELVIEW_MATRIX);
     // glTranslatef(0, 0, -5);
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
-    glTranslatef(0, -1, CURRENT_Z_DEPTH);
+    glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    glRotatef(alpha, 0, 1, 0);
+    // glRotatef(10, 1, 0, 0);
 
-    drawCube();
+    // drawCube();
+    drawTerrain();
     drawWater();
     alpha ++;
 
