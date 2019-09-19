@@ -93,8 +93,8 @@ void drawTerrain()
     // GLfloat xStep = (numberX) / 2.0;
     // GLfloat zStep = (numberZ) / 2.0;
 
-    GLfloat xStep = 2.0 / (numberX + 1);
-    GLfloat zStep = 2.0 / (numberZ + 1);
+    GLfloat xStep = 2.0 / (GLfloat)(numberX - 1);
+    GLfloat zStep = 2.0 / (GLfloat)(numberZ - 1);
 
     std::cout << "XSTEP: " << xStep << " ZSTEP: " << zStep << std::endl;
 
@@ -107,7 +107,8 @@ void drawTerrain()
             GLfloat y = -0.8; // change this to height map
 
             verts2[index + 0] = (x * xStep) - 1.0;
-            verts2[index + 1] = y;
+            // verts2[index + 1] = y;
+            verts2[index + 1] = x;
             verts2[index + 2] = (z * zStep) - 1.0;
 
             index += 3;
