@@ -1,4 +1,4 @@
-class Class {
+export class Class {
   public name: string;
   public parent?: string | Class;
   public children?: string[] | Class[];
@@ -8,6 +8,7 @@ class Class {
   constructor(name: string, parent?: string) {
     this.name = name;
     this.parent = parent;
+
   }
 
   public getWidth(): number {
