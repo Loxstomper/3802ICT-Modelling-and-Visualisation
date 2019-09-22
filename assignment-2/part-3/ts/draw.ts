@@ -12,10 +12,10 @@ interface IPoint {
 }
 
 export class Draw {
-  private static nameSize: number = 12;
-  private static textSize: number = 8;
-  private static maxLineLength: number = 50;
+  private static textSize: number = 14;
+  private static maxLineLength: number = 100;
   private static nameHeight: number = 20;
+  private static minXPadding: number = 20;
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -40,16 +40,23 @@ export class Draw {
   }
 
   public draw(classes: Class[]): void {
-    classes.forEach((c: Class) => {
-      this.currentX += 100;
+    classes.forEach((c: Class, index: number) => {
       this.wrapText(c);
       this.drawClass(c);
+
+      if (index > 0) {
+        this.currentX += classes[index - 1].width + Draw.minXPadding;
+      } else {
+        this.currentX += 100;
+      }
     });
   }
 
   private drawClassName(c: Class): void {
-    this.ctx.font = `bold ${Draw.nameSize}px arial`;
+    this.ctx.font = `bold ${Draw.textSize}px arial`;
     const size: TextMetrics = this.ctx.measureText(c.name);
+
+    this.ctx.strokeStyle = "black";
 
     this.ctx.beginPath();
 
@@ -57,7 +64,7 @@ export class Draw {
       this.currentX,
       this.currentY,
       c.width + 5,
-      Draw.nameSize + 10
+      Draw.textSize + 10
     );
 
     this.ctx.stroke();
@@ -71,44 +78,112 @@ export class Draw {
   }
 
   private drawClassProperties(c: Class): void {
-    this.ctx.font = `${Draw.nameSize}px arial`;
+    this.ctx.font = `${Draw.textSize}px arial`;
 
     console.log("drawing properties for ", c);
 
-    const height = Draw.nameSize * c.properties.length;
+    const height = Draw.textSize * c.properties.length;
 
-    this.ctx.beginPath();
-    this.ctx.rect(
-      this.currentX,
-      this.currentY + Draw.nameHeight,
-      c.width + 5,
-      height
-    );
-
-    this.ctx.stroke();
-
-    let y = this.currentY + Draw.nameHeight + 10;
+    // let y =
+    //   this.currentY +
+    //   Draw.nameHeight +
+    //   10 +
+    //   c.properties.length * Draw.textSize;
+    let y = c.height;
 
     c.properties.forEach((p: string) => {
       this.ctx.fillText(p, this.currentX + 5, y);
       y += Draw.textSize;
     });
+
+    this.ctx.strokeStyle = "red";
+
+    this.ctx.beginPath();
+    this.ctx.rect(
+      this.currentX,
+      this.currentY + Draw.nameHeight + 5,
+      c.width + 5,
+      height + 10
+    );
+
+    this.ctx.stroke();
+
+    c.height = y;
+  }
+
+  private drawClassMethods(c: Class): void {
+    this.ctx.font = `${Draw.textSize}px arial`;
+
+    console.log("drawing methods for for ", c);
+
+    const height = Draw.textSize * c.methods.length;
+
+    // this.ctx.beginPath();
+    // this.ctx.rect(
+    //   this.currentX,
+    //   this.currentY + Draw.nameHeight,
+    //   c.width + 5,
+    //   height
+    // );
+
+    // this.ctx.stroke();
+    this.ctx.strokeStyle = "blue";
+
+    // let y = this.currentY + Draw.nameHeight;
+    let y = this.currentY + c.height;
+
+    c.methods.forEach((m: string) => {
+      if (!m.indexOf("\n")) {
+        this.ctx.fillText(m, this.currentX + 5, y);
+      } else {
+        const lines: string[] = m.split("\n");
+
+        lines.forEach((l: string, index) => {
+          if (index === 0) {
+            this.ctx.fillText(`${l}`, this.currentX + 5, y);
+          } else {
+            this.ctx.fillText(`\t\t${l}`, this.currentX + 5, y);
+          }
+          y += Draw.textSize / 2;
+        });
+      }
+
+      y += Draw.textSize;
+    });
+
+    this.ctx.beginPath();
+    this.ctx.rect(
+      this.currentX,
+      // this.currentY + Draw.nameHeight + c.properties.length * 20,
+      // this.currentY + Draw.nameHeight + 5 + c.properties.length * 25,
+      c.height,
+      c.width + 5,
+      y - this.currentY
+    );
+
+    this.ctx.stroke();
+    c.height = y;
   }
 
   private wrapText(c: Class): void {
-    this.ctx.font = `bold ${Draw.nameSize}px arial`;
+    this.ctx.font = `bold ${Draw.textSize}px arial`;
     const size: TextMetrics = this.ctx.measureText(c.name);
 
     // width of name
     c.width = size.width;
     // height of name + padding
-    c.height = Draw.nameSize + 10;
+    c.height = Draw.textSize + 10;
 
     this.ctx.font = `${Draw.textSize}px arial`;
     if (c.properties) {
       c.height += 10;
       c.properties.forEach((p: string) => {
         const pSize: TextMetrics = this.ctx.measureText(p);
+
+        if (pSize.width > Draw.maxLineLength) {
+          console.log(`${p} is too long`);
+        }
+
         if (pSize.width > c.width) {
           c.width = pSize.width + 20;
           c.height += Draw.textSize;
@@ -118,12 +193,67 @@ export class Draw {
 
     if (c.methods) {
       c.height += 10;
-      c.methods.forEach((m: string) => {
-        const mSize: TextMetrics = this.ctx.measureText(m);
+      //   c.methods.forEach((m: string) => {
+      //     let mSize: TextMetrics = this.ctx.measureText(m);
+
+      //     let farIndex = m.length;
+
+      //     while (mSize.width > Draw.maxLineLength) {
+      //       console.log(`${m} is too long`);
+      //       // atempt to add new line character after a comma
+      //       const i = m.lastIndexOf(",", farIndex);
+      //       farIndex = i;
+
+      //       const shorter = m.slice(0, farIndex) + "\n" + m.slice(farIndex);
+      //       console.log(shorter);
+
+      //       if (farIndex === 0) {
+      //         break;
+      //       }
+      //     }
+
+      //     if (mSize.width > c.width) {
+      //       c.width = mSize.width;
+      //       c.height += Draw.textSize;
+      //     }
+      //   });
+
+      // probably going to have to draw bottom up
+      // fillText doesnt support multi line
+      c.methods = c.methods.map((m: string) => {
+        let mSize: TextMetrics = this.ctx.measureText(m);
+
+        let farIndex = m.length;
+
+        while (mSize.width > Draw.maxLineLength && farIndex !== -1) {
+          console.log(`${m} is too long`);
+          // atempt to add new line character after a comma
+          const i = m.lastIndexOf(",", farIndex);
+          farIndex = i;
+
+          m = m.slice(0, farIndex) + "\n" + m.slice(farIndex);
+
+          // update max width
+          const mSplit = m.split("\n");
+          mSplit.forEach((str: string) => {
+            if (this.ctx.measureText(str).width > c.width) {
+              c.width = this.ctx.measureText(str).width;
+            }
+          });
+
+          console.log(m);
+
+          //   if (farIndex === 0) {
+          //     break;
+          //   }
+        }
+
         if (mSize.width > c.width) {
           c.width = mSize.width;
           c.height += Draw.textSize;
         }
+
+        return m;
       });
     }
 
@@ -132,6 +262,7 @@ export class Draw {
     c.height += 10;
   }
 
+  // maybe have a position, top left offeset - similar to matrix translation
   private drawClass(c: Class): void {
     this.wrapText(c);
 
@@ -146,15 +277,22 @@ export class Draw {
       this.drawClassProperties(c);
     }
 
+    if (c.methods) {
+      this.drawClassMethods(c);
+    }
+
     if (c.children) {
       this.drawArrow({
         x: this.currentX + c.width / 2,
-        y: this.currentY + c.height
+        y: c.height
       });
     }
 
-    if (c.parent) {
-      this.drawLine({ x: this.currentX + c.width / 2, y: this.currentY });
+    if (c.parent !== undefined) {
+      this.drawLine({
+        x: this.currentX + c.width / 2,
+        y: this.currentY
+      });
     }
 
     // c.children.forEach((cc: Class) => {

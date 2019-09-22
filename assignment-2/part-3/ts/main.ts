@@ -21,7 +21,7 @@ function getInputAndDraw(): void {
   read();
   draw = new Draw(
     document.getElementById("canvas") as HTMLCanvasElement,
-    1000,
+    1200,
     400
   );
 
@@ -54,8 +54,6 @@ function read(): void {
   console.log("reading");
 
   const lines: string[] = UMLInputString.split("\n");
-
-  let currentClass: string;
 
   // iterate over all lines in input
   for (let i = 0; i < lines.length; i++) {
