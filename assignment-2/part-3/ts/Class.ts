@@ -1,13 +1,13 @@
 export class Class {
   public name: string;
-  public parent?: string | Class;
-  public children?: Class[];
+  public parent?: number;
+  public children?: number[];
   public properties?: string[];
   public methods?: string[];
   public width: number;
   public height: number;
 
-  constructor(name: string, parent?: string) {
+  constructor(name: string, parent?: number) {
     this.name = name;
     this.parent = parent;
   }

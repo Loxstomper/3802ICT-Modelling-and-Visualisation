@@ -31,7 +31,11 @@ function setup(): void {
   };
 }
 
-function inClasses(name: string): number {
+function inClasses(name: string | undefined): number {
+  if (name === undefined) {
+    return -1;
+  }
+
   for (let i: number = 0; i < classes.length; i++) {
     if (classes[i].name === name) {
       return i;
@@ -48,45 +52,53 @@ function read(): void {
 
   let currentClass: string;
 
+  // iterate over all lines in input
   for (let i = 0; i < lines.length; i++) {
+    // tokenize each line
     const tokens: string[] = lines[i].split(" ");
 
+    // if line begins with "class"
     if (tokens[0] === "class") {
-      // let cLocation = inClasses(tokens[0]);
+      // get index of parent
+      let parentIndex: number = inClasses(tokens[3]);
 
-      // if (cLocation !== -1) {
+      if (parentIndex !== -1) {
+        // initialise
+        if (!classes[parentIndex].children) {
+          classes[parentIndex].children = [];
+        }
+        // to be created class
+        classes[parentIndex].children.push(classes.length);
+      }
 
-      // }
+      // is a child but parent doesnt exist
+      if (tokens[3] && parentIndex === -1) {
+        // create the parent
+        classes.push(new Class(tokens[3]));
+        // keep track of the index
+        parentIndex = classes.length - 1;
+        // add this current class as a child of the parent
+        classes[parentIndex].children = [];
+        classes[parentIndex].children.push(classes.length);
+      }
 
-      const c: Class =
-        tokens.length === 4
-          ? new Class(tokens[1], tokens[3])
-          : new Class(tokens[1]);
+      // check if class already exists
+      const alreadyExists = inClasses(tokens[1]) !== -1;
+      const index: number | null = alreadyExists ? inClasses(tokens[1]) : null;
+      const c: Class = new Class(tokens[1]);
 
-      let parent: Class = null;
-
+      // get the properties and methods
       for (let j = i + 1; j < lines.length; j++) {
-        // if (lines[j].startsWith("class") || lines[j].startsWith(" ")) {
         if (lines[j].startsWith("class")) {
           break;
         }
 
         // check if already exists (children created it)
         // only need to update the details
-        const alreadyExists = inClasses(tokens[1]) !== -1;
 
         if (alreadyExists) {
           console.log("already created");
           continue;
-        }
-
-        // create parent if not exists
-        if (tokens.length === 4) {
-          if (inClasses(tokens[3]) === -1) {
-            classes.push(new Class(tokens[3]));
-            parent = classes[classes.length - 1];
-            parent.children = [];
-          }
         }
 
         // console.log(lines[j]);
@@ -95,56 +107,53 @@ function read(): void {
 
         // methods
         if (lines[j].includes("(")) {
-          if (!c.methods) {
-            c.methods = [];
+          // initialise arrays
+          if (alreadyExists && !classes[index].methods) {
+            classes[index].methods = [];
+          } else {
+            if (!c.methods) {
+              c.methods = [];
+            }
           }
 
-          c.methods.push(lines[j]);
+          // add to existing otherwise add to the current class
+          if (alreadyExists) {
+            classes[index].methods.push(lines[j]);
+          } else {
+            c.methods.push(lines[j]);
+          }
+
           // properties
         } else if (lines[j].includes(":")) {
-          if (!c.properties) {
-            c.properties = [];
+          // initialise arrays
+          if (alreadyExists && !classes[index].properties) {
+            classes[index].properties = [];
+          } else {
+            if (!c.properties) {
+              c.properties = [];
+            }
           }
-          // c.properties.push(lines[i + 1]);
-          c.properties.push(lines[j]);
+
+          // add to existing oetherwise add to the current class
+          if (alreadyExists) {
+            classes[index].properties.push(lines[j]);
+          } else {
+            c.properties.push(lines[j]);
+          }
         }
       }
 
-      // console.log(c);
-      // return;
-
-      // is a child
-      if (parent) {
-        c.parent = parent;
-        parent.children.push(c);
-        // is a parent
-      } else {
+      // add to array if not already existing
+      if (!alreadyExists) {
+        if (parentIndex !== -1) {
+          c.parent = parentIndex;
+        }
         classes.push(c);
       }
     }
   }
 
   console.log(classes);
-
-  //trimming
-  console.log("removing");
-
-  // probably wont work as intended...
-  const stripped: Class[] = classes.filter((value, index, self) => {
-    for (let i = 0; i < self.length; i++) {
-      if (i === index) {
-        continue;
-      }
-
-      if (self[i].name === value.name) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-
-  console.log(stripped);
 }
 
 setup();
