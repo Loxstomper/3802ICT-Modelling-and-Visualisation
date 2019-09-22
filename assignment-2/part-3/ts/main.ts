@@ -7,27 +7,32 @@ let UMLInputString: string;
 const classes: Class[] = [];
 let draw: Draw;
 
+function getInputAndDraw(): void {
+  UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
+    .value;
+
+  // wipe without destroying reference
+  classes.length = 0;
+
+  UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
+    .value;
+  console.log(UMLInputString);
+
+  read();
+  draw = new Draw(
+    document.getElementById("canvas") as HTMLCanvasElement,
+    1000,
+    400
+  );
+
+  draw.draw(classes);
+}
+
 function setup(): void {
   (document.getElementById("draw") as HTMLInputElement).onclick = (
     e: MouseEvent
   ) => {
-    UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
-      .value;
-
-    // wipe without destroying reference
-    classes.length = 0;
-
-    UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
-      .value;
-    console.log(UMLInputString);
-
-    read();
-    draw = new Draw(
-      document.getElementById("canvas") as HTMLCanvasElement,
-      1000,
-      400
-    );
-    draw.draw(classes);
+    getInputAndDraw();
   };
 }
 
@@ -93,18 +98,6 @@ function read(): void {
           break;
         }
 
-        // check if already exists (children created it)
-        // only need to update the details
-
-        if (alreadyExists) {
-          console.log("already created");
-          continue;
-        }
-
-        // console.log(lines[j]);
-
-        // console.log(lines[j]);
-
         // methods
         if (lines[j].includes("(")) {
           // initialise arrays
@@ -157,5 +150,4 @@ function read(): void {
 }
 
 setup();
-
-const x: Class = new Class("Banana", "Apple");
+getInputAndDraw();
