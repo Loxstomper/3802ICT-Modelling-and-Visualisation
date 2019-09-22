@@ -4,6 +4,8 @@ export class Class {
   public children?: Class[];
   public properties?: string[];
   public methods?: string[];
+  public width: number;
+  public height: number;
 
   constructor(name: string, parent?: string) {
     this.name = name;

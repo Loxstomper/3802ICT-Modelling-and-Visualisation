@@ -1,37 +1,11 @@
 import { Class } from "./Class";
+import { Draw } from "./draw";
 
-let UMLInputString = `
-class Banana extends Apple
--bend: double 
-+peel(): void
-
-class Date extends Eggfruit
-
-class Apple
--seeds: int
-
-class Cherry extends Apple
-
-class Eggfruit
-
-class Fig
-
-class Grape extends Fig
-
-class Honeydew extends Fig
-+wash(solvent: Solvent, howManyTimes: int, solventTemperature: double, scrubIntensity: double): void
-+dry(): void
-
-class Imbe extends Fig
-
-class Jackfruit extends Honeydew
-+slice(slices: int): void
-
-class Kiwifruit extends Cherry
-`;
+let UMLInputString: string;
 
 // maybe change to const
 const classes: Class[] = [];
+let draw: Draw;
 
 function setup(): void {
   (document.getElementById("draw") as HTMLInputElement).onclick = (
@@ -39,13 +13,22 @@ function setup(): void {
   ) => {
     UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
       .value;
+
+    // wipe without destroying reference
+    classes.length = 0;
+
+    UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
+      .value;
     console.log(UMLInputString);
+
+    read();
+    draw = new Draw(
+      document.getElementById("canvas") as HTMLCanvasElement,
+      1000,
+      400
+    );
+    draw.draw(classes);
   };
-
-  // wipe without destroying reference
-  classes.length = 0;
-
-  read();
 }
 
 function inClasses(name: string): number {
@@ -83,7 +66,8 @@ function read(): void {
       let parent: Class = null;
 
       for (let j = i + 1; j < lines.length; j++) {
-        if (lines[j].startsWith("class") || lines[j].startsWith(" ")) {
+        // if (lines[j].startsWith("class") || lines[j].startsWith(" ")) {
+        if (lines[j].startsWith("class")) {
           break;
         }
 
@@ -141,6 +125,26 @@ function read(): void {
   }
 
   console.log(classes);
+
+  //trimming
+  console.log("removing");
+
+  // probably wont work as intended...
+  const stripped: Class[] = classes.filter((value, index, self) => {
+    for (let i = 0; i < self.length; i++) {
+      if (i === index) {
+        continue;
+      }
+
+      if (self[i].name === value.name) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  console.log(stripped);
 }
 
 setup();
