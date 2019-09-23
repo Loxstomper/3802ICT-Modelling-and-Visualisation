@@ -42,12 +42,15 @@ export class Draw {
   public draw(classes: Class[]): void {
     classes.forEach((c: Class, index: number) => {
       this.wrapText(c);
-      this.drawClass(c);
 
-      if (index > 0) {
-        this.currentX += classes[index - 1].width + Draw.minXPadding;
-      } else {
-        this.currentX += 100;
+      if (!c.parent) {
+        this.drawClass(c);
+
+        if (index > 0) {
+          this.currentX += classes[index - 1].width + Draw.minXPadding;
+        } else {
+          this.currentX += 100;
+        }
       }
     });
   }

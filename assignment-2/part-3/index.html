@@ -1,27 +1,54 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>UML Drawer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>UML Drawer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" media="screen" href="css.css" />
-</head>
+  <body>
+    <div class="stuff">
+      <h1>3802ICT - Modelling and Visualisation</h1>
 
-<body>
-  <div class="stuff">
-    <h1>3802ICT - Modelling and Visualisation</h1>
+      <h2>Assignment 2 - Part 3</h2>
 
-    <h2>Assignment 2 - Part 3</h2>
+      <canvas id="canvas" style="border: solid 1px;"> </canvas>
 
-    <canvas id="canvas"> </canvas>
+      <textarea id="UML-input" style="width: 500px; height: 500px;">
+class Banana extends Apple
+-bend: double 
++peel(): void
 
-    <input id="UML-input" type="text" style="width: 500px; height: 500px;" />
-    <button id="draw">Draw</button>
+class Date extends Eggfruit
 
-  </div>
-  <script src="UML.js"></script>
-</body>
+class Apple
+-seeds: int
 
+class Cherry extends Apple
+
+class Eggfruit
+
+class Fig
+
+class Grape extends Fig
+
+class Honeydew extends Fig
++wash(solvent: Solvent, howManyTimes: int, solventTemperature: double, scrubIntensity: double): void
++dry(): void
+
+class Imbe extends Fig
+
+class Jackfruit extends Honeydew
++slice(slices: int): void
+
+class Kiwifruit extends Cherry
+</textarea
+      >
+
+      <button id="draw">Draw</button>
+    </div>
+    <script src="UML.js"></script>
+  </body>
 </html>
