@@ -4,6 +4,7 @@ import json
 import csv
 
 data = {
+    "length": 0,
     "dates": [],
     "15-24": [],
     "25-34": [],
@@ -14,6 +15,8 @@ data = {
 
 with open ("./data/filtered.csv") as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=',')
+
+    length = 0
 
     for row in csv_reader:
         # header
@@ -26,5 +29,8 @@ with open ("./data/filtered.csv") as csv_file:
         data["35-44"].append(row[3])
         data["45-54"].append(row[4])
         data["55+"].append(row[5])
+        length += 1
+
+    data["length"] = length
 
 print(json.dumps(data, indent=4))
