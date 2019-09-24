@@ -27,7 +27,7 @@ using Json = nlohmann::json;
 #define GRAPH_WIDTH 1.0
 #define GRAPH_LENGTH 1.0
 #define GRAPH_HEIGHT 1.0
-#define GRAPH_WALL_THICKNESS -0.25
+#define GRAPH_WALL_THICKNESS 0.25
 
 GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
@@ -78,30 +78,30 @@ void drawGraphAxes()
     // only update if change
     GLfloat floor[] =
         {
-            -GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, -1, GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, -1, GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, -GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, -GRAPH_LENGTH,
-            -GRAPH_WIDTH, -1, GRAPH_LENGTH,
-            -GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            GRAPH_WIDTH, GRAPH_WALL_THICKNESS, GRAPH_LENGTH,
-            GRAPH_WIDTH, -1, GRAPH_LENGTH};
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, -GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_LENGTH - GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
+            GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS};
 
     GLfloat floorColours[] =
         {
@@ -206,7 +206,7 @@ void drawGraphAxes()
     //attempt to rotate cube
     // glRotatef(alpha, 0, 1, 0);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -270,6 +270,10 @@ void drawSeries(double *series, double z, GLfloat height)
     GLfloat curX = -1;
     int vi = 0;
 
+    height *= 2;
+
+    GLfloat low = -1.0;
+
     // this will be the series value
     // GLfloat height = 1.0;
 
@@ -277,72 +281,72 @@ void drawSeries(double *series, double z, GLfloat height)
 
         // front facing
         -1,
-        0,
+        low,
         z,
         1,
-        0,
+        low,
         z,
         1,
-        height,
+        low + height,
         z,
         -1,
-        height,
+        low + height,
         z,
 
         // rear side [not really required]
         -1,
-        0,
+        low,
         z + seriesThickness,
         1,
-        0,
+        low,
         z + seriesThickness,
         1,
-        height,
+        low + height,
         z + seriesThickness,
         -1,
-        height,
+        low + height,
         z + seriesThickness,
 
         // top side
         -1,
-        height,
+        low + height,
         z,
         1,
-        height,
+        low + height,
         z,
         1,
-        height,
+        low + height,
         z + seriesThickness,
         -1,
-        height,
+        low + height,
         z + seriesThickness,
 
         // left side
         -1,
-        0,
+        low,
         z,
         -1,
-        0,
+        low,
         z + seriesThickness,
         -1,
-        height,
+        low + height,
         z + seriesThickness,
         -1,
-        height,
+        low + height,
         z,
 
         // right side
         1,
-        0,
+        low,
         z,
         1,
-        0,
+        low,
         z + seriesThickness,
         1,
-        height,
+        low + height,
         z + seriesThickness,
         1,
-        height,
+        low + height,
         z};
 
     for (int i = 0; i < graphData.length; i++)
