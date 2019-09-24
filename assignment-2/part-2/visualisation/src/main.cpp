@@ -54,6 +54,16 @@ struct data
 
 Data graphData;
 
+void drawString(float x, float y, float z, char *string) {
+  glRasterPos3f(x, y, z);
+
+  GLfloat black[] = {0, 0, 0, 1};
+glColor4fv(black);
+  for (char* c = string; *c != '\0'; c++) {
+    glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);  // Updates the position
+  }
+}
+
 /* GLUT callback Handlers */
 static void onWindowResize(int width, int height)
 {
@@ -102,126 +112,18 @@ void drawGraphAxes()
             -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
             GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
             GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS};
-
-    GLfloat floorColours[] =
-        {
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-        };
-
-    //attempt to rotate cube
-    // glRotatef(alpha, 0, 1, 0);
-
-    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    GLfloat black[] = {0, 0, 0, 1};
 
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, floor);
-    glColorPointer(4, GL_FLOAT, 0, floorColours);
 
     /* Send data : 24 vertices */
     glDrawArrays(GL_QUADS, 0, 24);
 
     /* Cleanup states */
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    // back to normal
 }
 
 void drawCube()
@@ -261,8 +163,12 @@ void drawCube()
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void drawSeries(double *series, double z, GLfloat height)
+void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
 {
+
+    // number of vertices
+    // front/back, sides, top
+    int numberVerticies = graphData.length * 4 * 2 * 4+ 8;
 
     GLfloat xStep = graphData.length / (GRAPH_LENGTH * 2);
     // GLfloat seriesThickness = graphData.length / (GRAPH_WIDTH * 2);
@@ -356,45 +262,36 @@ void drawSeries(double *series, double z, GLfloat height)
         vi += 3;
     }
 
-    GLfloat vertices[] =
-        {
-            -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1,
-            1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
-            -1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
-            -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1,
-            -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, -1,
-            -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1};
-
-    GLfloat colors[] =
-        {
-            0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0,
-            1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0,
-            0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0,
-            0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
-            0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
-            0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1};
-
     //attempt to rotate cube
     // glRotatef(alpha, 0, 1, 0);
 
+
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    // glVertexPointer(3, GL_FLOAT, 0, vertices);
     glVertexPointer(3, GL_FLOAT, 0, myVertices);
-    glColorPointer(3, GL_FLOAT, 0, colors);
+
+    glColor4fv(colour);
 
     /* Send data : 24 vertices */
-    // glDrawArrays(GL_QUADS, 0, 24);
     glDrawArrays(GL_QUADS, 0, 20);
 
     /* Cleanup states */
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 static void render(void)
 {
+    GLfloat black[] = {0, 0, 0, 1};
+
+    GLfloat yellow[] = {1, 1, 0, 1};
+    GLfloat purple[] = {0.5, 0, 0.5, 1};
+    GLfloat orange[] = {1, 0.5, 0, 1};
+    GLfloat green[] = {0, 0, 1, 1};
+    GLfloat red[] = {1, 0, 0, 1};
+    GLfloat blue[] = {0, 1, 0, 1};
+
+
+
     glClearColor(255, 253, 208, 100);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -403,6 +300,7 @@ static void render(void)
     gluPerspective(60, (double)SCREEN_WIDTH / (double)SCREEN_HEIGHT, 0.1, 100);
 
     glMatrixMode(GL_MODELVIEW_MATRIX);
+
     // glTranslatef(0, 0, -5);
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
     glTranslatef(0, 0, CURRENT_Z_DEPTH);
@@ -412,16 +310,19 @@ static void render(void)
     // wireframe mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+    drawString(0, 0, 1, "THIS IS SOME TEXT");
+
+
     drawGraphAxes();
 
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    drawSeries(graphData.series0, -1, 0.5);
-    drawSeries(graphData.series0, -0.6, 1.0);
-    drawSeries(graphData.series0, -0.2, 0.5);
-    drawSeries(graphData.series0, 0.2, 1.0);
-    drawSeries(graphData.series0, 0.6, 0.5);
+    drawSeries(graphData.series0, -1, 0.5, yellow);
+    drawSeries(graphData.series0, -0.6, 1.0, purple);
+    drawSeries(graphData.series0, -0.2, 0.5, orange);
+    drawSeries(graphData.series0, 0.2, 1.0, green);
+    drawSeries(graphData.series0, 0.6, 0.5, red);
 
     alpha++;
 
