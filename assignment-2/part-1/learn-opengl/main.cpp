@@ -12,9 +12,13 @@
 #include <GL/glx.h>
 #include <GL/glext.h>
 
+#include "json.hpp"
+
+using Json = nlohmann::json;
+
 #define SCREEN_HEIGHT_DEFAULT 800
 #define SCREEN_WIDTH_DEFAULT 800
-#define WIREFRAME true
+#define WIREFRAME false
 #define FOV 60
 #define ASPECT_RATIO SCREEN_WIDTH / SCREEN_HEIGHT
 #define NEAR_CLIPPING_PLANE 0.1
@@ -32,7 +36,12 @@ GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
 
 GLfloat CURRENT_Z_DEPTH = -5;
 
+GLfloat** heightMap;
+
 GLfloat alpha = 0;
+
+int numberX;
+int numberZ;
 
 class Point3
 {
@@ -78,8 +87,8 @@ static void onWindowResize(int width, int height)
 
 void drawTerrain()
 {
-    int numberX = 100;
-    int numberZ = 100;
+    // int numberX = 10;
+    // int numberZ = 10;
 
     int numberVertices = numberZ * numberX;
 
@@ -96,11 +105,10 @@ void drawTerrain()
     {
         for (int x = 0; x < numberX; x++)
         {
-            GLfloat y = -0.8; // change this to height map
+            GLfloat y = heightMap[x][z];
 
             terrainVerts[index + 0] = (x * xStep) - 1.0;
-            // verts2[index + 1] = y;
-            terrainVerts[index + 1] = 0.5;
+            terrainVerts[index + 1] = y;
             terrainVerts[index + 2] = (z * zStep) - 1.0;
 
             index += 3;
@@ -358,8 +366,38 @@ void glutSetup(int *argc, char **argv)
     glutMainLoop();
 }
 
+void buildHeightMap(std::string path) 
+{
+    std::ifstream file(path);
+
+    Json json;
+
+    file >> json;
+
+    // x
+    int length = json["width"].get<int>();
+    // z
+    int width = json["height"].get<int>();
+
+    numberX = length;
+    numberZ = width;
+
+    heightMap = new GLfloat*[width];
+
+    for (int i = 0; i < width; i ++) {
+        heightMap[i] = new GLfloat[length];
+
+        std::vector<GLfloat> temp = json["heightMap"][i].get<std::vector<GLfloat>>();
+        for (int j = 0; j < length; j ++)
+        {
+            heightMap[i][j] = temp[j];
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
+    buildHeightMap("data.json");
     glutSetup(&argc, argv);
 
     return EXIT_SUCCESS;

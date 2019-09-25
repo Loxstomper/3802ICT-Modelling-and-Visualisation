@@ -41,7 +41,8 @@ class TerrainGenerator:
 
     def noise(self, nx, ny):
         # 0 to self.max_height
-        return (self.simplex.noise2d(nx, ny) / 2.0 + 0.5)* self.max_height
+        # return (self.simplex.noise2d(nx, ny) / 2.0 + 0.5)* self.max_height
+        return (self.simplex.noise2d(nx, ny) / 2.0 + 0.5) * 2 - 1
 
     def json(self):
         out = OrderedDict()
@@ -53,7 +54,8 @@ class TerrainGenerator:
         out["colours"] = self.colours
         out["heightMap"] = self.height_map
 
-        return json.dumps(out, indent=4)
+        # return json.dumps(out, indent=4)
+        return json.dumps(out)
 
     def plain(self):
         out = str()
@@ -86,7 +88,7 @@ class TerrainGenerator:
 
     # def 
 
-tg = TerrainGenerator(4, 4)
+tg = TerrainGenerator(10, 10)
 print(tg.generate("json"))
 
 
