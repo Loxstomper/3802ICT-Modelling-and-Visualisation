@@ -18,7 +18,7 @@ using Json = nlohmann::json;
 
 #define SCREEN_HEIGHT_DEFAULT 800
 #define SCREEN_WIDTH_DEFAULT 800
-#define WIREFRAME false
+bool WIREFRAME = false;
 #define FOV 60
 #define ASPECT_RATIO SCREEN_WIDTH / SCREEN_HEIGHT
 #define NEAR_CLIPPING_PLANE 0.1
@@ -38,7 +38,7 @@ GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
 
 GLfloat CURRENT_Z_DEPTH = -10;
 
-GLfloat** heightMap;
+GLfloat **heightMap;
 
 GLfloat alpha = 0;
 
@@ -68,7 +68,7 @@ Point3 map[2][2] = {
     {Point3(0, 0, 0), Point3(1, 0, 0)},
     {Point3(0, 0, -1), Point3(1, 0, -1)}};
 
-void buildHeightMap(std::string path) 
+void buildHeightMap(std::string path)
 {
     std::ifstream file(path);
 
@@ -84,20 +84,21 @@ void buildHeightMap(std::string path)
     numberX = length;
     numberZ = width;
 
-    heightMap = new GLfloat*[width];
+    heightMap = new GLfloat *[width];
 
-    for (int i = 0; i < width; i ++) {
+    for (int i = 0; i < width; i++)
+    {
         heightMap[i] = new GLfloat[length];
 
         std::vector<GLfloat> temp = json["heightMap"][i].get<std::vector<GLfloat>>();
-        for (int j = 0; j < length; j ++)
+        for (int j = 0; j < length; j++)
         {
             heightMap[i][j] = temp[j];
         }
     }
 }
 
-GLfloat* getColour(GLfloat y)
+GLfloat *getColour(GLfloat y)
 {
     static GLfloat sand[] = {0.93, 0.79, 0.69, 1};
     static GLfloat grass[] = {0.48, 0.8, 0, 1};
@@ -148,9 +149,8 @@ void drawTerrain()
 
     GLfloat terrainVerts[numberVertices * 3];
 
-    GLfloat xStep = (TERRAIN_LENGTH * 2 )/ (GLfloat)(numberX - 1);
-    GLfloat zStep = (TERRAIN_WIDTH * 2 )/ (GLfloat)(numberZ - 1);
-
+    GLfloat xStep = (TERRAIN_LENGTH * 2) / (GLfloat)(numberX - 1);
+    GLfloat zStep = (TERRAIN_WIDTH * 2) / (GLfloat)(numberZ - 1);
 
     int index = 0;
 
@@ -177,7 +177,7 @@ void drawTerrain()
 
         GLfloat y = terrainVerts[i * 3 + 1];
 
-        GLfloat* colour = getColour(y / maxHeight);
+        GLfloat *colour = getColour(y / maxHeight);
 
         colors[index++] = colour[0]; // red
         colors[index++] = colour[1]; // green
@@ -209,7 +209,8 @@ void drawTerrain()
 
         index += 4;
 
-        if (index >= numberIndices) {
+        if (index >= numberIndices)
+        {
             break;
         }
     }
@@ -404,6 +405,9 @@ static void onKey(unsigned char key, int x, int y)
     case 'l':
         buildHeightMap("data.json");
         break;
+    case ' ':
+        WIREFRAME = !WIREFRAME;
+        break;
     }
     glutPostRedisplay();
 }
@@ -448,8 +452,6 @@ void glutSetup(int *argc, char **argv)
 
     glutMainLoop();
 }
-
-
 
 int main(int argc, char **argv)
 {
