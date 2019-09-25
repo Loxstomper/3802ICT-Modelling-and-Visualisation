@@ -28,19 +28,23 @@ GLfloat WATER_HEIGHT = -0.9;
 
 // GLfloat TERRAIN_WIDTH = 1.0;
 // GLfloat TERRAIN_LENGTH = 1.0;
-GLfloat TERRAIN_WIDTH = 4.0;
-GLfloat TERRAIN_LENGTH = 4.0;
+GLfloat TERRAIN_WIDTH = 10.0;
+GLfloat TERRAIN_LENGTH = 10.0;
 
 GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
 GLfloat HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2.0;
 GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
 
-GLfloat CURRENT_Z_DEPTH = -5;
+GLfloat CURRENT_Z_DEPTH = -10;
 
 GLfloat** heightMap;
 
 GLfloat alpha = 0;
+
+GLfloat up = 0;
+
+GLfloat maxHeight = 1.0;
 
 int numberX;
 int numberZ;
@@ -294,20 +298,35 @@ static void render(void)
     glMatrixMode(GL_MODELVIEW_MATRIX);
     // glTranslatef(0, 0, -5);
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
-    glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    glTranslatef(0, up, CURRENT_Z_DEPTH);
     glRotatef(alpha, 0, 1, 0);
     // glRotatef(10, 1, 0, 0);
 
     // drawCube();
     drawTerrain();
     drawWater();
-    alpha+= 0.33;
 
     glutSwapBuffers();
 }
 
 static void onSpecialKey(int key, int x, int y)
 {
+    if (key == GLUT_KEY_UP)
+    {
+        up -= 0.05;
+    }
+    if (key == GLUT_KEY_DOWN)
+    {
+        up += 0.05;
+    }
+    if (key == GLUT_KEY_LEFT)
+    {
+        alpha -= 0.5;
+    }
+    if (key == GLUT_KEY_RIGHT)
+    {
+        alpha += 0.5;
+    }
 }
 
 static void onKey(unsigned char key, int x, int y)
@@ -405,7 +424,7 @@ void buildHeightMap(std::string path)
         std::vector<GLfloat> temp = json["heightMap"][i].get<std::vector<GLfloat>>();
         for (int j = 0; j < length; j ++)
         {
-            heightMap[i][j] = temp[j];
+            heightMap[i][j] = temp[j] * maxHeight;
         }
     }
 }
