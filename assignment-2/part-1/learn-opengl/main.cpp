@@ -24,7 +24,7 @@ using Json = nlohmann::json;
 #define NEAR_CLIPPING_PLANE 0.1
 #define FAR_CLIPPING_PLANE 50000.0
 
-GLfloat WATER_HEIGHT = -0.9;
+GLfloat WATER_HEIGHT = 0;
 
 // GLfloat TERRAIN_WIDTH = 1.0;
 // GLfloat TERRAIN_LENGTH = 1.0;
@@ -68,6 +68,54 @@ Point3 map[2][2] = {
     {Point3(0, 0, 0), Point3(1, 0, 0)},
     {Point3(0, 0, -1), Point3(1, 0, -1)}};
 
+void buildHeightMap(std::string path) 
+{
+    std::ifstream file(path);
+
+    Json json;
+
+    file >> json;
+
+    // x
+    int length = json["width"].get<int>();
+    // z
+    int width = json["height"].get<int>();
+
+    numberX = length;
+    numberZ = width;
+
+    heightMap = new GLfloat*[width];
+
+    for (int i = 0; i < width; i ++) {
+        heightMap[i] = new GLfloat[length];
+
+        std::vector<GLfloat> temp = json["heightMap"][i].get<std::vector<GLfloat>>();
+        for (int j = 0; j < length; j ++)
+        {
+            heightMap[i][j] = temp[j];
+        }
+    }
+}
+
+GLfloat* getColour(GLfloat y)
+{
+    static GLfloat sand[] = {0.93, 0.79, 0.69, 1};
+    static GLfloat grass[] = {0.48, 0.8, 0, 1};
+    static GLfloat rock[] = {0.2, 0.2, 0.26, 1};
+    static GLfloat snow[] = {1, 0.98, 0.98, 1};
+
+    if (y <= 0.1)
+        return sand;
+
+    if (y <= 0.5)
+        return grass;
+
+    if (y <= 0.8)
+        return rock;
+
+    return snow;
+}
+
 /* GLUT callback Handlers */
 static void onWindowResize(int width, int height)
 {
@@ -110,7 +158,7 @@ void drawTerrain()
             GLfloat y = heightMap[x][z];
 
             terrainVerts[index + 0] = (x * xStep) - TERRAIN_LENGTH;
-            terrainVerts[index + 1] = y;
+            terrainVerts[index + 1] = y * maxHeight;
             terrainVerts[index + 2] = (z * zStep) - TERRAIN_WIDTH;
 
             index += 3;
@@ -126,21 +174,12 @@ void drawTerrain()
 
         GLfloat y = terrainVerts[i * 3 + 1];
 
-        if (y <= 0.5) 
-        {
-            colors[index++] = 0; // red
-            colors[index++] = 1; // green
-            colors[index++] = 0; // blue
-            colors[index] = 1;   // alpha
-        }
-        else 
-        {
-            colors[index++] = 1; // red
-            colors[index++] = 0; // green
-            colors[index++] = 0; // blue
-            colors[index] = 1;   // alpha
-        }
+        GLfloat* colour = getColour(y / maxHeight);
 
+        colors[index++] = colour[0]; // red
+        colors[index++] = colour[1]; // green
+        colors[index++] = colour[2]; // blue
+        colors[index] = colour[3];   // alpha
     }
 
     unsigned int numberIndices = (numberZ - 1) * (numberX - 1) * 4;
@@ -355,6 +394,9 @@ static void onKey(unsigned char key, int x, int y)
         if (WATER_HEIGHT > -1.0)
             WATER_HEIGHT -= 0.01;
         break;
+    case 'r':
+        system("../generation/terrain-generation.py > data.json");
+        buildHeightMap("data.json");
     }
     glutPostRedisplay();
 }
@@ -400,34 +442,7 @@ void glutSetup(int *argc, char **argv)
     glutMainLoop();
 }
 
-void buildHeightMap(std::string path) 
-{
-    std::ifstream file(path);
 
-    Json json;
-
-    file >> json;
-
-    // x
-    int length = json["width"].get<int>();
-    // z
-    int width = json["height"].get<int>();
-
-    numberX = length;
-    numberZ = width;
-
-    heightMap = new GLfloat*[width];
-
-    for (int i = 0; i < width; i ++) {
-        heightMap[i] = new GLfloat[length];
-
-        std::vector<GLfloat> temp = json["heightMap"][i].get<std::vector<GLfloat>>();
-        for (int j = 0; j < length; j ++)
-        {
-            heightMap[i][j] = temp[j] * maxHeight;
-        }
-    }
-}
 
 int main(int argc, char **argv)
 {
