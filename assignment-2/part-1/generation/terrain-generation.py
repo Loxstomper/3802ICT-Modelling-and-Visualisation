@@ -73,7 +73,7 @@ class TerrainGenerator:
         print(out)
 
 
-    def generate(self, freq=1, format="values"):
+    def generate(self, freq=1, octaves=1, format="values"):
         for y in range(self.height):
             for x in range(self.width):
                 nx = x  / self.width - 0.5
@@ -86,6 +86,20 @@ class TerrainGenerator:
                                         + 0.5 * self.noise(2 * freq * nx, 2 * freq * ny) \
                                         + 0.25 * self.noise(4 * freq * nx, 4 * freq * ny)
 
+                multiplier = 1
+                freq_multiplier = 1
+                value = 0
+
+                for i in range(octaves):
+                    value += multiplier * self.noise(i * freq * nx, i * freq * ny)
+
+                    multiplier /= 2
+                    freq_multiplier *= 2
+
+                
+                self.height_map[y][x] = value
+
+
         if format == "values":
             return self.height_map
         if format == "json":
@@ -96,14 +110,15 @@ class TerrainGenerator:
     # def 
 
 parser = argparse.ArgumentParser(description="Generate a height map")
-parser.add_argument('length', metavar='l', type=int, help='length')
-parser.add_argument('width', metavar='w', type=int, help='width')
-parser.add_argument('frequency', metavar='f', type=float, help='frequency')
+parser.add_argument('length', metavar='-l', type=int, help='the length of the terrain')
+parser.add_argument('width', metavar='-w', type=int, help='the width of the terrain')
+parser.add_argument('frequency', metavar='-f', type=float, help='the frequency')
+parser.add_argument('octaves', metavar='-o', type=int, help='the number of octaves')
 
 args = parser.parse_args()
 
 
 tg = TerrainGenerator(args.length, args.width)
-print(tg.generate(args.frequency, "json"))
+print(tg.generate(args.frequency, args.octaves, "json"))
 
 

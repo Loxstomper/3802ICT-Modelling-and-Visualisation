@@ -38,7 +38,7 @@ void Terrain::load(std::string path)
 
 void Terrain::generate(int length, int width, GLfloat frequency, int octaves)
 {
-    system("../generation/terrain-generation.py 400 400 10 > data.json");
+    system("../generation/terrain-generation.py 400 400 5 3 > data.json");
     this->buildHeightMap("data.json");
 }
 
