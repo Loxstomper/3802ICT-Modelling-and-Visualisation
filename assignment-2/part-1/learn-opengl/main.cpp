@@ -78,25 +78,17 @@ static void onWindowResize(int width, int height)
 
 void drawTerrain()
 {
-    int numberX = 2;
-    int numberZ = 2;
+    int numberX = 100;
+    int numberZ = 100;
 
-    int numberVerticies = numberZ * numberX;
+    int numberVertices = numberZ * numberX;
 
-    GLfloat verts2[numberVerticies * 3];
-    // GLfloat verts2[numberVerticies * 3] = {
-    //     -1, 1, -1,  0, 1, -1,   1, 1, -1,
-    //     -1, 1, 0,   0, 1, 0,    1, 1, 0,
-    //     -1, 1, 1,   0, 1, 1,    1, 1, 1,
-    // };
-
-    // GLfloat xStep = (numberX) / 2.0;
-    // GLfloat zStep = (numberZ) / 2.0;
+    GLfloat terrainVerts[numberVertices * 3];
 
     GLfloat xStep = 2.0 / (GLfloat)(numberX - 1);
     GLfloat zStep = 2.0 / (GLfloat)(numberZ - 1);
 
-    std::cout << "XSTEP: " << xStep << " ZSTEP: " << zStep << std::endl;
+    // std::cout << "XSTEP: " << xStep << " ZSTEP: " << zStep << std::endl;
 
     int index = 0;
 
@@ -106,33 +98,18 @@ void drawTerrain()
         {
             GLfloat y = -0.8; // change this to height map
 
-            verts2[index + 0] = (x * xStep) - 1.0;
+            terrainVerts[index + 0] = (x * xStep) - 1.0;
             // verts2[index + 1] = y;
-            verts2[index + 1] = x;
-            verts2[index + 2] = (z * zStep) - 1.0;
+            terrainVerts[index + 1] = 0.5;
+            terrainVerts[index + 2] = (z * zStep) - 1.0;
 
             index += 3;
         }
     }
 
-    // GLfloat vertices[numberVerticies * 3] =
-    // {
-    //     -1, 0, 1,   -1, -1, -1,
-    //     1, 0, -1,    1, 1, 1
-    // };
+    GLfloat colors[numberVertices * 4];
 
-    // 2x2
-    // GLfloat vertices[numberVerticies * 3] =
-    // {
-    //    -1, 0, -1,   0, -1, -1 ,  0, -1, 0,    -1, -1, 0,  // square 0
-    //    0, -1, -1,    1, -1, -1 ,  1, -1, 0,    0, -1, 0,   // square 1
-    //    -1, -1, 0,    0, -1, 0 ,   0, -1, 1,    -1, 1, 1,  // square 2
-    //    0, -1, 0,     1, -1, 0 ,   1, -1, 1,    0, -1, 1,   // square 1
-    // };
-
-    GLfloat colors[numberVerticies * 4];
-
-    for (int i = 0; i <= numberVerticies; i++)
+    for (int i = 0; i <= numberVertices; i++)
     {
         // 4 values per colour
         int index = i * 4;
@@ -142,22 +119,13 @@ void drawTerrain()
         colors[index] = 1;   // alpha
     }
 
-    int numberIndicies = (numberZ - 1) * (numberX - 1) * 4;
-    unsigned int indicies[numberIndicies];
-
-    // unsigned int indicies[numberIndicies] = {
-    //     0, 1, 4, 3,
-    //     1, 2, 5, 4,
-    //     3, 4, 7, 6,
-    //     4, 5, 8, 7
-    // };
+    unsigned int numberIndices = (numberZ - 1) * (numberX - 1) * 4;
+    unsigned int indicies[numberIndices];
 
     int count = 0;
-    int xyz = 0;
-    // for (int i = 0; i < numberIndicies; i ++)
-    // for (int i = 0; i < numberVerticies; i ++)
-    // for (int i = 0; i <  numberX * 2; i ++)
-    for (int i = 0; i < numberIndicies; i++)
+    index = 0;
+
+    for (int i = 0; i < numberIndices; i++)
     {
         count++;
         if (count == numberX)
@@ -165,44 +133,29 @@ void drawTerrain()
             count = 0;
             continue;
         }
-        // if (i != 0 && i % (numberX - 1) == 0)
-        //     continue;
 
-        std::cout << "I: " << i << std::endl;
+        // std::cout << "I: " << i << std::endl;
 
-        // indicies[xyz++] = i;
-        // indicies[xyz++] = i + 1;
-        // indicies[xyz++] = i + numberX;
-        // indicies[xyz++] = i + numberX - 1;
+        indicies[index + 0] = i;
+        indicies[index + 1] = i + 1;
+        indicies[index + 2] = i + numberX + 1;
+        indicies[index + 3] = i + numberX;
 
-        indicies[xyz + 0] = i;
-        indicies[xyz + 1] = i + 1;
-        indicies[xyz + 2] = i + numberX + 1;
-        indicies[xyz + 3] = i + numberX;
+        index += 4;
 
-        xyz += 4;
+        if (index >= numberIndices) {
+            break;
+        }
     }
 
-    for (int i = 0; i < numberIndicies; i++)
-    {
-        if (i != 0 && i % 4 == 0)
-            std::cout << "\n";
-        std::cout << indicies[i] << ", ";
-    }
-
-    std::cout << std::endl;
-
-    // unsigned int indicies[numberIndicies] = {
-    //     0, 1, 2, 3
-    // };
-
-    // for (unsigned int i = 0; i < numberIndicies / 4; i += 4)
+    // for (int i = 0; i < numberIndices; i++)
     // {
-    //     indicies[i] = i;
-    //     indicies[i + 1] = i + 1;
-    //     indicies[i + 2] = i + numberX;
-    //     indicies[i + 3] = i + numberX - 1;
+    //     if (i != 0 && i % 4 == 0)
+    //         std::cout << "\n";
+    //     std::cout << indicies[i] << ", ";
     // }
+
+    // std::cout << std::endl;
 
     if (WIREFRAME)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -210,11 +163,11 @@ void drawTerrain()
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     // glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glVertexPointer(3, GL_FLOAT, 0, verts2);
+    glVertexPointer(3, GL_FLOAT, 0, terrainVerts);
     glColorPointer(4, GL_FLOAT, 0, colors);
 
     // draw the quads
-    glDrawElements(GL_QUADS, numberIndicies, GL_UNSIGNED_INT, indicies);
+    glDrawElements(GL_QUADS, numberIndices, GL_UNSIGNED_INT, indicies);
 
     if (WIREFRAME)
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -255,120 +208,20 @@ void drawWater()
             TERRAIN_WIDTH, WATER_HEIGHT, TERRAIN_LENGTH,
             TERRAIN_WIDTH, -1, TERRAIN_LENGTH};
 
-    GLfloat colors[] =
-        {
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-            0,
-            0,
-            1,
-            0.5,
-        };
-
+    GLfloat color[] = {0, 0, 1, 0.5};
     //attempt to rotate cube
     // glRotatef(alpha, 0, 1, 0);
 
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(4, GL_FLOAT, 0, colors);
+
+    glColor4fv(color);
 
     /* Send data : 24 vertices */
     glDrawArrays(GL_QUADS, 0, 24);
 
     /* Cleanup states */
-    glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -428,7 +281,7 @@ static void render(void)
     // drawCube();
     drawWater();
     drawTerrain();
-    alpha++;
+    alpha+= 0.33;
 
     glutSwapBuffers();
 }
