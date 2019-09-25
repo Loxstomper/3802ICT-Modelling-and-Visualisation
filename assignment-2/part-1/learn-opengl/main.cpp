@@ -26,8 +26,10 @@ using Json = nlohmann::json;
 
 GLfloat WATER_HEIGHT = -0.9;
 
-GLfloat TERRAIN_WIDTH = 1.0;
-GLfloat TERRAIN_LENGTH = 1.0;
+// GLfloat TERRAIN_WIDTH = 1.0;
+// GLfloat TERRAIN_LENGTH = 1.0;
+GLfloat TERRAIN_WIDTH = 4.0;
+GLfloat TERRAIN_LENGTH = 4.0;
 
 GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
@@ -87,17 +89,13 @@ static void onWindowResize(int width, int height)
 
 void drawTerrain()
 {
-    // int numberX = 10;
-    // int numberZ = 10;
-
     int numberVertices = numberZ * numberX;
 
     GLfloat terrainVerts[numberVertices * 3];
 
-    GLfloat xStep = 2.0 / (GLfloat)(numberX - 1);
-    GLfloat zStep = 2.0 / (GLfloat)(numberZ - 1);
+    GLfloat xStep = (TERRAIN_LENGTH * 2 )/ (GLfloat)(numberX - 1);
+    GLfloat zStep = (TERRAIN_WIDTH * 2 )/ (GLfloat)(numberZ - 1);
 
-    // std::cout << "XSTEP: " << xStep << " ZSTEP: " << zStep << std::endl;
 
     int index = 0;
 
@@ -107,9 +105,9 @@ void drawTerrain()
         {
             GLfloat y = heightMap[x][z];
 
-            terrainVerts[index + 0] = (x * xStep) - 1.0;
+            terrainVerts[index + 0] = (x * xStep) - TERRAIN_LENGTH;
             terrainVerts[index + 1] = y;
-            terrainVerts[index + 2] = (z * zStep) - 1.0;
+            terrainVerts[index + 2] = (z * zStep) - TERRAIN_WIDTH;
 
             index += 3;
         }
@@ -117,14 +115,28 @@ void drawTerrain()
 
     GLfloat colors[numberVertices * 4];
 
-    for (int i = 0; i <= numberVertices; i++)
+    for (int i = 0; i < numberVertices; i++)
     {
         // 4 values per colour
         int index = i * 4;
-        colors[index++] = 0; // red
-        colors[index++] = 1; // green
-        colors[index++] = 0; // blue
-        colors[index] = 1;   // alpha
+
+        GLfloat y = terrainVerts[i * 3 + 1];
+
+        if (y <= 0.5) 
+        {
+            colors[index++] = 0; // red
+            colors[index++] = 1; // green
+            colors[index++] = 0; // blue
+            colors[index] = 1;   // alpha
+        }
+        else 
+        {
+            colors[index++] = 1; // red
+            colors[index++] = 0; // green
+            colors[index++] = 0; // blue
+            colors[index] = 1;   // alpha
+        }
+
     }
 
     unsigned int numberIndices = (numberZ - 1) * (numberX - 1) * 4;
@@ -287,8 +299,8 @@ static void render(void)
     // glRotatef(10, 1, 0, 0);
 
     // drawCube();
-    drawWater();
     drawTerrain();
+    drawWater();
     alpha+= 0.33;
 
     glutSwapBuffers();
@@ -362,6 +374,9 @@ void glutSetup(int *argc, char **argv)
     glDepthFunc(GL_LEQUAL);
     glDisable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glutMainLoop();
 }

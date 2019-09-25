@@ -88,7 +88,7 @@ class TerrainGenerator:
 
     # def 
 
-tg = TerrainGenerator(10, 10)
+tg = TerrainGenerator(400,400)
 print(tg.generate("json"))
 
 
