@@ -122,6 +122,9 @@ static void onWindowResize(int width, int height)
     SCREEN_HEIGHT = height;
     SCREEN_WIDTH = width;
 
+    // TERRAIN_WIDTH = SCREEN_WIDTH / 2;
+    // TERRAIN_LENGTH = SCREEN_HEIGHT / 2;
+
     // glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     // glMatrixMode(GL_PROJECTION);
     // glLoadIdentity();
@@ -395,8 +398,12 @@ static void onKey(unsigned char key, int x, int y)
             WATER_HEIGHT -= 0.01;
         break;
     case 'r':
-        system("../generation/terrain-generation.py > data.json");
+        system("../generation/terrain-generation.py 400 400 2 > data.json");
         buildHeightMap("data.json");
+        break;
+    case 'l':
+        buildHeightMap("data.json");
+        break;
     }
     glutPostRedisplay();
 }

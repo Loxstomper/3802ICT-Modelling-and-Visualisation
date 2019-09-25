@@ -1,5 +1,6 @@
 #!/bin/python3
 import json
+import argparse
 from opensimplex import OpenSimplex
 from random import randrange
 from collections import OrderedDict
@@ -72,12 +73,18 @@ class TerrainGenerator:
         print(out)
 
 
-    def generate(self, format="values"):
+    def generate(self, freq=1, format="values"):
         for y in range(self.height):
             for x in range(self.width):
                 nx = x  / self.width - 0.5
                 ny = y / self.height - 0.5
-                self.height_map[y][x] = self.noise(nx, ny)
+                # self.height_map[y][x] = self.noise(freq * nx, freq * ny)
+                # self.height_map[y][x] = self.noise(x, y)
+
+                # octaves
+                self.height_map[y][x] = 1 * self.noise(freq * nx, freq * ny) \
+                                        + 0.5 * self.noise(2 * freq * nx, 2 * freq * ny) \
+                                        + 0.25 * self.noise(4 * freq * nx, 4 * freq * ny)
 
         if format == "values":
             return self.height_map
@@ -88,7 +95,15 @@ class TerrainGenerator:
 
     # def 
 
-tg = TerrainGenerator(400,400)
-print(tg.generate("json"))
+parser = argparse.ArgumentParser(description="Generate a height map")
+parser.add_argument('length', metavar='l', type=int, help='length')
+parser.add_argument('width', metavar='w', type=int, help='width')
+parser.add_argument('frequency', metavar='f', type=float, help='frequency')
+
+args = parser.parse_args()
+
+
+tg = TerrainGenerator(args.length, args.width)
+print(tg.generate(args.frequency, "json"))
 
 
