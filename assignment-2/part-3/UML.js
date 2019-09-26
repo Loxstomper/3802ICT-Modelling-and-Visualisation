@@ -37,92 +37,110 @@ var Draw = /** @class */ (function () {
         this.currentX = horizontalPadding;
         this.currentY = verticalPadding;
     }
+    /**
+     * Creates a UML diagram from the classes
+     *
+     * @param classes the classes to be drawn
+     */
     Draw.prototype.draw = function (classes) {
         var _this = this;
-        classes.forEach(function (c, index) {
+        if (!classes) {
+            return;
+        }
+        // first wrap text and calculating bounding boxes
+        this.classes = classes;
+        classes.forEach(function (c) {
             _this.wrapText(c);
-            if (!c.parent) {
-                _this.drawClass(c);
+        });
+        var x = 10;
+        var startY = 10;
+        classes.forEach(function (c, index) {
+            // only draw top level classes
+            if (c.parent === undefined) {
+                _this.drawClass(x, startY, c);
                 if (index > 0) {
-                    _this.currentX += classes[index - 1].width + Draw.minXPadding;
+                    x += classes[index - 1].width + Draw.minClassHorizontalPadding;
+                    // calculate the max width of the class before [children included]
+                    // this is the bounding box
                 }
                 else {
-                    _this.currentX += 100;
+                    x += 200;
                 }
             }
         });
+        this.classes = undefined;
     };
-    Draw.prototype.drawClassName = function (c) {
+    Draw.prototype.drawClassName = function (x, y, c) {
         this.ctx.font = "bold " + Draw.textSize + "px arial";
         var size = this.ctx.measureText(c.name);
         this.ctx.strokeStyle = "black";
         this.ctx.beginPath();
-        this.ctx.rect(this.currentX, this.currentY, c.width + 5, Draw.textSize + 10);
+        this.ctx.rect(
+        // this.currentX,
+        // this.currentY,
+        x, y, c.width + 5, Draw.textSize + 10);
+        c.height = y + Draw.textSize + 10;
         this.ctx.stroke();
-        this.ctx.fillText(c.name, 
-        //   this.currentX + size.width / 2,
-        this.currentX + c.width / 2 - size.width / 2 + 2.5, this.currentY + 15);
+        this.ctx.fillText(c.name, x + c.width / 2 - size.width / 2 + 2.5, y + 15);
     };
-    Draw.prototype.drawClassProperties = function (c) {
+    Draw.prototype.drawClassProperties = function (x, y, c) {
         var _this = this;
         this.ctx.font = Draw.textSize + "px arial";
         console.log("drawing properties for ", c);
-        var height = Draw.textSize * c.properties.length;
-        // let y =
-        //   this.currentY +
-        //   Draw.nameHeight +
-        //   10 +
-        //   c.properties.length * Draw.textSize;
-        var y = c.height;
-        c.properties.forEach(function (p) {
-            _this.ctx.fillText(p, _this.currentX + 5, y);
+        // c.height = Draw.textSize * c.properties.length;
+        // c.properties.forEach((p: string) => {
+        //   this.ctx.fillText(p, x + 5, y + 5);
+        //   y += Draw.textSize;
+        // });
+        c.properties.forEach(function (p, index) {
+            _this.ctx.fillText(p, x + Draw.textHorizontalPadding, y + (index * Draw.textSize) + 5);
             y += Draw.textSize;
         });
         this.ctx.strokeStyle = "red";
         this.ctx.beginPath();
-        this.ctx.rect(this.currentX, this.currentY + Draw.nameHeight + 5, c.width + 5, height + 10);
-        this.ctx.stroke();
+        this.ctx.rect(
+        // this.currentX,
+        // this.currentY + Draw.nameHeight + 5,
+        x, c.height, c.width + Draw.textHorizontalPadding, y - c.height);
         c.height = y;
+        this.ctx.stroke();
     };
-    Draw.prototype.drawClassMethods = function (c) {
+    /**
+     * Draw the class methods
+     *
+     * @param x x position
+     * @param y y position
+     * @param c class
+     */
+    Draw.prototype.drawClassMethods = function (x, y, c) {
         var _this = this;
         this.ctx.font = Draw.textSize + "px arial";
         console.log("drawing methods for for ", c);
-        var height = Draw.textSize * c.methods.length;
-        // this.ctx.beginPath();
-        // this.ctx.rect(
-        //   this.currentX,
-        //   this.currentY + Draw.nameHeight,
-        //   c.width + 5,
-        //   height
-        // );
-        // this.ctx.stroke();
         this.ctx.strokeStyle = "blue";
-        // let y = this.currentY + Draw.nameHeight;
-        var y = this.currentY + c.height;
         c.methods.forEach(function (m) {
-            if (!m.indexOf("\n")) {
-                _this.ctx.fillText(m, _this.currentX + 5, y);
+            // draw normally if no new line characters
+            if (m.indexOf("\n") === -1) {
+                _this.ctx.fillText(m, x + 5, y + 5);
             }
             else {
+                // split on new line character
                 var lines = m.split("\n");
+                // draw each line
                 lines.forEach(function (l, index) {
+                    // dont indent
                     if (index === 0) {
-                        _this.ctx.fillText("" + l, _this.currentX + 5, y);
+                        _this.ctx.fillText("" + l, x + 5, y + 5);
                     }
                     else {
-                        _this.ctx.fillText("\t\t" + l, _this.currentX + 5, y);
+                        _this.ctx.fillText("\t\t" + l, x + 5, y + 5);
                     }
-                    y += Draw.textSize / 2;
+                    y += Draw.textSize;
                 });
             }
             y += Draw.textSize;
         });
         this.ctx.beginPath();
-        this.ctx.rect(this.currentX, 
-        // this.currentY + Draw.nameHeight + c.properties.length * 20,
-        // this.currentY + Draw.nameHeight + 5 + c.properties.length * 25,
-        c.height, c.width + 5, y - this.currentY);
+        this.ctx.rect(x, c.height, c.width + 5, y - c.height);
         this.ctx.stroke();
         c.height = y;
     };
@@ -204,36 +222,42 @@ var Draw = /** @class */ (function () {
         c.height += 10;
     };
     // maybe have a position, top left offeset - similar to matrix translation
-    Draw.prototype.drawClass = function (c) {
-        this.wrapText(c);
-        // this.ctx.fillText(
-        //   c.name,
-        //   this.currentX + horizontalPadding,
-        //   this.currentY + horizontalPadding
-        // );
-        // this.currentX += horizontalPadding + minimumX;
-        this.drawClassName(c);
+    Draw.prototype.drawClass = function (x, y, c) {
+        var _this = this;
+        // DRAW MAIN CLASS
+        this.drawClassName(x, y, c);
         if (c.properties) {
-            this.drawClassProperties(c);
+            this.drawClassProperties(x, y + c.height, c);
         }
         if (c.methods) {
-            this.drawClassMethods(c);
+            this.drawClassMethods(x, y + c.height, c);
         }
         if (c.children) {
             this.drawArrow({
-                x: this.currentX + c.width / 2,
+                x: x + c.width / 2,
                 y: c.height
             });
         }
         if (c.parent !== undefined) {
             this.drawLine({
-                x: this.currentX + c.width / 2,
-                y: this.currentY
+                x: x + c.width / 2,
+                y: y
             });
         }
-        // c.children.forEach((cc: Class) => {
-        //   this.drawClass(cc);
-        // });
+        var originalX = x;
+        // DRAW CHILDREN
+        if (c.children) {
+            c.children.forEach(function (ci, index) {
+                var childX = x;
+                if (index > 0) {
+                    childX += _this.classes[index - 1].width + Draw.minClassHorizontalPadding;
+                }
+                // const childX = x + c.width - this.classes[ci].width;
+                var childY = y + c.height + 20;
+                // use the previous child width
+                _this.drawClass(childX, childY, _this.classes[ci]);
+            });
+        }
     };
     Draw.prototype.drawArrow = function (point) {
         var arrowHeight = 20;
@@ -259,7 +283,8 @@ var Draw = /** @class */ (function () {
     Draw.textSize = 14;
     Draw.maxLineLength = 100;
     Draw.nameHeight = 20;
-    Draw.minXPadding = 20;
+    Draw.minClassHorizontalPadding = 20;
+    Draw.textHorizontalPadding = 5;
     return Draw;
 }());
 exports.Draw = Draw;

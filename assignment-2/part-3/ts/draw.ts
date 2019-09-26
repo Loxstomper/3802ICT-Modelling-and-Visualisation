@@ -15,7 +15,8 @@ export class Draw {
   private static textSize: number = 14;
   private static maxLineLength: number = 100;
   private static nameHeight: number = 20;
-  private static minXPadding: number = 20;
+  private static minClassHorizontalPadding: number = 20;
+  private static textHorizontalPadding: number = 5;
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -25,6 +26,8 @@ export class Draw {
 
   private currentX: number = 0;
   private currentY: number = 0;
+
+  private classes: Class[] | undefined;
 
   constructor(canvas: HTMLCanvasElement, width: number, height: number) {
     this.canvas = canvas;
@@ -39,23 +42,47 @@ export class Draw {
     this.currentY = verticalPadding;
   }
 
+  /**
+   * Creates a UML diagram from the classes
+   * 
+   * @param classes the classes to be drawn
+   */
   public draw(classes: Class[]): void {
-    classes.forEach((c: Class, index: number) => {
-      this.wrapText(c);
+    if (!classes) {
+      return;
+    }
 
-      if (!c.parent) {
-        this.drawClass(c);
+    // first wrap text and calculating bounding boxes
+    this.classes = classes;
+    classes.forEach((c: Class) => {
+      this.wrapText(c);
+    });
+
+    let x: number = 10;
+    const startY: number = 10;
+
+
+    classes.forEach((c: Class, index: number) => {
+
+      // only draw top level classes
+      if (c.parent === undefined) {
+        this.drawClass(x, startY, c);
 
         if (index > 0) {
-          this.currentX += classes[index - 1].width + Draw.minXPadding;
+          x += classes[index - 1].width + Draw.minClassHorizontalPadding;
+
+          // calculate the max width of the class before [children included]
+          // this is the bounding box
         } else {
-          this.currentX += 100;
+          x += 200;
         }
       }
     });
+
+    this.classes = undefined;
   }
 
-  private drawClassName(c: Class): void {
+  private drawClassName(x: number, y: number, c: Class): void {
     this.ctx.font = `bold ${Draw.textSize}px arial`;
     const size: TextMetrics = this.ctx.measureText(c.name);
 
@@ -64,38 +91,39 @@ export class Draw {
     this.ctx.beginPath();
 
     this.ctx.rect(
-      this.currentX,
-      this.currentY,
+      // this.currentX,
+      // this.currentY,
+      x,
+      y,
       c.width + 5,
       Draw.textSize + 10
     );
+
+    c.height = y + Draw.textSize + 10;
 
     this.ctx.stroke();
 
     this.ctx.fillText(
       c.name,
-      //   this.currentX + size.width / 2,
-      this.currentX + c.width / 2 - size.width / 2 + 2.5,
-      this.currentY + 15
+      x + c.width / 2 - size.width / 2 + 2.5,
+      y + 15
     );
   }
 
-  private drawClassProperties(c: Class): void {
+  private drawClassProperties(x: number, y: number, c: Class): void {
     this.ctx.font = `${Draw.textSize}px arial`;
 
     console.log("drawing properties for ", c);
 
-    const height = Draw.textSize * c.properties.length;
+    // c.height = Draw.textSize * c.properties.length;
 
-    // let y =
-    //   this.currentY +
-    //   Draw.nameHeight +
-    //   10 +
-    //   c.properties.length * Draw.textSize;
-    let y = c.height;
+    // c.properties.forEach((p: string) => {
+    //   this.ctx.fillText(p, x + 5, y + 5);
+    //   y += Draw.textSize;
+    // });
 
-    c.properties.forEach((p: string) => {
-      this.ctx.fillText(p, this.currentX + 5, y);
+    c.properties.forEach((p: string, index: number) => {
+      this.ctx.fillText(p, x + Draw.textHorizontalPadding, y + (index * Draw.textSize) + 5);
       y += Draw.textSize;
     });
 
@@ -103,51 +131,52 @@ export class Draw {
 
     this.ctx.beginPath();
     this.ctx.rect(
-      this.currentX,
-      this.currentY + Draw.nameHeight + 5,
-      c.width + 5,
-      height + 10
+      // this.currentX,
+      // this.currentY + Draw.nameHeight + 5,
+      x,
+      c.height,
+      c.width + Draw.textHorizontalPadding,
+      y - c.height
     );
+
+    c.height = y;
 
     this.ctx.stroke();
 
-    c.height = y;
   }
 
-  private drawClassMethods(c: Class): void {
+  /**
+   * Draw the class methods
+   * 
+   * @param x x position
+   * @param y y position
+   * @param c class
+   */
+  private drawClassMethods(x: number, y: number, c: Class): void {
     this.ctx.font = `${Draw.textSize}px arial`;
 
     console.log("drawing methods for for ", c);
 
-    const height = Draw.textSize * c.methods.length;
-
-    // this.ctx.beginPath();
-    // this.ctx.rect(
-    //   this.currentX,
-    //   this.currentY + Draw.nameHeight,
-    //   c.width + 5,
-    //   height
-    // );
-
-    // this.ctx.stroke();
     this.ctx.strokeStyle = "blue";
 
-    // let y = this.currentY + Draw.nameHeight;
-    let y = this.currentY + c.height;
-
     c.methods.forEach((m: string) => {
-      if (!m.indexOf("\n")) {
-        this.ctx.fillText(m, this.currentX + 5, y);
-      } else {
+      // draw normally if no new line characters
+      if (m.indexOf("\n") === -1) {
+        this.ctx.fillText(m, x + 5, y + 5);
+      }
+      else {
+        // split on new line character
         const lines: string[] = m.split("\n");
 
+        // draw each line
         lines.forEach((l: string, index) => {
+          // dont indent
           if (index === 0) {
-            this.ctx.fillText(`${l}`, this.currentX + 5, y);
+            this.ctx.fillText(`${l}`, x + 5, y + 5);
           } else {
-            this.ctx.fillText(`\t\t${l}`, this.currentX + 5, y);
+            this.ctx.fillText(`\t\t${l}`, x + 5, y + 5);
           }
-          y += Draw.textSize / 2;
+          y += Draw.textSize;
         });
       }
 
@@ -156,12 +185,10 @@ export class Draw {
 
     this.ctx.beginPath();
     this.ctx.rect(
-      this.currentX,
-      // this.currentY + Draw.nameHeight + c.properties.length * 20,
-      // this.currentY + Draw.nameHeight + 5 + c.properties.length * 25,
+      x,
       c.height,
       c.width + 5,
-      y - this.currentY
+      y - c.height
     );
 
     this.ctx.stroke();
@@ -266,41 +293,54 @@ export class Draw {
   }
 
   // maybe have a position, top left offeset - similar to matrix translation
-  private drawClass(c: Class): void {
-    this.wrapText(c);
+  private drawClass(x: number, y: number, c: Class): void {
 
-    // this.ctx.fillText(
-    //   c.name,
-    //   this.currentX + horizontalPadding,
-    //   this.currentY + horizontalPadding
-    // );
-    // this.currentX += horizontalPadding + minimumX;
-    this.drawClassName(c);
+    // DRAW MAIN CLASS
+    this.drawClassName(x, y, c);
     if (c.properties) {
-      this.drawClassProperties(c);
+      this.drawClassProperties(x, y + c.height, c);
     }
 
     if (c.methods) {
-      this.drawClassMethods(c);
+      this.drawClassMethods(x, y + c.height, c);
     }
 
     if (c.children) {
       this.drawArrow({
-        x: this.currentX + c.width / 2,
+        x: x + c.width / 2,
         y: c.height
       });
     }
 
     if (c.parent !== undefined) {
       this.drawLine({
-        x: this.currentX + c.width / 2,
-        y: this.currentY
+        x: x + c.width / 2,
+        y: y
       });
     }
 
-    // c.children.forEach((cc: Class) => {
-    //   this.drawClass(cc);
-    // });
+    const originalX: number = x;
+
+    // DRAW CHILDREN
+    if (c.children) {
+      c.children.forEach((ci: number, index: number) => {
+
+        let childX = x;
+
+        if (index > 0) {
+          childX += this.classes[index - 1].width + Draw.minClassHorizontalPadding;
+        }
+        // const childX = x + c.width - this.classes[ci].width;
+        const childY = y + c.height + 20;
+
+        // use the previous child width
+
+
+
+        this.drawClass(childX, childY, this.classes[ci]);
+
+      });
+    }
   }
 
   private drawArrow(point: IPoint): void {
