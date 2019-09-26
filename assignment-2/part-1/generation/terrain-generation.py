@@ -78,24 +78,11 @@ class TerrainGenerator:
             for x in range(self.width):
                 nx = x  / self.width - 0.5
                 ny = y / self.height - 0.5
-                # self.height_map[y][x] = self.noise(freq * nx, freq * ny)
-                # self.height_map[y][x] = self.noise(x, y)
 
-                # octaves
-                self.height_map[y][x] = 1 * self.noise(freq * nx, freq * ny) \
-                                        + 0.5 * self.noise(2 * freq * nx, 2 * freq * ny) \
-                                        + 0.25 * self.noise(4 * freq * nx, 4 * freq * ny)
-
-                multiplier = 1
-                freq_multiplier = 1
                 value = 0
 
                 for i in range(octaves):
-                    value += multiplier * self.noise(i * freq * nx, i * freq * ny)
-
-                    multiplier /= 2
-                    freq_multiplier *= 2
-
+                    value += (1 / (2 ** i)) * self.noise((2 ** i) * freq * nx, (2 ** i) * freq * ny)
                 
                 self.height_map[y][x] = value
 
