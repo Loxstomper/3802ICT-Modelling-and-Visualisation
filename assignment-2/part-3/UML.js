@@ -64,7 +64,20 @@ var Draw = /** @class */ (function () {
                     // this is the bounding box
                 }
                 else {
-                    x += 200;
+                    // change this to bounding box method
+                    var parentWidth = c.width + Draw.minClassHorizontalPadding;
+                    var sumChildrenWidth_1 = 0;
+                    if (c.children) {
+                        c.children.forEach(function (child) {
+                            sumChildrenWidth_1 +=
+                                _this.classes[child].width + Draw.minClassHorizontalPadding;
+                        });
+                    }
+                    x =
+                        parentWidth > sumChildrenWidth_1
+                            ? x + parentWidth
+                            : x + sumChildrenWidth_1;
+                    // x += 200;
                 }
             }
         });
@@ -92,18 +105,21 @@ var Draw = /** @class */ (function () {
         //   this.ctx.fillText(p, x + 5, y + 5);
         //   y += Draw.textSize;
         // });
+        var originalY = y;
         c.properties.forEach(function (p, index) {
-            _this.ctx.fillText(p, x + Draw.textHorizontalPadding, y + (index * Draw.textSize) + 5);
+            _this.ctx.fillText(p, x + Draw.textHorizontalPadding, 
+            // y + index * Draw.textSize + 5
+            c.height + index * Draw.textSize + 10
+            // y
+            );
             y += Draw.textSize;
         });
-        this.ctx.strokeStyle = "red";
         this.ctx.beginPath();
-        this.ctx.rect(
-        // this.currentX,
-        // this.currentY + Draw.nameHeight + 5,
-        x, c.height, c.width + Draw.textHorizontalPadding, y - c.height);
+        this.ctx.rect(x, c.height, c.width + Draw.textHorizontalPadding, y - originalY);
+        // c.height = y - originalY;
         c.height = y;
         this.ctx.stroke();
+        console.log(c);
     };
     /**
      * Draw the class methods
@@ -116,11 +132,13 @@ var Draw = /** @class */ (function () {
         var _this = this;
         this.ctx.font = Draw.textSize + "px arial";
         console.log("drawing methods for for ", c);
-        this.ctx.strokeStyle = "blue";
-        c.methods.forEach(function (m) {
+        var originalY = y;
+        y += 15;
+        c.methods.forEach(function (m, i) {
             // draw normally if no new line characters
             if (m.indexOf("\n") === -1) {
-                _this.ctx.fillText(m, x + 5, y + 5);
+                // this.ctx.fillText(m, x + 5, y + 5);
+                _this.ctx.fillText(m, x + 5, y + i * 5);
             }
             else {
                 // split on new line character
@@ -130,6 +148,7 @@ var Draw = /** @class */ (function () {
                     // dont indent
                     if (index === 0) {
                         _this.ctx.fillText("" + l, x + 5, y + 5);
+                        // this.ctx.fillText(`${l}`, x + 5, y + 5);
                     }
                     else {
                         _this.ctx.fillText("\t\t" + l, x + 5, y + 5);
@@ -140,18 +159,19 @@ var Draw = /** @class */ (function () {
             y += Draw.textSize;
         });
         this.ctx.beginPath();
-        this.ctx.rect(x, c.height, c.width + 5, y - c.height);
+        this.ctx.rect(x, c.height, c.width + Draw.textHorizontalPadding, y - originalY);
         this.ctx.stroke();
         c.height = y;
     };
     Draw.prototype.wrapText = function (c) {
         var _this = this;
         this.ctx.font = "bold " + Draw.textSize + "px arial";
-        var size = this.ctx.measureText(c.name);
-        // width of name
-        c.width = size.width;
+        var nameSize = this.ctx.measureText(c.name);
+        // to start with make the width of the box equal to the name
+        c.width = nameSize.width;
         // height of name + padding
         c.height = Draw.textSize + 10;
+        // change font to the normal font
         this.ctx.font = Draw.textSize + "px arial";
         if (c.properties) {
             c.height += 10;
@@ -168,69 +188,75 @@ var Draw = /** @class */ (function () {
         }
         if (c.methods) {
             c.height += 10;
-            //   c.methods.forEach((m: string) => {
-            //     let mSize: TextMetrics = this.ctx.measureText(m);
-            //     let farIndex = m.length;
-            //     while (mSize.width > Draw.maxLineLength) {
-            //       console.log(`${m} is too long`);
-            //       // atempt to add new line character after a comma
-            //       const i = m.lastIndexOf(",", farIndex);
-            //       farIndex = i;
-            //       const shorter = m.slice(0, farIndex) + "\n" + m.slice(farIndex);
-            //       console.log(shorter);
-            //       if (farIndex === 0) {
-            //         break;
-            //       }
-            //     }
-            //     if (mSize.width > c.width) {
-            //       c.width = mSize.width;
-            //       c.height += Draw.textSize;
-            //     }
-            //   });
-            // probably going to have to draw bottom up
             // fillText doesnt support multi line
-            c.methods = c.methods.map(function (m) {
-                var mSize = _this.ctx.measureText(m);
-                var farIndex = m.length;
-                while (mSize.width > Draw.maxLineLength && farIndex !== -1) {
-                    console.log(m + " is too long");
-                    // atempt to add new line character after a comma
-                    var i = m.lastIndexOf(",", farIndex);
-                    farIndex = i;
-                    m = m.slice(0, farIndex) + "\n" + m.slice(farIndex);
-                    // update max width
-                    var mSplit = m.split("\n");
-                    mSplit.forEach(function (str) {
-                        if (_this.ctx.measureText(str).width > c.width) {
-                            c.width = _this.ctx.measureText(str).width;
-                        }
-                    });
-                    console.log(m);
-                    //   if (farIndex === 0) {
-                    //     break;
-                    //   }
-                }
-                if (mSize.width > c.width) {
-                    c.width = mSize.width;
-                    c.height += Draw.textSize;
-                }
-                return m;
+            // c.methods = c.methods.map((m: string) => {
+            //   // get the size of the current string
+            //   const mSize: number = this.ctx.measureText(m).width;
+            //   let farIndex = m.length - 1;
+            //   while (mSize > Draw.maxLineLength && farIndex !== -1) {
+            //     console.log(`${m} is too long`);
+            //     // atempt to add new line character after a comma
+            //     const i = m.lastIndexOf(",", farIndex);
+            //     farIndex = i;
+            //     if (farIndex === -1) {
+            //       break;
+            //     }
+            //     m = m.slice(0, farIndex) + "\n" + m.slice(farIndex + 1);
+            //     // update max width
+            //     const mSplit = m.split("\n");
+            //     mSplit.forEach((str: string) => {
+            //       console.log(str, farIndex, this.ctx.measureText(str).width);
+            //       if (this.ctx.measureText(str).width > c.width) {
+            //         c.width = this.ctx.measureText(str).width;
+            //       }
+            //     });
+            //     console.log(m);
+            //   }
+            //   return m;
+            // });
+            // reset the width
+            c.width = 0;
+            // split strings if too long
+            c.methods.forEach(function (str, index) {
+                // original length
+                var originalLength = _this.ctx.measureText(str).width;
+                // right most index
+                var farIndex = str.length - 1;
+                // just testing by splitting on the ','
+                c.methods[index] = str.split(",").join(",\n");
+                var numberParams = str.split(",").length;
+                // while (farIndex !== -1) {
+                // }
+                // for (let i = 0; i < numberParams; i++) {
+                // }
+            });
+            // set to largest string width
+            c.methods.forEach(function (str) {
+                str.split("\n").forEach(function (strs) {
+                    if (_this.ctx.measureText(strs).width > c.width) {
+                        c.width = _this.ctx.measureText(strs).width;
+                    }
+                });
             });
         }
         // padding
-        c.width += 10;
+        c.width += 15;
         c.height += 10;
     };
     // maybe have a position, top left offeset - similar to matrix translation
     Draw.prototype.drawClass = function (x, y, c) {
         var _this = this;
+        c.x = x;
+        c.y = y;
         // DRAW MAIN CLASS
         this.drawClassName(x, y, c);
         if (c.properties) {
-            this.drawClassProperties(x, y + c.height, c);
+            // this.drawClassProperties(x, y + c.height, c);
+            this.drawClassProperties(x, c.height, c);
         }
         if (c.methods) {
-            this.drawClassMethods(x, y + c.height, c);
+            // this.drawClassMethods(x, y + c.height, c);
+            this.drawClassMethods(x, c.height, c);
         }
         if (c.children) {
             this.drawArrow({
@@ -239,9 +265,13 @@ var Draw = /** @class */ (function () {
             });
         }
         if (c.parent !== undefined) {
+            // draw line to the parent
             this.drawLine({
                 x: x + c.width / 2,
                 y: y
+            }, {
+                x: this.classes[c.parent].x + this.classes[c.parent].width / 2,
+                y: this.classes[c.parent].y + this.classes[c.parent].height
             });
         }
         var originalX = x;
@@ -249,10 +279,17 @@ var Draw = /** @class */ (function () {
         if (c.children) {
             c.children.forEach(function (ci, index) {
                 var childX = x;
+                // first child always directly below parent
+                if (index === 0) {
+                    childX = c.x + c.width / 2 - _this.classes[ci].width / 2;
+                }
                 if (index > 0) {
-                    childX += _this.classes[index - 1].width + Draw.minClassHorizontalPadding;
+                    childX +=
+                        _this.classes[index - 1].width + Draw.minClassHorizontalPadding;
                 }
                 // const childX = x + c.width - this.classes[ci].width;
+                // const childY = y + c.height + 20;
+                // child y is the current y plus the parents y
                 var childY = y + c.height + 20;
                 // use the previous child width
                 _this.drawClass(childX, childY, _this.classes[ci]);
@@ -271,20 +308,21 @@ var Draw = /** @class */ (function () {
         this.ctx.closePath();
     };
     Draw.prototype.drawLine = function (start, end) {
-        // no end just little line
         this.ctx.beginPath();
         this.ctx.moveTo(start.x, start.y);
-        if (!end) {
-            this.ctx.lineTo(start.x, start.y - 5);
-        }
+        // up 5, accross, up
+        this.ctx.lineTo(start.x, start.y - 5);
+        this.ctx.lineTo(end.x, start.y - 5);
+        this.ctx.lineTo(end.x, end.y + 10);
         this.ctx.stroke();
         this.ctx.closePath();
     };
     Draw.textSize = 14;
-    Draw.maxLineLength = 100;
+    Draw.maxLineLength = 400;
     Draw.nameHeight = 20;
     Draw.minClassHorizontalPadding = 20;
     Draw.textHorizontalPadding = 5;
+    Draw.textVerticalPadding = 5;
     return Draw;
 }());
 exports.Draw = Draw;
