@@ -54,14 +54,48 @@ struct data
 
 Data graphData;
 
-void drawString(float x, float y, float z, char *string) {
-  glRasterPos3f(x, y, z);
 
-  GLfloat black[] = {0, 0, 0, 1};
-glColor4fv(black);
-  for (char* c = string; *c != '\0'; c++) {
-    glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);  // Updates the position
-  }
+void drawString(char* string, float x, float y, float z) {
+    char* c;
+
+
+    glPushMatrix();
+
+    glColor4f(0, 0, 0, 1);
+
+    glTranslatef(x, y, z);
+    glRotatef(90, 0, 1, 0);
+
+    glScalef(0.001, 0.001, 0.001);
+
+    // glScale()
+    for (c=string; *c !='\0'; c++) {
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+    }
+
+    glPopMatrix();
+
+    // alpha ++;
+}
+
+void drawStrokeText(char*string,int x,int y,int z)
+{
+	  char *c;
+	  glPushMatrix();
+	  glTranslatef(x, y+8,z);
+	  glScalef(0.09f,-0.08f,z);
+  
+	//   for (c=string; *c != '\0'; c++)
+	//   {
+    //       std::cout << c << std::endl;
+    // 		glutStrokeCharacter(GLUT_STROKE_ROMAN , *c);
+	//   }
+    for (int i = 0; string[i] != '\0'; i ++){
+        std::cout << string[i] << std::endl;
+        glutStrokeCharacter(GLUT_STROKE_ROMAN , *c);
+    }
+
+	  glPopMatrix();
 }
 
 /* GLUT callback Handlers */
@@ -290,6 +324,8 @@ static void render(void)
     GLfloat red[] = {1, 0, 0, 1};
     GLfloat blue[] = {0, 1, 0, 1};
 
+    std::cout << "GET NEW DATA and average per year" << std::endl;
+
 
 
     glClearColor(255, 253, 208, 100);
@@ -310,7 +346,11 @@ static void render(void)
     // wireframe mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    drawString(0, 0, 1, "THIS IS SOME TEXT");
+    glColor4f(0, 0, 0, 1);
+    // drawString("THIS IS SOME TEXT", 0, 0, 1);
+    // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
+    drawString("THIS IS SOME TEXT", 0, 0, 1);
+    // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
 
 
     drawGraphAxes();
@@ -375,7 +415,7 @@ void glutSetup(int *argc, char **argv)
     glutInitWindowPosition(100, 100);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
 
-    glutCreateWindow("Terrain Visualisation");
+    glutCreateWindow("Graph");
 
     glutReshapeFunc(onWindowResize);
     glutDisplayFunc(render);
