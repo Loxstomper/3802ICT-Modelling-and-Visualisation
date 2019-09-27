@@ -37,6 +37,7 @@ GLfloat HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2.0;
 GLfloat CURRENT_Z_DEPTH = -5;
 
 GLfloat alpha = 0;
+bool alphaLock = false;
 
 typedef struct data Data;
 struct data
@@ -326,6 +327,10 @@ static void render(void)
 
     std::cout << "GET NEW DATA and average per year" << std::endl;
 
+    if (alphaLock) {
+        alpha = 135; 
+    }
+
 
 
     glClearColor(255, 253, 208, 100);
@@ -339,9 +344,11 @@ static void render(void)
 
     // glTranslatef(0, 0, -5);
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
-    glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    // glTranslatef(0, 0, CURRENT_Z_DEPTH);
+    glTranslatef(0, -0.5, CURRENT_Z_DEPTH);
     glRotatef(alpha, 0, 1, 0);
-    // glRotatef(10, 1, 0, 0);
+    glRotatef(10, 0, 0, 1);
+
 
     // wireframe mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -390,6 +397,9 @@ static void onKey(unsigned char key, int x, int y)
     case 's':
         // if (CURRENT_Z_DEPTH > zoomDistance)
         CURRENT_Z_DEPTH -= zoomSpeed;
+        break;
+    case ' ':
+        alphaLock = !alphaLock;
         break;
     }
     glutPostRedisplay();
