@@ -500,6 +500,36 @@ void drawDateLabels()
     }
 }
 
+void drawYLabels()
+{
+    // 0 to 30 increment of 5
+    GLfloat x = 1;
+    GLfloat y = -1;
+    GLfloat z = -1.7;
+
+    GLfloat yStep = 0.35;
+
+    int labelIncrement = 5;
+
+    for (int i = 0; i <= 30; i += 5)
+    {
+        drawString(std::to_string(i), x, y, z, 0, 270, 0);
+
+        drawString(std::to_string(i), -1, y, 1, 0, 180, 0);
+
+        y += yStep;
+    }
+}
+
+void drawTitles()
+{
+    // drawString("Underemployment Ratio (proportion of employed persons)", -1.6, 1.5, 0, 0, 225, 0);
+    drawString("Underemployment Ratio (proportion of employed persons)", 3, 2, 0, 0, 225, 0);
+    drawString("Age bracket", -2.2, -1, -0.8, 0, 270, 0);
+    drawString("Year", -0.3, -1, -2, 0, 180, 0);
+    drawString("Ratio %", 1, 0, -2, 0, 270, 90);
+}
+
 static void render(void)
 {
     GLfloat black[] = {0, 0, 0, 1};
@@ -545,6 +575,8 @@ static void render(void)
     drawGraphAxes();
     drawSeriesLabels();
     drawDateLabels();
+    drawYLabels();
+    drawTitles();
 
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
