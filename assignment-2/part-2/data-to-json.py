@@ -26,13 +26,13 @@ with open ("./data/years.csv") as csv_file:
             continue
 
         data["Years"].append(row[0])
-        data["15-64"].append(row[1])
-        data["15-24"].append(row[2])
-        data["15-19"].append(row[3])
-        data["25-34"].append(row[4])
-        data["35-44"].append(row[5])
-        data["45-54"].append(row[6])
-        data["55 and over"].append(row[7])
+        data["15-64"].append(float(row[1]))
+        data["15-24"].append(float(row[2]))
+        data["15-19"].append(float(row[3]))
+        data["25-34"].append(float(row[4]))
+        data["35-44"].append(float(row[5]))
+        data["45-54"].append(float(row[6]))
+        data["55 and over"].append(float(row[7]))
         length += 1
 
     data["length"] = length
