@@ -43,6 +43,7 @@ typedef struct data Data;
 struct data
 {
     int length;
+    int numberSeries;
     // std::string *dates;
     std::string *dates;
     std::string *seriesNames;
@@ -55,22 +56,26 @@ struct data
 
 Data graphData;
 
-
-void drawString(char* string, float x, float y, float z) {
-    char* c;
-
+// void drawString(char *string, float x, float y, float z)
+void drawString(std::string string, float x, float y, float z)
+{
+    const char *cstring = string.c_str();
+    const char *c;
 
     glPushMatrix();
 
     glColor4f(0, 0, 0, 1);
 
     glTranslatef(x, y, z);
-    glRotatef(90, 0, 1, 0);
+    // glRotatef(90, 0, 1, 0);
+    // glRotatef(270, 0, 1, 0);
+    glRotatef(180, 0, 1, 0);
 
     glScalef(0.001, 0.001, 0.001);
 
     // glScale()
-    for (c=string; *c !='\0'; c++) {
+    for (c = cstring; *c != '\0'; c++)
+    {
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
     }
 
@@ -79,24 +84,25 @@ void drawString(char* string, float x, float y, float z) {
     // alpha ++;
 }
 
-void drawStrokeText(char*string,int x,int y,int z)
+void drawStrokeText(char *string, int x, int y, int z)
 {
-	  char *c;
-	  glPushMatrix();
-	  glTranslatef(x, y+8,z);
-	  glScalef(0.09f,-0.08f,z);
-  
-	//   for (c=string; *c != '\0'; c++)
-	//   {
+    char *c;
+    glPushMatrix();
+    glTranslatef(x, y + 8, z);
+    glScalef(0.09f, -0.08f, z);
+
+    //   for (c=string; *c != '\0'; c++)
+    //   {
     //       std::cout << c << std::endl;
     // 		glutStrokeCharacter(GLUT_STROKE_ROMAN , *c);
-	//   }
-    for (int i = 0; string[i] != '\0'; i ++){
+    //   }
+    for (int i = 0; string[i] != '\0'; i++)
+    {
         std::cout << string[i] << std::endl;
-        glutStrokeCharacter(GLUT_STROKE_ROMAN , *c);
+        glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
     }
 
-	  glPopMatrix();
+    glPopMatrix();
 }
 
 /* GLUT callback Handlers */
@@ -147,7 +153,7 @@ void drawGraphAxes()
             -GRAPH_WIDTH - GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
             GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1 - GRAPH_WALL_THICKNESS, GRAPH_LENGTH + GRAPH_WALL_THICKNESS,
             GRAPH_WIDTH + GRAPH_WALL_THICKNESS, -1, GRAPH_LENGTH + GRAPH_WALL_THICKNESS};
-    
+
     GLfloat black[] = {0, 0, 0, 1};
 
     /* We have a color array and a vertex array */
@@ -203,7 +209,7 @@ void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
 
     // number of vertices
     // front/back, sides, top
-    int numberVerticies = graphData.length * 4 * 2 * 4+ 8;
+    int numberVerticies = graphData.length * 4 * 2 * 4 + 8;
 
     GLfloat xStep = graphData.length / (GRAPH_LENGTH * 2);
     // GLfloat seriesThickness = graphData.length / (GRAPH_WIDTH * 2);
@@ -300,7 +306,6 @@ void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
     //attempt to rotate cube
     // glRotatef(alpha, 0, 1, 0);
 
-
     /* We have a color array and a vertex array */
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(3, GL_FLOAT, 0, myVertices);
@@ -312,6 +317,22 @@ void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
 
     /* Cleanup states */
     glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void drawSeriesLabels()
+{
+    GLfloat x = -1.4;
+    // GLfloat y = -1 - GRAPH_WALL_THICKNESS;
+    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
+    GLfloat z = -0.8;
+
+    for (int i = 0; i < graphData.numberSeries; i++)
+    {
+        drawString(graphData.seriesNames[i], x, y, z);
+
+        // z += (graphData.length / GRAPH_WIDTH);
+        z += 0.4;
+    }
 }
 
 static void render(void)
@@ -327,11 +348,11 @@ static void render(void)
 
     std::cout << "GET NEW DATA and average per year" << std::endl;
 
-    if (alphaLock) {
-        alpha = 135; 
+    if (alphaLock)
+    {
+        alpha = 135;
+        // alpha = 0;
     }
-
-
 
     glClearColor(255, 253, 208, 100);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -347,8 +368,7 @@ static void render(void)
     // glTranslatef(0, 0, CURRENT_Z_DEPTH);
     glTranslatef(0, -0.5, CURRENT_Z_DEPTH);
     glRotatef(alpha, 0, 1, 0);
-    glRotatef(10, 0, 0, 1);
-
+    // glRotatef(10, 0, 0, 1);
 
     // wireframe mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -359,8 +379,8 @@ static void render(void)
     drawString("THIS IS SOME TEXT", 0, 0, 1);
     // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
 
-
     drawGraphAxes();
+    drawSeriesLabels();
 
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -483,7 +503,16 @@ void readData(std::string filename)
 void readDataTemp()
 {
     graphData.length = 5;
+    graphData.numberSeries = 5;
     graphData.series0 = new double[5];
+
+    graphData.seriesNames = new std::string[5];
+
+    graphData.seriesNames[0] = "data0";
+    graphData.seriesNames[1] = "data1";
+    graphData.seriesNames[2] = "data2";
+    graphData.seriesNames[3] = "data3";
+    graphData.seriesNames[4] = "data4";
 
     // [0.1, 0.2, 0.3, 0.4, 0.5]
     for (int i = 1; i < graphData.length + 1; i++)
