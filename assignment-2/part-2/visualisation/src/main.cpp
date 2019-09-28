@@ -52,6 +52,8 @@ struct data
     double *series2;
     double *series3;
     double *series4;
+    double *series5;
+    double *series6;
 };
 
 Data graphData;
@@ -100,7 +102,6 @@ void drawStrokeText(char *string, int x, int y, int z)
     //   }
     for (int i = 0; string[i] != '\0'; i++)
     {
-        std::cout << string[i] << std::endl;
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
     }
 
@@ -215,7 +216,7 @@ void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
 
     GLfloat xStep = graphData.length / (GRAPH_LENGTH * 2);
     // GLfloat seriesThickness = graphData.length / (GRAPH_WIDTH * 2);
-    GLfloat seriesThickness = (GRAPH_WIDTH * 2) / graphData.length;
+    GLfloat seriesThickness = (GRAPH_WIDTH * 2) / graphData.numberSeries;
     GLfloat curX = -1;
     int vi = 0;
 
@@ -328,9 +329,10 @@ void drawSeriesLabels()
     GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
     GLfloat z = -0.8;
 
-    GLfloat zStep = 0.4;
+    // GLfloat zStep = 0.4;
+    GLfloat zStep = (1.8 / graphData.numberSeries);
 
-    for (int i = 0; i < graphData.numberSeries; i++)
+    for (int i = graphData.numberSeries - 1; i >= 0; i--)
     {
         drawString(graphData.seriesNames[i], x, y, z, 0, 180, 0);
 
@@ -342,13 +344,17 @@ void drawSeriesLabels()
 void drawDateLabels()
 {
 
-    GLfloat x = 1;
+    // GLfloat x = 1;
+    GLfloat x = 0.8;
     GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
     GLfloat z = -1.7;
 
-    GLfloat xStep = -0.4;
+    int labelIncrement = 5;
 
-    for (int i = 0; i < graphData.length; i++)
+    // GLfloat xStep = -0.4;
+    GLfloat xStep = -(1.75 / (graphData.length / labelIncrement));
+
+    for (int i = 2; i < graphData.length; i += labelIncrement)
     {
         drawString(graphData.dates[i], x, y, z, 0, 270, 0);
 
@@ -367,8 +373,6 @@ static void render(void)
     GLfloat green[] = {0, 0, 1, 1};
     GLfloat red[] = {1, 0, 0, 1};
     GLfloat blue[] = {0, 1, 0, 1};
-
-    std::cout << "GET NEW DATA and average per year" << std::endl;
 
     if (alphaLock)
     {
@@ -408,11 +412,22 @@ static void render(void)
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    drawSeries(graphData.series0, -1, 0.5, yellow);
-    drawSeries(graphData.series0, -0.6, 1.0, purple);
-    drawSeries(graphData.series0, -0.2, 0.5, orange);
-    drawSeries(graphData.series0, 0.2, 1.0, green);
-    drawSeries(graphData.series0, 0.6, 0.5, red);
+    GLfloat z = -1;
+    GLfloat zStep = (2 / GLfloat(graphData.numberSeries));
+
+    drawSeries(graphData.series6, z, 0.5, blue);
+    z += zStep;
+    drawSeries(graphData.series5, z, 1.0, red);
+    z += zStep;
+    drawSeries(graphData.series4, z, 0.5, yellow);
+    z += zStep;
+    drawSeries(graphData.series3, z, 1.0, green);
+    z += zStep;
+    drawSeries(graphData.series2, z, 0.5, yellow);
+    z += zStep;
+    drawSeries(graphData.series1, z, 0.5, blue);
+    z += zStep;
+    drawSeries(graphData.series0, z, 0.5, red);
 
     alpha++;
 
@@ -502,25 +517,46 @@ void readData(std::string filename)
 
     file >> json;
 
-    std::cout << json << std::endl;
-
     // get data length
-    graphData.length = json["length"].get<GLfloat>();
+    graphData.length = json["length"].get<int>();
 
     // dynamically allocate
     graphData.dates = new std::string[graphData.length];
-    graphData.seriesNames = new std::string[5];
+    graphData.numberSeries = 7;
+    graphData.seriesNames = new std::string[graphData.numberSeries];
+
+    // get the dates
+    std::vector<std::string> temp = json["Years"].get<std::vector<std::string>>();
+
+    for (int i = 0; i < temp.size(); i++)
+    {
+        graphData.dates[i] = temp[i];
+    }
+
+    graphData.seriesNames[0] = "15-64";
+    graphData.seriesNames[1] = "15-24";
+    graphData.seriesNames[2] = "15-19";
+    graphData.seriesNames[3] = "25-34";
+    graphData.seriesNames[4] = "35-44";
+    graphData.seriesNames[5] = "45-54";
+    graphData.seriesNames[6] = "55 and over";
+
     graphData.series0 = new double[graphData.length];
     graphData.series1 = new double[graphData.length];
     graphData.series2 = new double[graphData.length];
     graphData.series3 = new double[graphData.length];
     graphData.series4 = new double[graphData.length];
+    graphData.series5 = new double[graphData.length];
+    graphData.series6 = new double[graphData.length];
 
     // read the data
-    std::vector<double> temp;
-
-    // std::vector<double> x = json["15-24"].get<std::vector<double>>;
-    fillSeriesData(json["15-24"].get<std::vector<double>>(), graphData.series0);
+    fillSeriesData(json["15-64"].get<std::vector<double>>(), graphData.series0);
+    fillSeriesData(json["15-24"].get<std::vector<double>>(), graphData.series1);
+    fillSeriesData(json["15-19"].get<std::vector<double>>(), graphData.series2);
+    fillSeriesData(json["25-34"].get<std::vector<double>>(), graphData.series3);
+    fillSeriesData(json["35-44"].get<std::vector<double>>(), graphData.series4);
+    fillSeriesData(json["45-54"].get<std::vector<double>>(), graphData.series5);
+    fillSeriesData(json["55 and over"].get<std::vector<double>>(), graphData.series6);
 }
 
 void readDataTemp()
@@ -548,14 +584,13 @@ void readDataTemp()
     for (int i = 1; i < graphData.length + 1; i++)
     {
         graphData.series0[i - 1] = i * 0.1;
-        std::cout << graphData.series0[i - 1] << std::endl;
     }
 }
 
 int main(int argc, char **argv)
 {
-    // readData("./data/data.json");
-    readDataTemp();
+    readData("data.json");
+    // readDataTemp();
     glutSetup(&argc, argv);
 
     return EXIT_SUCCESS;
