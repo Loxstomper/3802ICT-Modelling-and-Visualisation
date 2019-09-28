@@ -57,7 +57,7 @@ struct data
 Data graphData;
 
 // void drawString(char *string, float x, float y, float z)
-void drawString(std::string string, float x, float y, float z)
+void drawString(std::string string, float x, float y, float z, float xRot, float yRot, float zRot)
 {
     const char *cstring = string.c_str();
     const char *c;
@@ -69,7 +69,9 @@ void drawString(std::string string, float x, float y, float z)
     glTranslatef(x, y, z);
     // glRotatef(90, 0, 1, 0);
     // glRotatef(270, 0, 1, 0);
-    glRotatef(180, 0, 1, 0);
+    glRotatef(xRot, 1, 0, 0);
+    glRotatef(yRot, 0, 1, 0);
+    glRotatef(zRot, 0, 0, 1);
 
     glScalef(0.001, 0.001, 0.001);
 
@@ -326,12 +328,32 @@ void drawSeriesLabels()
     GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
     GLfloat z = -0.8;
 
+    GLfloat zStep = 0.4;
+
     for (int i = 0; i < graphData.numberSeries; i++)
     {
-        drawString(graphData.seriesNames[i], x, y, z);
+        drawString(graphData.seriesNames[i], x, y, z, 0, 180, 0);
 
         // z += (graphData.length / GRAPH_WIDTH);
-        z += 0.4;
+        z += zStep;
+    }
+}
+
+void drawDateLabels()
+{
+
+    GLfloat x = 1;
+    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
+    GLfloat z = -1.7;
+
+    GLfloat xStep = -0.4;
+
+    for (int i = 0; i < graphData.length; i++)
+    {
+        drawString(graphData.dates[i], x, y, z, 0, 270, 0);
+
+        // z += (graphData.length / GRAPH_WIDTH);
+        x += xStep;
     }
 }
 
@@ -376,11 +398,12 @@ static void render(void)
     glColor4f(0, 0, 0, 1);
     // drawString("THIS IS SOME TEXT", 0, 0, 1);
     // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
-    drawString("THIS IS SOME TEXT", 0, 0, 1);
+    // drawString("THIS IS SOME TEXT", 0, 0, 1);
     // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
 
     drawGraphAxes();
     drawSeriesLabels();
+    drawDateLabels();
 
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -513,6 +536,13 @@ void readDataTemp()
     graphData.seriesNames[2] = "data2";
     graphData.seriesNames[3] = "data3";
     graphData.seriesNames[4] = "data4";
+
+    graphData.dates = new std::string[5];
+    graphData.dates[0] = "1901";
+    graphData.dates[1] = "1902";
+    graphData.dates[2] = "1903";
+    graphData.dates[3] = "1904";
+    graphData.dates[4] = "1905";
 
     // [0.1, 0.2, 0.3, 0.4, 0.5]
     for (int i = 1; i < graphData.length + 1; i++)
