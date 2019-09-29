@@ -340,7 +340,8 @@ export class Draw {
         },
         {
           x: this.classes[c.parent].x + this.classes[c.parent].width / 2,
-          y: this.classes[c.parent].y + this.classes[c.parent].height
+          // y: this.classes[c.parent].y + this.classes[c.parent].height
+          y: this.classes[c.parent].height + 10
         }
       );
     }
