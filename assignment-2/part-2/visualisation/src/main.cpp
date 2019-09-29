@@ -494,11 +494,11 @@ static void render(void)
 {
     GLfloat black[] = {0, 0, 0, 1};
 
-    GLfloat yellow[] = {1, 1, 0, 1};
-    GLfloat orange[] = {1, 0.5, 0, 1};
-    GLfloat green[] = {0, 1, 0, 1};
-    GLfloat red[] = {1, 0, 0, 1};
-    GLfloat blue[] = {0, 0, 1, 1};
+    GLfloat yellow[] = {1, 1, 0, 0.5};
+    GLfloat orange[] = {1, 0.5, 0, 0.5};
+    GLfloat green[] = {0, 1, 0, 0.5};
+    GLfloat red[] = {1, 0, 0, 0.5};
+    GLfloat blue[] = {0, 0, 1, 0.5};
 
     if (alphaLock)
     {
