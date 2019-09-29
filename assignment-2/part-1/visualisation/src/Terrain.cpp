@@ -76,6 +76,7 @@ void Terrain::drawTerrain()
 
             terrainVerts[index + 0] = (x * xStep) - this->length;
             terrainVerts[index + 1] = y * this->maxHeight;
+            terrainVerts[index + 1] = y;
             terrainVerts[index + 2] = (z * zStep) - this->width;
 
             index += 3;
@@ -146,6 +147,7 @@ void Terrain::drawTerrain()
 
 void Terrain::buildHeightMap(std::string path)
 {
+    std::cout << "building heightmap..." << std::endl;
     std::ifstream file(path);
 
     Json json;
@@ -216,11 +218,15 @@ GLfloat *Terrain::getColour(GLfloat y)
 {
     static GLfloat sand[] = {0.93, 0.79, 0.69, 1};
     static GLfloat grass[] = {0.48, 0.8, 0, 1};
+    static GLfloat darkGrass[] = {0.1, 0.65, 0.01, 1};
     static GLfloat rock[] = {0.2, 0.2, 0.26, 1};
     static GLfloat snow[] = {1, 0.98, 0.98, 1};
 
     if (y <= 0.1)
         return sand;
+
+    if (y <= 0.25)
+        return darkGrass;
 
     if (y <= 0.5)
         return grass;
