@@ -19,23 +19,14 @@ exports.Class = Class;
 },{}],2:[function(require,module,exports){
 "use strict";
 exports.__esModule = true;
-var minimumX = 20;
-var minimumY = 20;
-var maxLineLength = 50;
 var horizontalPadding = 10;
 var verticalPadding = 10;
 var Draw = /** @class */ (function () {
     function Draw(canvas, width, height) {
-        this.currentX = 0;
-        this.currentY = 0;
         this.canvas = canvas;
-        this.width = width;
-        this.height = height;
         this.canvas.width = width;
         this.canvas.height = height;
         this.ctx = canvas.getContext("2d");
-        this.currentX = horizontalPadding;
-        this.currentY = verticalPadding;
     }
     /**
      * Creates a UML diagram from the classes
@@ -88,10 +79,7 @@ var Draw = /** @class */ (function () {
         var size = this.ctx.measureText(c.name);
         this.ctx.strokeStyle = "black";
         this.ctx.beginPath();
-        this.ctx.rect(
-        // this.currentX,
-        // this.currentY,
-        x, y, c.width + 5, Draw.textSize + 10);
+        this.ctx.rect(x, y, c.width + 5, Draw.textSize + 10);
         c.height = y + Draw.textSize + 10;
         this.ctx.stroke();
         this.ctx.fillText(c.name, x + c.width / 2 - size.width / 2 + 2.5, y + 15);
@@ -99,12 +87,6 @@ var Draw = /** @class */ (function () {
     Draw.prototype.drawClassProperties = function (x, y, c) {
         var _this = this;
         this.ctx.font = Draw.textSize + "px arial";
-        console.log("drawing properties for ", c);
-        // c.height = Draw.textSize * c.properties.length;
-        // c.properties.forEach((p: string) => {
-        //   this.ctx.fillText(p, x + 5, y + 5);
-        //   y += Draw.textSize;
-        // });
         var originalY = y;
         c.properties.forEach(function (p, index) {
             _this.ctx.fillText(p, x + Draw.textHorizontalPadding, 
@@ -119,7 +101,6 @@ var Draw = /** @class */ (function () {
         // c.height = y - originalY;
         c.height = y;
         this.ctx.stroke();
-        console.log(c);
     };
     /**
      * Draw the class methods
@@ -131,7 +112,6 @@ var Draw = /** @class */ (function () {
     Draw.prototype.drawClassMethods = function (x, y, c) {
         var _this = this;
         this.ctx.font = Draw.textSize + "px arial";
-        console.log("drawing methods for for ", c);
         var originalY = y;
         y += 15;
         c.methods.forEach(function (m, i) {
@@ -188,47 +168,16 @@ var Draw = /** @class */ (function () {
         }
         if (c.methods) {
             c.height += 10;
-            // fillText doesnt support multi line
-            // c.methods = c.methods.map((m: string) => {
-            //   // get the size of the current string
-            //   const mSize: number = this.ctx.measureText(m).width;
-            //   let farIndex = m.length - 1;
-            //   while (mSize > Draw.maxLineLength && farIndex !== -1) {
-            //     console.log(`${m} is too long`);
-            //     // atempt to add new line character after a comma
-            //     const i = m.lastIndexOf(",", farIndex);
-            //     farIndex = i;
-            //     if (farIndex === -1) {
-            //       break;
-            //     }
-            //     m = m.slice(0, farIndex) + "\n" + m.slice(farIndex + 1);
-            //     // update max width
-            //     const mSplit = m.split("\n");
-            //     mSplit.forEach((str: string) => {
-            //       console.log(str, farIndex, this.ctx.measureText(str).width);
-            //       if (this.ctx.measureText(str).width > c.width) {
-            //         c.width = this.ctx.measureText(str).width;
-            //       }
-            //     });
-            //     console.log(m);
-            //   }
-            //   return m;
-            // });
             // reset the width
             c.width = 0;
             // split strings if too long
             c.methods.forEach(function (str, index) {
                 // original length
                 var originalLength = _this.ctx.measureText(str).width;
-                // right most index
-                var farIndex = str.length - 1;
-                // just testing by splitting on the ','
-                c.methods[index] = str.split(",").join(",\n");
-                var numberParams = str.split(",").length;
-                // while (farIndex !== -1) {
-                // }
-                // for (let i = 0; i < numberParams; i++) {
-                // }
+                if (originalLength > Draw.maxLineLength) {
+                    // just testing by splitting on the ','
+                    c.methods[index] = str.split(",").join(",\n");
+                }
             });
             // set to largest string width
             c.methods.forEach(function (str) {
@@ -248,50 +197,54 @@ var Draw = /** @class */ (function () {
         var _this = this;
         c.x = x;
         c.y = y;
-        // DRAW MAIN CLASS
+        // draw classname
         this.drawClassName(x, y, c);
+        // draw properties
         if (c.properties) {
-            // this.drawClassProperties(x, y + c.height, c);
             this.drawClassProperties(x, c.height, c);
         }
+        // draw methods
         if (c.methods) {
-            // this.drawClassMethods(x, y + c.height, c);
             this.drawClassMethods(x, c.height, c);
         }
+        // draw arrow head if there are children
         if (c.children) {
             this.drawArrow({
                 x: x + c.width / 2,
                 y: c.height
             });
         }
+        // if there is a parent draw a line to it
         if (c.parent !== undefined) {
-            // draw line to the parent
             this.drawLine({
                 x: x + c.width / 2,
                 y: y
             }, {
                 x: this.classes[c.parent].x + this.classes[c.parent].width / 2,
-                y: this.classes[c.parent].y + this.classes[c.parent].height
+                // y: this.classes[c.parent].y + this.classes[c.parent].height
+                y: this.classes[c.parent].height + 10
             });
         }
-        var originalX = x;
-        // DRAW CHILDREN
+        // draw the children
         if (c.children) {
+            // iterate over each child
             c.children.forEach(function (ci, index) {
-                var childX = x;
+                var childX;
                 // first child always directly below parent
                 if (index === 0) {
                     childX = c.x + c.width / 2 - _this.classes[ci].width / 2;
                 }
-                if (index > 0) {
-                    childX +=
-                        _this.classes[index - 1].width + Draw.minClassHorizontalPadding;
+                else {
+                    // use the previous drawn child for x location
+                    childX =
+                        _this.classes[c.children[index - 1]].x +
+                            _this.classes[c.children[index - 1]].width +
+                            Draw.minClassHorizontalPadding;
                 }
-                // const childX = x + c.width - this.classes[ci].width;
-                // const childY = y + c.height + 20;
-                // child y is the current y plus the parents y
-                var childY = y + c.height + 20;
-                // use the previous child width
+                // calculating the y position
+                var childY = c.y + c.height + 20;
+                childY = c.height + 40;
+                // draw the child
                 _this.drawClass(childX, childY, _this.classes[ci]);
             });
         }
@@ -319,10 +272,8 @@ var Draw = /** @class */ (function () {
     };
     Draw.textSize = 14;
     Draw.maxLineLength = 400;
-    Draw.nameHeight = 20;
     Draw.minClassHorizontalPadding = 20;
     Draw.textHorizontalPadding = 5;
-    Draw.textVerticalPadding = 5;
     return Draw;
 }());
 exports.Draw = Draw;
@@ -343,7 +294,6 @@ function getInputAndDraw() {
     classes.length = 0;
     UMLInputString = document.getElementById("UML-input")
         .value;
-    console.log(UMLInputString);
     read();
     draw = new draw_1.Draw(document.getElementById("canvas"), 1200, 400);
     draw.draw(classes);
@@ -365,7 +315,6 @@ function inClasses(name) {
     return -1;
 }
 function read() {
-    console.log("reading");
     var lines = UMLInputString.split("\n");
     // iterate over all lines in input
     for (var i = 0; i < lines.length; i++) {

@@ -1,8 +1,5 @@
 import { Class } from "./Class";
 
-const minimumX: number = 20;
-const minimumY: number = 20;
-const maxLineLength: number = 50;
 const horizontalPadding: number = 10;
 const verticalPadding: number = 10;
 
@@ -14,33 +11,20 @@ interface IPoint {
 export class Draw {
   private static textSize: number = 14;
   private static maxLineLength: number = 400;
-  private static nameHeight: number = 20;
   private static minClassHorizontalPadding: number = 20;
   private static textHorizontalPadding: number = 5;
-  private static textVerticalPadding: number = 5;
 
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-
-  private width: number;
-  private height: number;
-
-  private currentX: number = 0;
-  private currentY: number = 0;
 
   private classes: Class[] | undefined;
 
   constructor(canvas: HTMLCanvasElement, width: number, height: number) {
     this.canvas = canvas;
-    this.width = width;
-    this.height = height;
 
     this.canvas.width = width;
     this.canvas.height = height;
     this.ctx = canvas.getContext("2d");
-
-    this.currentX = horizontalPadding;
-    this.currentY = verticalPadding;
   }
 
   /**
@@ -105,14 +89,7 @@ export class Draw {
 
     this.ctx.beginPath();
 
-    this.ctx.rect(
-      // this.currentX,
-      // this.currentY,
-      x,
-      y,
-      c.width + 5,
-      Draw.textSize + 10
-    );
+    this.ctx.rect(x, y, c.width + 5, Draw.textSize + 10);
 
     c.height = y + Draw.textSize + 10;
 
@@ -233,39 +210,6 @@ export class Draw {
     if (c.methods) {
       c.height += 10;
 
-      // fillText doesnt support multi line
-      // c.methods = c.methods.map((m: string) => {
-      //   // get the size of the current string
-      //   const mSize: number = this.ctx.measureText(m).width;
-
-      //   let farIndex = m.length - 1;
-
-      //   while (mSize > Draw.maxLineLength && farIndex !== -1) {
-      //     console.log(`${m} is too long`);
-      //     // atempt to add new line character after a comma
-      //     const i = m.lastIndexOf(",", farIndex);
-      //     farIndex = i;
-
-      //     if (farIndex === -1) {
-      //       break;
-      //     }
-
-      //     m = m.slice(0, farIndex) + "\n" + m.slice(farIndex + 1);
-
-      //     // update max width
-      //     const mSplit = m.split("\n");
-      //     mSplit.forEach((str: string) => {
-      //       console.log(str, farIndex, this.ctx.measureText(str).width);
-      //       if (this.ctx.measureText(str).width > c.width) {
-      //         c.width = this.ctx.measureText(str).width;
-      //       }
-      //     });
-
-      //     console.log(m);
-      //   }
-      //   return m;
-      // });
-
       // reset the width
       c.width = 0;
 
@@ -274,20 +218,10 @@ export class Draw {
         // original length
         const originalLength = this.ctx.measureText(str).width;
 
-        // right most index
-        let farIndex = str.length - 1;
-
-        // just testing by splitting on the ','
-        c.methods[index] = str.split(",").join(",\n");
-
-        const numberParams = str.split(",").length;
-
-        // while (farIndex !== -1) {
-        // }
-
-        // for (let i = 0; i < numberParams; i++) {
-
-        // }
+        if (originalLength > Draw.maxLineLength) {
+          // just testing by splitting on the ','
+          c.methods[index] = str.split(",").join(",\n");
+        }
       });
 
       // set to largest string width
@@ -366,13 +300,6 @@ export class Draw {
         // calculating the y position
         let childY = c.y + c.height + 20;
         childY = c.height + 40;
-
-        if (
-          this.classes[ci].name === "Kiwifruit" ||
-          this.classes[ci].name === "Cherry"
-        ) {
-          console.log(this.classes[ci].name, c);
-        }
 
         // draw the child
         this.drawClass(childX, childY, this.classes[ci]);
