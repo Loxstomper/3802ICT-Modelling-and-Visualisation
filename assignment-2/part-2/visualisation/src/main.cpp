@@ -64,7 +64,9 @@ Data graphData;
 
 GLfloat scale(GLfloat value, GLfloat min, GLfloat max)
 {
-    return (value - min) / (max - min);
+    // scales between 0 and 1, multiply by 2 and subtract 1
+    // scales between -1 and 1
+    return (2 * ((value - min) / (max - min))) - 1;
 }
 
 // void drawString(char *string, float x, float y, float z)
@@ -174,158 +176,6 @@ void drawGraphAxes()
 
     /* Send data : 24 vertices */
     glDrawArrays(GL_QUADS, 0, 24);
-
-    /* Cleanup states */
-    glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-void drawCube()
-{
-    GLfloat vertices[] =
-        {
-            -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1,
-            1, -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1,
-            -1, -1, -1, -1, -1, 1, 1, -1, 1, 1, -1, -1,
-            -1, 1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1,
-            -1, -1, -1, -1, 1, -1, 1, 1, -1, 1, -1, -1,
-            -1, -1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1};
-
-    GLfloat colors[] =
-        {
-            0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0,
-            1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0,
-            0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0,
-            0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
-            0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0,
-            0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1};
-
-    //attempt to rotate cube
-    // glRotatef(alpha, 0, 1, 0);
-
-    /* We have a color array and a vertex array */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(3, GL_FLOAT, 0, colors);
-
-    /* Send data : 24 vertices */
-    glDrawArrays(GL_QUADS, 0, 24);
-
-    /* Cleanup states */
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-void drawSeries(double *series, GLfloat z, GLfloat height, GLfloat colour[])
-{
-
-    // number of vertices
-    // front/back, sides, top
-    int numberVerticies = graphData.length * 4 * 2 * 4 + 8;
-
-    GLfloat xStep = graphData.length / (GRAPH_LENGTH * 2);
-    // GLfloat seriesThickness = graphData.length / (GRAPH_WIDTH * 2);
-    GLfloat seriesThickness = (GRAPH_WIDTH * 2) / graphData.numberSeries;
-    GLfloat curX = -1;
-    int vi = 0;
-
-    height *= 2;
-
-    GLfloat low = -1.0;
-
-    // this will be the series value
-    // GLfloat height = 1.0;
-
-    GLfloat myVertices[] = {
-
-        // front facing
-        -1,
-        low,
-        z,
-        1,
-        low,
-        z,
-        1,
-        low + height,
-        z,
-        -1,
-        low + height,
-        z,
-
-        // rear side [not really required]
-        -1,
-        low,
-        z + seriesThickness,
-        1,
-        low,
-        z + seriesThickness,
-        1,
-        low + height,
-        z + seriesThickness,
-        -1,
-        low + height,
-        z + seriesThickness,
-
-        // top side
-        -1,
-        low + height,
-        z,
-        1,
-        low + height,
-        z,
-        1,
-        low + height,
-        z + seriesThickness,
-        -1,
-        low + height,
-        z + seriesThickness,
-
-        // left side
-        -1,
-        low,
-        z,
-        -1,
-        low,
-        z + seriesThickness,
-        -1,
-        low + height,
-        z + seriesThickness,
-        -1,
-        low + height,
-        z,
-
-        // right side
-        1,
-        low,
-        z,
-        1,
-        low,
-        z + seriesThickness,
-        1,
-        low + height,
-        z + seriesThickness,
-        1,
-        low + height,
-        z};
-
-    for (int i = 0; i < graphData.length; i++)
-    {
-
-        curX += xStep;
-        vi += 3;
-    }
-
-    //attempt to rotate cube
-    // glRotatef(alpha, 0, 1, 0);
-
-    /* We have a color array and a vertex array */
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, myVertices);
-
-    glColor4fv(colour);
-
-    /* Send data : 24 vertices */
-    glDrawArrays(GL_QUADS, 0, 20);
 
     /* Cleanup states */
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -461,19 +311,16 @@ void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat colour[])
 
 void drawSeriesLabels()
 {
-    GLfloat x = -1.4;
-    // GLfloat y = -1 - GRAPH_WALL_THICKNESS;
-    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
+    GLfloat x = 1.4;
+    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 5);
     GLfloat z = -0.8;
 
-    // GLfloat zStep = 0.4;
     GLfloat zStep = (1.8 / graphData.numberSeries);
 
-    for (int i = graphData.numberSeries - 1; i >= 0; i--)
+    for (int i = 0; i < graphData.numberSeries; i++)
     {
-        drawString(graphData.seriesNames[i], x, y, z, 0, 180, 0);
+        drawString(graphData.seriesNames[i], x, y, z, 0, 0, 0);
 
-        // z += (graphData.length / GRAPH_WIDTH);
         z += zStep;
     }
 }
@@ -482,18 +329,22 @@ void drawDateLabels()
 {
 
     // GLfloat x = 1;
-    GLfloat x = 0.8;
-    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 2);
-    GLfloat z = -1.7;
+    GLfloat x = -0.8;
+    // GLfloat x = -1.8;
+    // GLfloat x = -1.8;
+    GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 4);
+    GLfloat z = 1.7;
 
     int labelIncrement = 5;
 
     // GLfloat xStep = -0.4;
-    GLfloat xStep = -(1.75 / (graphData.length / labelIncrement));
+    // GLfloat xStep = -(1.75 / (graphData.length / labelIncrement));
+    GLfloat xStep = (1.75 / (graphData.length / labelIncrement));
 
     for (int i = 2; i < graphData.length; i += labelIncrement)
+    // for (int i = graphData.length - 3; i > 2; i -= labelIncrement)
     {
-        drawString(graphData.dates[i], x, y, z, 0, 270, 0);
+        drawString(graphData.dates[i], x, y, z, 0, 90, 0);
 
         // z += (graphData.length / GRAPH_WIDTH);
         x += xStep;
@@ -513,9 +364,11 @@ void drawYLabels()
 
     for (int i = 0; i <= 30; i += 5)
     {
-        drawString(std::to_string(i), x, y, z, 0, 270, 0);
+        // drawString(std::to_string(i), x, y, z, 0, 270, 0);
+        drawString(std::to_string(i), x, y, z, 0, 90, 0);
 
-        drawString(std::to_string(i), -1, y, 1, 0, 180, 0);
+        // drawString(std::to_string(i), -1, y, 1, 0, 180, 0);
+        drawString(std::to_string(i), -1, y, 1, 0, 90, 0);
 
         y += yStep;
     }
@@ -523,27 +376,26 @@ void drawYLabels()
 
 void drawTitles()
 {
-    // drawString("Underemployment Ratio (proportion of employed persons)", -1.6, 1.5, 0, 0, 225, 0);
-    drawString("Underemployment Ratio (proportion of employed persons)", 3, 2, 0, 0, 225, 0);
-    drawString("Age bracket", -2.2, -1, -0.8, 0, 270, 0);
-    drawString("Year", -0.3, -1, -2, 0, 180, 0);
-    drawString("Ratio %", 1, 0, -2, 0, 270, 90);
+    drawString("Underemployment Ratio (proportion of employed persons)", -2, 2, 0, 0, 45, 0);
+    drawString("Age bracket", 2, -1, 0.6, 15, 70, 0);
+    drawString("Year", 0, -1, 2, 0, 0, 0);
+    drawString("Ratio %", -1, 0, 1.5, 0, 90, 90);
 }
 
 static void render(void)
 {
     GLfloat black[] = {0, 0, 0, 1};
 
-    GLfloat yellow[] = {1, 1, 0, 0.5};
-    GLfloat purple[] = {0.5, 0, 0.5, 0.5};
-    GLfloat orange[] = {1, 0.5, 0, 0.5};
-    GLfloat green[] = {0, 0, 1, 0.5};
-    GLfloat red[] = {1, 0, 0, 0.5};
-    GLfloat blue[] = {0, 1, 0, 0.5};
+    GLfloat yellow[] = {1, 1, 0, 1};
+    GLfloat orange[] = {1, 0.5, 0, 1};
+    GLfloat green[] = {0, 1, 0, 1};
+    GLfloat red[] = {1, 0, 0, 1};
+    GLfloat blue[] = {0, 0, 1, 1};
 
     if (alphaLock)
     {
-        alpha = 135;
+        // alpha = 135;
+        alpha = 325;
         // alpha = 0;
     }
 
@@ -584,19 +436,33 @@ static void render(void)
     GLfloat z = -1;
     GLfloat zStep = (2 / GLfloat(graphData.numberSeries));
 
-    drawSeriesBad(graphData.series6, z, blue);
-    z += zStep;
-    drawSeriesBad(graphData.series5, z, red);
-    z += zStep;
-    drawSeriesBad(graphData.series4, z, yellow);
-    z += zStep;
-    drawSeriesBad(graphData.series3, z, green);
-    z += zStep;
-    drawSeriesBad(graphData.series2, z, yellow);
+    // drawSeriesBad(graphData.series6, z, blue);
+    // z += zStep;
+    // drawSeriesBad(graphData.series5, z, red);
+    // z += zStep;
+    // drawSeriesBad(graphData.series4, z, yellow);
+    // z += zStep;
+    // drawSeriesBad(graphData.series3, z, green);
+    // z += zStep;
+    // drawSeriesBad(graphData.series2, z, yellow);
+    // z += zStep;
+    // drawSeriesBad(graphData.series1, z, blue);
+    // z += zStep;
+    // drawSeriesBad(graphData.series0, z, red);
+
+    drawSeriesBad(graphData.series0, z, red);
     z += zStep;
     drawSeriesBad(graphData.series1, z, blue);
     z += zStep;
-    drawSeriesBad(graphData.series0, z, red);
+    drawSeriesBad(graphData.series2, z, yellow);
+    z += zStep;
+    drawSeriesBad(graphData.series3, z, green);
+    z += zStep;
+    drawSeriesBad(graphData.series4, z, orange);
+    z += zStep;
+    drawSeriesBad(graphData.series5, z, red);
+    z += zStep;
+    drawSeriesBad(graphData.series6, z, blue);
 
     alpha++;
 
