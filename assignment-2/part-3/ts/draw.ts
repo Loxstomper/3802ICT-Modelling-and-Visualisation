@@ -123,16 +123,6 @@ export class Draw {
 
   private drawClassProperties(x: number, y: number, c: Class): void {
     this.ctx.font = `${Draw.textSize}px arial`;
-
-    console.log("drawing properties for ", c);
-
-    // c.height = Draw.textSize * c.properties.length;
-
-    // c.properties.forEach((p: string) => {
-    //   this.ctx.fillText(p, x + 5, y + 5);
-    //   y += Draw.textSize;
-    // });
-
     const originalY = y;
 
     c.properties.forEach((p: string, index: number) => {
@@ -158,8 +148,6 @@ export class Draw {
     c.height = y;
 
     this.ctx.stroke();
-
-    console.log(c);
   }
 
   /**
@@ -171,8 +159,6 @@ export class Draw {
    */
   private drawClassMethods(x: number, y: number, c: Class): void {
     this.ctx.font = `${Draw.textSize}px arial`;
-
-    console.log("drawing methods for for ", c);
 
     const originalY = y;
 
@@ -323,18 +309,21 @@ export class Draw {
   private drawClass(x: number, y: number, c: Class): void {
     c.x = x;
     c.y = y;
-    // DRAW MAIN CLASS
+
+    // draw classname
     this.drawClassName(x, y, c);
+
+    // draw properties
     if (c.properties) {
-      // this.drawClassProperties(x, y + c.height, c);
       this.drawClassProperties(x, c.height, c);
     }
 
+    // draw methods
     if (c.methods) {
-      // this.drawClassMethods(x, y + c.height, c);
       this.drawClassMethods(x, c.height, c);
     }
 
+    // draw arrow head if there are children
     if (c.children) {
       this.drawArrow({
         x: x + c.width / 2,
@@ -342,8 +331,8 @@ export class Draw {
       });
     }
 
+    // if there is a parent draw a line to it
     if (c.parent !== undefined) {
-      // draw line to the parent
       this.drawLine(
         {
           x: x + c.width / 2,
@@ -356,30 +345,35 @@ export class Draw {
       );
     }
 
-    const originalX: number = x;
-
-    // DRAW CHILDREN
+    // draw the children
     if (c.children) {
+      // iterate over each child
       c.children.forEach((ci: number, index: number) => {
-        let childX = x;
+        let childX;
 
         // first child always directly below parent
         if (index === 0) {
           childX = c.x + c.width / 2 - this.classes[ci].width / 2;
+        } else {
+          // use the previous drawn child for x location
+          childX =
+            this.classes[c.children[index - 1]].x +
+            this.classes[c.children[index - 1]].width +
+            Draw.minClassHorizontalPadding;
         }
 
-        if (index > 0) {
-          childX +=
-            this.classes[index - 1].width + Draw.minClassHorizontalPadding;
+        // calculating the y position
+        let childY = c.y + c.height + 20;
+        childY = c.height + 40;
+
+        if (
+          this.classes[ci].name === "Kiwifruit" ||
+          this.classes[ci].name === "Cherry"
+        ) {
+          console.log(this.classes[ci].name, c);
         }
-        // const childX = x + c.width - this.classes[ci].width;
-        // const childY = y + c.height + 20;
 
-        // child y is the current y plus the parents y
-        const childY = y + c.height + 20;
-
-        // use the previous child width
-
+        // draw the child
         this.drawClass(childX, childY, this.classes[ci]);
       });
     }

@@ -16,7 +16,6 @@ function getInputAndDraw(): void {
 
   UMLInputString = (document.getElementById("UML-input") as HTMLInputElement)
     .value;
-  console.log(UMLInputString);
 
   read();
   draw = new Draw(
@@ -51,8 +50,6 @@ function inClasses(name: string | undefined): number {
 }
 
 function read(): void {
-  console.log("reading");
-
   const lines: string[] = UMLInputString.split("\n");
 
   // iterate over all lines in input
