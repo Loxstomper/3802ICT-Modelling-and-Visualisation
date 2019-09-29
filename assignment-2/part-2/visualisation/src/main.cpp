@@ -28,6 +28,7 @@ using Json = nlohmann::json;
 #define GRAPH_LENGTH 1.0
 #define GRAPH_HEIGHT 1.0
 #define GRAPH_WALL_THICKNESS 0.25
+#define GRAPH_TICK_LENGTH 0.1
 
 GLfloat SCREEN_WIDTH = SCREEN_WIDTH_DEFAULT;
 GLfloat SCREEN_HEIGHT = SCREEN_HEIGHT_DEFAULT;
@@ -88,10 +89,28 @@ void drawString(std::string string, float x, float y, float z, float xRot, float
 
     glScalef(0.001, 0.001, 0.001);
 
+    int numberDecimals = 0;
+    bool inDecimal = false;
+
     // glScale()
     for (c = cstring; *c != '\0'; c++)
     {
+        if (*c == '.')
+        {
+            inDecimal = true;
+        }
+
+        if (inDecimal && *c == '0')
+        {
+            numberDecimals++;
+        }
+
         glutStrokeCharacter(GLUT_STROKE_ROMAN, *c);
+
+        if (numberDecimals)
+        {
+            break;
+        }
     }
 
     glPopMatrix();
@@ -181,22 +200,20 @@ void drawGraphAxes()
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
-void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat colour[])
+void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat seriesThickness, GLfloat colour[])
 {
     GLfloat xStep = (2 * GRAPH_LENGTH) / graphData.length;
     // GLfloat seriesThickness = graphData.length / (GRAPH_WIDTH * 2);
-    GLfloat seriesThickness = (GRAPH_WIDTH * 2) / graphData.numberSeries;
+    // GLfloat seriesThickness = (GRAPH_WIDTH * 2) / graphData.numberSeries;
     GLfloat curX = -1;
     int vi = 0;
 
     GLfloat low = -1.0;
 
-    GLfloat padding = 0.1;
+    // GLfloat padding = 0.1;
 
     GLfloat black[] = {0, 0, 0, 0.5};
 
-    z -= padding;
-    seriesThickness -= padding;
     // set colour
     glColor4fv(colour);
 
@@ -313,7 +330,7 @@ void drawSeriesLabels()
 {
     GLfloat x = 1.4;
     GLfloat y = -1 - (GRAPH_WALL_THICKNESS / 5);
-    GLfloat z = -0.8;
+    GLfloat z = -1;
 
     GLfloat zStep = (1.8 / graphData.numberSeries);
 
@@ -355,20 +372,21 @@ void drawYLabels()
 {
     // 0 to 30 increment of 5
     GLfloat x = 1;
-    GLfloat y = -1;
+    GLfloat y = -1.05;
     GLfloat z = -1.7;
 
-    GLfloat yStep = 0.35;
+    GLfloat yStep = 0.3325;
 
     int labelIncrement = 5;
 
     for (int i = 0; i <= 30; i += 5)
     {
         // drawString(std::to_string(i), x, y, z, 0, 270, 0);
-        drawString(std::to_string(i), x, y, z, 0, 90, 0);
+        // drawString(std::to_string((GLfloat)i), x, y, z, 0, 90, 0);
+        drawString(std::to_string((GLfloat)i), 1 + GRAPH_WALL_THICKNESS + 0.15, y, -1 - GRAPH_WALL_THICKNESS, 0, 0, 0);
 
         // drawString(std::to_string(i), -1, y, 1, 0, 180, 0);
-        drawString(std::to_string(i), -1, y, 1, 0, 90, 0);
+        drawString(std::to_string((GLfloat)i), -1 - GRAPH_WALL_THICKNESS, y, 1 + GRAPH_WALL_THICKNESS + 0.4, 0, 90, 0);
 
         y += yStep;
     }
@@ -377,9 +395,105 @@ void drawYLabels()
 void drawTitles()
 {
     drawString("Underemployment Ratio (proportion of employed persons)", -2, 2, 0, 0, 45, 0);
-    drawString("Age bracket", 2, -1, 0.6, 15, 70, 0);
+    // drawString("Age bracket", 2, -1, 0.6, 15, 70, 0);
+    drawString("Age bracket", 2, -1, 0.4, 0, 80, 0);
     drawString("Year", 0, -1, 2, 0, 0, 0);
-    drawString("Ratio %", -1, 0, 1.5, 0, 90, 90);
+    drawString("Ratio %", -1 - GRAPH_WALL_THICKNESS, -0.4, 1 + GRAPH_WALL_THICKNESS + 0.6, 0, 90, 90);
+}
+
+void drawFloor()
+{
+    GLfloat curX = -1 - GRAPH_WALL_THICKNESS;
+    GLfloat curY = -1;
+    GLfloat curZ = -1 - GRAPH_WALL_THICKNESS;
+
+    glColor4f(1, 1, 1, 1);
+
+    glBegin(GL_QUADS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glEnd();
+
+    glColor4f(0, 0, 0, 1);
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glEnd();
+
+    glBegin(GL_LINES);
+
+    curX = -0.8;
+    GLfloat xStep = 1 / (8 / 2.0);
+
+    // for (int i = 0; i < (int)(2 / (30 / yStep)); i++)
+    for (int i = 0; i < 7; i++)
+    {
+        glVertex3f(curX, -1, 1 + GRAPH_WALL_THICKNESS);
+        glVertex3f(curX, -1, 1 + GRAPH_WALL_THICKNESS + GRAPH_TICK_LENGTH);
+
+        curX += xStep;
+    }
+
+    glEnd();
+}
+
+void drawWalls()
+{
+    GLfloat curX = -1 - GRAPH_WALL_THICKNESS;
+    GLfloat curY = -1;
+    GLfloat curZ = -1 - GRAPH_WALL_THICKNESS;
+
+    // GLfloat yStep = (30 / 6) / 2;
+    GLfloat yStep = 2 / 6.0;
+
+    glColor4f(1, 1, 1, 1);
+
+    glBegin(GL_QUADS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, 1 + GRAPH_WALL_THICKNESS);
+
+    glEnd();
+
+    glColor4f(0, 0, 0, 1);
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(1 + GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, 1 + GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, -1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, -1 - GRAPH_WALL_THICKNESS);
+    glVertex3f(-1 - GRAPH_WALL_THICKNESS, 1, 1 + GRAPH_WALL_THICKNESS);
+    glEnd();
+
+    glBegin(GL_LINES);
+
+    // for (int i = 0; i < (int)(2 / (30 / yStep)); i++)
+    for (int i = 0; i < 7; i++)
+    {
+        glVertex3f(-1 - GRAPH_WALL_THICKNESS, curY, -1 - GRAPH_WALL_THICKNESS);
+        glVertex3f(-1 - GRAPH_WALL_THICKNESS, curY, 1 + GRAPH_WALL_THICKNESS + GRAPH_TICK_LENGTH);
+
+        glVertex3f(-1 - GRAPH_WALL_THICKNESS, curY, -1 - GRAPH_WALL_THICKNESS);
+        glVertex3f(1 + GRAPH_WALL_THICKNESS + GRAPH_TICK_LENGTH, curY, -1 - GRAPH_WALL_THICKNESS);
+        curY += yStep;
+    }
+
+    glEnd();
 }
 
 static void render(void)
@@ -399,7 +513,7 @@ static void render(void)
         // alpha = 0;
     }
 
-    glClearColor(255, 253, 208, 100);
+    glClearColor(0.66, 0.66, 0.66, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glMatrixMode(GL_PROJECTION_MATRIX);
@@ -416,7 +530,7 @@ static void render(void)
     // glRotatef(10, 0, 0, 1);
 
     // wireframe mode
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glColor4f(0, 0, 0, 1);
     // drawString("THIS IS SOME TEXT", 0, 0, 1);
@@ -424,11 +538,13 @@ static void render(void)
     // drawString("THIS IS SOME TEXT", 0, 0, 1);
     // drawStrokeText("THIS IS SOME TEXT", 0, 0, 1);
 
-    drawGraphAxes();
+    // drawGraphAxes();
     drawSeriesLabels();
     drawDateLabels();
     drawYLabels();
     drawTitles();
+    drawWalls();
+    drawFloor();
 
     // normal mode
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -450,19 +566,22 @@ static void render(void)
     // z += zStep;
     // drawSeriesBad(graphData.series0, z, red);
 
-    drawSeriesBad(graphData.series0, z, red);
+    GLfloat padding = 0.1;
+    GLfloat seriesThickness = ((GRAPH_WIDTH * 2) / graphData.numberSeries) - padding;
+
+    drawSeriesBad(graphData.series0, z, seriesThickness, red);
     z += zStep;
-    drawSeriesBad(graphData.series1, z, blue);
+    drawSeriesBad(graphData.series1, z, seriesThickness, blue);
     z += zStep;
-    drawSeriesBad(graphData.series2, z, yellow);
+    drawSeriesBad(graphData.series2, z, seriesThickness, yellow);
     z += zStep;
-    drawSeriesBad(graphData.series3, z, green);
+    drawSeriesBad(graphData.series3, z, seriesThickness, green);
     z += zStep;
-    drawSeriesBad(graphData.series4, z, orange);
+    drawSeriesBad(graphData.series4, z, seriesThickness, orange);
     z += zStep;
-    drawSeriesBad(graphData.series5, z, red);
+    drawSeriesBad(graphData.series5, z, seriesThickness, red);
     z += zStep;
-    drawSeriesBad(graphData.series6, z, blue);
+    drawSeriesBad(graphData.series6, z, seriesThickness, blue);
 
     alpha++;
 
