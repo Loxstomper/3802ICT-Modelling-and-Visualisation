@@ -217,28 +217,22 @@ void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat seriesThickness, GLfloat 
     // set colour
     glColor4fv(colour);
 
-    // front
+    // front and back
     glColor4fv(colour);
-    glBegin(GL_POLYGON);
-    glVertex3f(curX, low, z);
-    for (int i = 0; i < graphData.length; i++)
+    glBegin(GL_QUADS);
+    for (int i = 0; i < graphData.length - 1; i++)
     {
+        glVertex3f(curX, low, z);
         glVertex3f(curX, scale(series[i], smallestValue, largestValue), z);
-        curX += xStep;
-    }
-    glVertex3f(curX, low, z);
-    glEnd();
+        glVertex3f(curX + xStep, scale(series[i + 1], smallestValue, largestValue), z);
+        glVertex3f(curX + xStep, low, z);
 
-    // back
-    curX = -1;
-    glBegin(GL_POLYGON);
-    glVertex3f(curX, low, z + seriesThickness);
-    for (int i = 0; i < graphData.length; i++)
-    {
+        glVertex3f(curX, low, z + seriesThickness);
         glVertex3f(curX, scale(series[i], smallestValue, largestValue), z + seriesThickness);
+        glVertex3f(curX + xStep, scale(series[i + 1], smallestValue, largestValue), z + seriesThickness);
+        glVertex3f(curX + xStep, low, z + seriesThickness);
         curX += xStep;
     }
-    glVertex3f(curX, low, z + seriesThickness);
     glEnd();
 
     // side 1
@@ -284,7 +278,7 @@ void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat seriesThickness, GLfloat 
         glVertex3f(curX, scale(series[i], smallestValue, largestValue), z);
         curX += xStep;
     }
-    glVertex3f(curX, low, z);
+    glVertex3f(curX - xStep, low, z);
     curX = -1;
     glEnd();
 
@@ -297,7 +291,7 @@ void drawSeriesBad(GLfloat *series, GLfloat z, GLfloat seriesThickness, GLfloat 
         glVertex3f(curX, scale(series[i], smallestValue, largestValue), z + seriesThickness);
         curX += xStep;
     }
-    glVertex3f(curX, low, z + seriesThickness);
+    glVertex3f(curX - xStep, low, z + seriesThickness);
     curX = -1;
     glEnd();
 
